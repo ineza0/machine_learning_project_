@@ -1,0 +1,17 @@
+study_hours,attendance_percentage,assignment_score,cat_score,practical_score,subject,final_result
+12,95,90,85,92,Programming,PASS
+10,85,80,75,85,Programming,PASS
+4,50,40,45,50,Programming,FAIL
+3,45,35,40,48,Programming,FAIL
+15,98,95,92,96,Database,PASS
+11,88,85,80,88,Database,PASS
+5,55,50,48,52,Database,FAIL
+2,40,30,35,42,Database,FAIL
+14,90,85,82,88,Networking,PASS
+8,75,70,68,72,Networking,PASS
+6,58,52,48,55,Networking,FAIL
+4,48,42,38,45,Networking,FAIL
+13,92,88,85,90,Web_Dev,PASS
+9,80,75,72,78,Web_Dev,PASS
+7,62,58,55,60,Web_Dev,FAIL
+5,52,48,45,50,Web_Dev,FAIL
