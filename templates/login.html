@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login · ML Predictor</title>
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: #0b0c0e;
+            font-family: 'Segoe UI', system-ui, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #e8eaf0;
+        }
+        .card {
+            background: #13151a;
+            border: 1px solid #2a2d38;
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+        }
+        h2 { color: #f97316; margin-bottom: 24px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #1a1c23;
+            border: 1px solid #2a2d38;
+            border-radius: 12px;
+            color: white;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #f97316;
+            color: black;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        button:hover { background: #fb923c; }
+        .error { color: #ef4444; margin-top: 12px; }
+        .links { margin-top: 24px; text-align: center; font-size: 13px; }
+        a { color: #f97316; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>🔐 LOGIN</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="doLogin()">Sign in →</button>
+    <div id="errorMsg" class="error"></div>
+    <div class="links">
+        <a href="/signup">Create account</a> &nbsp;|&nbsp;
+        <a href="/forgot">Forgot password?</a>
+    </div>
+</div>
+<script>
+    async function doLogin() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('errorMsg');
+        if (!username || !password) {
+            errorDiv.innerText = 'Both fields required';
+            return;
+        }
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                errorDiv.innerText = data.error;
+            }
+        } catch (err) {
+            errorDiv.innerText = 'Connection error: ' + err.message;
+        }
+    }
+</script>
+</body>
+</html>
