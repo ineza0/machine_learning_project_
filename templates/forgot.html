@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reset password</title>
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; }
+        body { background: #0b0c0e; font-family: monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: #13151a; border: 1px solid #2a2d38; border-radius: 24px; padding: 40px; width: 100%; max-width: 460px; }
+        h2 { color: #f97316; margin-bottom: 20px; }
+        .step { display: none; }
+        .step.active { display: block; }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; background: #1a1c23; border: 1px solid #2a2d38; border-radius: 12px; color: white; }
+        button { background: #f97316; color: black; font-weight: bold; cursor: pointer; width: auto; padding: 10px 20px; }
+        .error { color: #ef4444; }
+        .success { color: #4ade80; }
+        a { color: #f97316; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Reset password</h2>
+    <div id="step1" class="step active">
+        <input type="text" id="reset_user" placeholder="Username">
+        <button onclick="checkUser()">Continue →</button>
+        <div id="step1_msg" class="error"></div>
+        <a href="/login">← Back to login</a>
+    </div>
+    <div id="step2" class="step">
+        <div id="security_question_display"></div>
+        <input type="text" id="security_answer" placeholder="Your answer">
+        <button onclick="verifyAnswer()">Verify →</button>
+        <div id="step2_msg" class="error"></div>
+    </div>
+    <div id="step3" class="step">
+        <input type="password" id="new_pass" placeholder="New password (min 4)">
+        <input type="password" id="confirm_pass" placeholder="Confirm new password">
+        <button onclick="resetPassword()">Reset password</button>
+        <div id="step3_msg" class="error"></div>
+    </div>
+</div>
+<script>
+    let currentUser = '';
+    async function checkUser() {
+        const user = document.getElementById('reset_user').value;
+        const res = await fetch('/api/get-security-question', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: user })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = user;
+            document.getElementById('security_question_display').innerHTML = `<p><strong>Question:</strong> ${data.question}</p>`;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        } else {
+            document.getElementById('step1_msg').innerText = data.error;
+        }
+    }
+    async function verifyAnswer() {
+        const ans = document.getElementById('security_answer').value;
+        const res = await fetch('/api/verify-security-answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: currentUser, answer: ans })
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+        } else {
+            document.getElementById('step2_msg').innerText = data.error;
+        }
+    }
+    async function resetPassword() {
+        const newp = document.getElementById('new_pass').value;
+        const conf = document.getElementById('confirm_pass').value;
+        if (newp !== conf) { document.getElementById('step3_msg').innerText = 'Passwords do not match'; return; }
+        if (newp.length < 4) { document.getElementById('step3_msg').innerText = 'Too short (min 4)'; return; }
+        const res = await fetch('/api/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: currentUser, new_password: newp })
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('step3_msg').className = 'success';
+            document.getElementById('step3_msg').innerText = '✅ Password reset! Redirecting...';
+            setTimeout(() => window.location.href = '/login', 1500);
+        } else {
+            document.getElementById('step3_msg').innerText = data.error;
+        }
+    }
+</script>
+</body>
+</html>

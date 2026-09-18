@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup · ML Predictor</title>
+    <style>
+        /* CSS iyo (same as login) – copy the style block from above */
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body { background: #0b0c0e; font-family: 'Segoe UI', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #e8eaf0; }
+        .card { background: #13151a; border: 1px solid #2a2d38; border-radius: 24px; padding: 40px; width: 100%; max-width: 480px; }
+        h2 { color: #f97316; margin-bottom: 24px; }
+        .field { margin-bottom: 20px; }
+        label { display: block; font-size: 12px; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 12px; background: #1a1c23; border: 1px solid #2a2d38; border-radius: 12px; color: white; font-size: 14px; outline: none; }
+        select { padding: 12px; }
+        button { width: 100%; padding: 12px; background: #f97316; color: black; border: none; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        .error { color: #ef4444; margin-top: 12px; font-size: 13px; }
+        .success { color: #4ade80; }
+        .links { margin-top: 24px; text-align: center; }
+        a { color: #f97316; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>📝 SIGN UP</h2>
+    <div class="field"><label>Username</label><input type="text" id="su_username" placeholder="choose username"></div>
+    <div class="field"><label>Password (min 4)</label><input type="password" id="su_password" placeholder="••••••"></div>
+    <div class="field"><label>Confirm password</label><input type="password" id="su_confirm" placeholder="repeat password"></div>
+    <div class="field"><label>Security question</label>
+        <select id="su_question">
+            <option value="What is your mother's maiden name?">Mother's maiden name?</option>
+            <option value="What was your first pet's name?">First pet's name?</option>
+            <option value="What city were you born in?">Birth city?</option>
+        </select>
+    </div>
+    <div class="field"><label>Security answer</label><input type="text" id="su_answer" placeholder="your answer (case insensitive)"></div>
+    <button onclick="doSignup()">Register →</button>
+    <div id="su_msg" class="error"></div>
+    <div class="links">Already have an account? <a href="/login">Login</a></div>
+</div>
+<script>
+    async function doSignup() {
+        const username = document.getElementById('su_username').value;
+        const pass = document.getElementById('su_password').value;
+        const conf = document.getElementById('su_confirm').value;
+        const question = document.getElementById('su_question').value;
+        const answer = document.getElementById('su_answer').value;
+        const msgDiv = document.getElementById('su_msg');
+        if (pass !== conf) { msgDiv.innerText = 'Passwords do not match'; return; }
+        if (pass.length < 4) { msgDiv.innerText = 'Password too short (min 4)'; return; }
+        if (!answer) { msgDiv.innerText = 'Security answer required'; return; }
+        const res = await fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password: pass, security_question: question, security_answer: answer })
+        });
+        const data = await res.json();
+        if (data.success) {
+            msgDiv.style.color = '#4ade80';
+            msgDiv.innerText = '✅ Account created! Redirecting...';
+            setTimeout(() => window.location.href = '/login', 1500);
+        } else {
+            msgDiv.style.color = '#ef4444';
+            msgDiv.innerText = data.error;
+        }
+    }
+</script>
+</body>
+</html>
