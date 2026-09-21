@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="ML Predictor is a machine learning student prediction platform that analyzes academic performance and predicts student success.">
+          content="ML Predictor - Machine Learning student academic prediction platform.">
 
     <title>ML Predictor · Welcome</title>
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -19,225 +20,273 @@
         }
 
         body {
-            background:
-                radial-gradient(circle at top left, rgba(249,115,22,0.10), transparent 35%),
-                radial-gradient(circle at bottom right, rgba(59,130,246,0.08), transparent 35%),
-                #0b0c0e;
-
-            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            min-height: 100vh;
+            background: #080a0e;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             color: #e8eaf0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 25px;
+            min-height: 100vh;
         }
 
-        .container {
+        /* ==============================
+           NAVBAR
+        ============================== */
+
+        .navbar {
             width: 100%;
-            max-width: 1050px;
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 25px;
-            align-items: stretch;
-        }
-
-        /* =========================
-           LEFT SIDE - WELCOME
-        ========================= */
-
-        .welcome {
-            background: linear-gradient(
-                145deg,
-                #13151a,
-                #101216
-            );
-
-            border: 1px solid #2a2d38;
-            border-radius: 28px;
-            padding: 45px;
-            position: relative;
-            overflow: hidden;
+            height: 65px;
+            padding: 0 6%;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            align-items: center;
+            justify-content: space-between;
+
+            background: rgba(11, 12, 14, 0.92);
+            border-bottom: 1px solid #252832;
+
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+
+            backdrop-filter: blur(12px);
         }
 
-        .welcome::before {
-            content: "";
-            position: absolute;
-            width: 280px;
-            height: 280px;
-            background: rgba(249, 115, 22, 0.07);
-            border-radius: 50%;
-            top: -130px;
-            right: -100px;
-        }
-
-        .welcome::after {
-            content: "";
-            position: absolute;
-            width: 220px;
-            height: 220px;
-            background: rgba(59, 130, 246, 0.05);
-            border-radius: 50%;
-            bottom: -100px;
-            left: -100px;
-        }
-
-        .brand {
+        .logo {
             color: #f97316;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 18px;
-            position: relative;
-            z-index: 1;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
 
-        .welcome h1 {
-            font-size: 43px;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
+        .nav-menu {
+            display: flex;
+            gap: 28px;
+            list-style: none;
         }
 
-        .welcome h1 span {
-            color: #f97316;
-        }
-
-        .intro {
+        .nav-menu a {
             color: #aeb3c0;
-            font-size: 16px;
-            line-height: 1.8;
-            max-width: 650px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .section-title {
-            margin-top: 30px;
-            margin-bottom: 12px;
-            font-size: 15px;
-            color: #ffffff;
-            font-weight: 700;
-            position: relative;
-            z-index: 1;
-        }
-
-        .description {
-            color: #9096a5;
-            font-size: 14px;
-            line-height: 1.7;
-            position: relative;
-            z-index: 1;
-        }
-
-        .steps {
-            margin-top: 22px;
-            display: grid;
-            gap: 12px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #bfc4cf;
+            text-decoration: none;
             font-size: 13px;
+            transition: 0.2s;
         }
 
-        .step-number {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #1b1e25;
-            border: 1px solid #343845;
+        .nav-menu a:hover {
             color: #f97316;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            flex-shrink: 0;
         }
 
-        .creator {
-            margin-top: 32px;
-            padding-top: 20px;
-            border-top: 1px solid #292c35;
+
+        /* ==============================
+           HERO
+        ============================== */
+
+        .hero {
+            padding-top: 110px;
+            padding-left: 6%;
+            padding-right: 6%;
+            padding-bottom: 50px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 45px;
+
+            max-width: 1400px;
+            margin: auto;
+
+            align-items: center;
+        }
+
+        .hero-text {
+            padding: 25px 0;
+        }
+
+        .tag {
+            display: inline-block;
+            color: #f97316;
+            border: 1px solid rgba(249,115,22,0.3);
+            background: rgba(249,115,22,0.07);
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(38px, 5vw, 65px);
+            line-height: 1.05;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 span {
+            color: #f97316;
+        }
+
+        .hero-description {
+            color: #9298a6;
+            line-height: 1.8;
+            font-size: 15px;
+            max-width: 580px;
+        }
+
+
+        /* ==============================
+           STUDENT IMAGE
+        ============================== */
+
+        .student-image {
+            position: relative;
+            min-height: 430px;
+            border-radius: 30px;
+            overflow: hidden;
+
+            border: 1px solid #292d37;
+
+            background-image:
+                linear-gradient(
+                    to bottom,
+                    rgba(8,10,14,0.05),
+                    rgba(8,10,14,0.75)
+                ),
+                url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=85");
+
+            background-size: cover;
+            background-position: center;
+        }
+
+        .image-label {
+            position: absolute;
+            bottom: 22px;
+            left: 22px;
+            right: 22px;
+
+            background: rgba(8,10,14,0.82);
+            border: 1px solid rgba(255,255,255,0.1);
+
+            padding: 17px;
+            border-radius: 18px;
+
+            backdrop-filter: blur(8px);
+        }
+
+        .image-label strong {
+            display: block;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .image-label span {
+            color: #aeb3c0;
+            font-size: 12px;
+        }
+
+
+        /* ==============================
+           LEVEL CARDS
+        ============================== */
+
+        .levels {
+            max-width: 1250px;
+            margin: 0 auto 50px;
+
+            padding: 0 6%;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .level {
+            background: #111318;
+            border: 1px solid #272a34;
+            border-radius: 20px;
+            padding: 25px;
+
+            transition: 0.25s;
+        }
+
+        .level:hover {
+            transform: translateY(-5px);
+            border-color: #f97316;
+        }
+
+        .level-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .level h3 {
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .level p {
             color: #777e8e;
             font-size: 12px;
-            position: relative;
-            z-index: 1;
+            line-height: 1.6;
         }
 
-        .creator strong {
-            color: #d9dce3;
-        }
 
-        .socials {
-            margin-top: 10px;
+        /* ==============================
+           MAIN LOGIN AREA
+        ============================== */
+
+        .login-section {
+            min-height: 600px;
+
             display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+            justify-content: center;
+            align-items: center;
 
-        .socials a {
-            color: #f97316;
-            text-decoration: none;
-            font-size: 12px;
+            padding: 50px 20px;
         }
-
-        .socials a:hover {
-            color: #fb923c;
-        }
-
-        /* =========================
-           RIGHT SIDE - LOGIN
-        ========================= */
 
         .card {
+            width: 100%;
+            max-width: 430px;
+
             background: #13151a;
+
             border: 1px solid #2a2d38;
             border-radius: 28px;
+
             padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+
+            box-shadow:
+                0 25px 80px rgba(0,0,0,0.35);
         }
 
         .login-icon {
             width: 55px;
             height: 55px;
-            border-radius: 16px;
-            background: rgba(249, 115, 22, 0.10);
-            border: 1px solid rgba(249, 115, 22, 0.20);
+
             display: flex;
             align-items: center;
             justify-content: center;
+
+            border-radius: 16px;
+
+            background: rgba(249,115,22,0.1);
+            border: 1px solid rgba(249,115,22,0.2);
+
             font-size: 25px;
+
             margin-bottom: 18px;
         }
 
         .card h2 {
-            color: #ffffff;
+            font-size: 29px;
             margin-bottom: 8px;
-            font-size: 28px;
         }
 
         .login-subtitle {
             color: #777e8e;
             font-size: 13px;
             line-height: 1.6;
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
 
         .input-group {
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .input-group label {
@@ -249,36 +298,48 @@
 
         input {
             width: 100%;
-            padding: 13px 14px;
-            background: #1a1c23;
-            border: 1px solid #2a2d38;
-            border-radius: 12px;
-            color: white;
-            outline: none;
-            font-size: 14px;
-            transition: 0.2s;
-        }
 
-        input::placeholder {
-            color: #5f6572;
+            padding: 14px;
+
+            background: #1a1c23;
+
+            border: 1px solid #2a2d38;
+
+            border-radius: 12px;
+
+            color: white;
+
+            outline: none;
+
+            font-size: 14px;
         }
 
         input:focus {
             border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
+
+            box-shadow:
+                0 0 0 3px rgba(249,115,22,0.08);
         }
 
         button {
             width: 100%;
-            padding: 13px;
-            background: #f97316;
-            color: #111111;
-            border: none;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
+
+            padding: 14px;
+
             margin-top: 8px;
-            font-size: 14px;
+
+            background: #f97316;
+
+            color: #111;
+
+            border: none;
+
+            border-radius: 40px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
             transition: 0.2s;
         }
 
@@ -290,204 +351,388 @@
         button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
         .error {
-            color: #ef4444;
-            background: rgba(239, 68, 68, 0.07);
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            border-radius: 10px;
-            padding: 9px 11px;
-            margin-top: 12px;
-            font-size: 12px;
             display: none;
+
+            margin-top: 13px;
+
+            padding: 10px;
+
+            border-radius: 10px;
+
+            color: #ef4444;
+
+            background: rgba(239,68,68,0.08);
+
+            font-size: 12px;
         }
 
         .success {
-            color: #22c55e;
-            background: rgba(34, 197, 94, 0.07);
-            border: 1px solid rgba(34, 197, 94, 0.15);
-            border-radius: 10px;
-            padding: 9px 11px;
-            margin-top: 12px;
-            font-size: 12px;
             display: none;
+
+            margin-top: 13px;
+
+            padding: 10px;
+
+            border-radius: 10px;
+
+            color: #22c55e;
+
+            background: rgba(34,197,94,0.08);
+
+            font-size: 12px;
         }
 
         .links {
             margin-top: 24px;
+
             text-align: center;
+
             font-size: 12px;
-            color: #676d7b;
+
+            color: #666d7b;
+
             line-height: 2;
         }
 
-        a {
+        .links a {
             color: #f97316;
             text-decoration: none;
         }
 
-        a:hover {
+        .links a:hover {
             color: #fb923c;
         }
 
-        .copyright {
-            margin-top: 25px;
+
+        /* ==============================
+           FOOTER
+        ============================== */
+
+        footer {
+            border-top: 1px solid #252832;
+
+            padding: 35px 20px;
+
             text-align: center;
-            color: #505561;
-            font-size: 10px;
+
+            color: #656b78;
+
+            font-size: 12px;
         }
 
-        /* =========================
+        footer strong {
+            color: #d9dce3;
+        }
+
+        .socials {
+            margin-top: 12px;
+
+            display: flex;
+            justify-content: center;
+
+            gap: 20px;
+        }
+
+        .socials a {
+            color: #f97316;
+            text-decoration: none;
+        }
+
+        .socials a:hover {
+            color: #fb923c;
+        }
+
+
+        /* ==============================
            MOBILE
-        ========================= */
+        ============================== */
 
         @media (max-width: 850px) {
-            .container {
+
+            .nav-menu {
+                display: none;
+            }
+
+            .hero {
                 grid-template-columns: 1fr;
-                max-width: 500px;
+                padding-top: 95px;
             }
 
-            .welcome {
-                padding: 30px;
+            .student-image {
+                min-height: 330px;
             }
 
-            .welcome h1 {
-                font-size: 34px;
-            }
-
-            .card {
-                padding: 30px;
+            .levels {
+                grid-template-columns: 1fr;
             }
         }
 
-        @media (max-width: 450px) {
-            body {
-                padding: 12px;
+        @media (max-width: 500px) {
+
+            .hero {
+                padding-left: 20px;
+                padding-right: 20px;
             }
 
-            .welcome,
-            .card {
-                border-radius: 20px;
-            }
-
-            .welcome {
-                padding: 25px;
+            .hero h1 {
+                font-size: 40px;
             }
 
             .card {
-                padding: 25px;
+                padding: 28px 22px;
+            }
+
+            .student-image {
+                min-height: 280px;
             }
         }
+
     </style>
 </head>
 
+
 <body>
 
-<div class="container">
 
-    <!-- =========================
-         WELCOME SECTION
-    ========================== -->
+<!-- ==============================
+     NAVIGATION
+============================== -->
 
-    <section class="welcome">
+<nav class="navbar">
 
-        <div class="brand">
-            ML · MACHINE LEARNING
+    <div class="logo">
+        ML PREDICTOR
+    </div>
+
+    <ul class="nav-menu">
+        <li>
+            <a href="#home">Home</a>
+        </li>
+
+        <li>
+            <a href="#about">About</a>
+        </li>
+
+        <li>
+            <a href="#how">How It Works</a>
+        </li>
+
+        <li>
+            <a href="#login">Login</a>
+        </li>
+    </ul>
+
+</nav>
+
+
+
+<!-- ==============================
+     HERO
+============================== -->
+
+<section class="hero" id="home">
+
+    <div class="hero-text">
+
+        <div class="tag">
+            MACHINE LEARNING · EDUCATION
         </div>
 
         <h1>
-            Welcome to<br>
-            <span>ML Predictor</span>
+            Understand Your
+            <span>Academic Future.</span>
         </h1>
 
-        <p class="intro">
-            A student prediction and academic analysis platform
-            designed to help students understand their learning
-            performance and estimate their academic outcome.
+        <p class="hero-description">
+            Welcome to ML Predictor, a Machine Learning platform
+            designed to analyze student academic information and
+            provide a prediction of their learning outcome.
         </p>
 
-        <div class="section-title">
-            What does ML Predictor do?
+    </div>
+
+
+    <div class="student-image">
+
+        <div class="image-label">
+
+            <strong>
+                🎓 Learn · Analyze · Improve
+            </strong>
+
+            <span>
+                Helping students understand their academic
+                performance through Machine Learning.
+            </span>
+
         </div>
 
-        <p class="description">
-            ML Predictor uses Machine Learning to analyze information
-            such as study hours, attendance, assignments, CAT and
-            practical performance. Based on the information provided,
-            the system predicts whether a student is likely to
-            <strong>PASS</strong> or <strong>FAIL</strong>.
+    </div>
+
+</section>
+
+
+
+<!-- ==============================
+     EDUCATION LEVELS
+============================== -->
+
+<section class="levels" id="about">
+
+    <div class="level">
+
+        <div class="level-icon">
+            📚
+        </div>
+
+        <h3>
+            O-Level
+        </h3>
+
+        <p>
+            Students can use academic information to understand
+            their learning performance and identify areas that
+            may require improvement.
         </p>
 
-        <div class="section-title">
-            How it works
+    </div>
+
+
+    <div class="level">
+
+        <div class="level-icon">
+            🎓
         </div>
 
-        <div class="steps">
+        <h3>
+            A-Level
+        </h3>
 
-            <div class="step">
-                <div class="step-number">1</div>
-                <div>Create your personal account.</div>
-            </div>
+        <p>
+            Academic data can be analyzed to help students
+            understand their progress and estimate their
+            possible academic outcome.
+        </p>
 
-            <div class="step">
-                <div class="step-number">2</div>
-                <div>Enter your academic information.</div>
-            </div>
+    </div>
 
-            <div class="step">
-                <div class="step-number">3</div>
-                <div>Let the Machine Learning model analyze it.</div>
-            </div>
 
-            <div class="step">
-                <div class="step-number">4</div>
-                <div>View your prediction and personal history.</div>
-            </div>
+    <div class="level">
 
+        <div class="level-icon">
+            💻
         </div>
 
-        <div class="creator">
-            Developed by <strong>Tuyishime Eric</strong>
+        <h3>
+            NIT & Technical Students
+        </h3>
 
-            <div class="socials">
-                <a href="https://www.instagram.com/nivax_killer"
-                   target="_blank"
-                   rel="noopener noreferrer">
-                    Instagram · @nivax_killer
-                </a>
+        <p>
+            Students can enter study hours, attendance,
+            assignments, CAT and practical marks for analysis.
+        </p>
 
-                <a href="https://www.tiktok.com/@mr_analysiser"
-                   target="_blank"
-                   rel="noopener noreferrer">
-                    TikTok · @mr_analysiser
-                </a>
-            </div>
+    </div>
+
+</section>
+
+
+
+<!-- ==============================
+     HOW IT WORKS
+============================== -->
+
+<section class="levels" id="how">
+
+    <div class="level">
+
+        <div class="level-icon">
+            01
         </div>
 
-    </section>
+        <h3>
+            Create Account
+        </h3>
+
+        <p>
+            Create your own account so that your academic
+            information and prediction history remain connected
+            to your personal account.
+        </p>
+
+    </div>
 
 
-    <!-- =========================
-         LOGIN SECTION
-    ========================== -->
+    <div class="level">
 
-    <section class="card">
+        <div class="level-icon">
+            02
+        </div>
+
+        <h3>
+            Enter Information
+        </h3>
+
+        <p>
+            Enter your subject, study hours, attendance,
+            assignment, CAT and practical performance.
+        </p>
+
+    </div>
+
+
+    <div class="level">
+
+        <div class="level-icon">
+            03
+        </div>
+
+        <h3>
+            Get Prediction
+        </h3>
+
+        <p>
+            The Machine Learning model analyzes your information
+            and provides a PASS or FAIL prediction with its
+            estimated probability.
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ==============================
+     LOGIN
+============================== -->
+
+<section class="login-section" id="login">
+
+    <div class="card">
 
         <div class="login-icon">
             🔐
         </div>
 
-        <h2>Login</h2>
+        <h2>
+            Welcome Back
+        </h2>
 
         <p class="login-subtitle">
-            Sign in to your personal ML Predictor account.
-            Your predictions and history belong to your account.
+            Login to access your personal ML Predictor dashboard,
+            predictions and academic history.
         </p>
 
+
         <div class="input-group">
-            <label for="username">Username</label>
+
+            <label for="username">
+                Username
+            </label>
 
             <input
                 type="text"
@@ -498,10 +743,15 @@
                 autocapitalize="none"
                 spellcheck="false"
             >
+
         </div>
 
+
         <div class="input-group">
-            <label for="password">Password</label>
+
+            <label for="password">
+                Password
+            </label>
 
             <input
                 type="password"
@@ -510,161 +760,215 @@
                 placeholder="Enter your password"
                 autocomplete="current-password"
             >
+
         </div>
+
 
         <button id="loginButton" onclick="doLogin()">
             Sign in →
         </button>
 
+
         <div id="errorMsg" class="error"></div>
 
         <div id="successMsg" class="success"></div>
 
+
         <div class="links">
-            <a href="/signup">Create account</a>
+
+            <a href="/signup">
+                Create account
+            </a>
+
             &nbsp; | &nbsp;
-            <a href="/forgot">Forgot password?</a>
+
+            <a href="/forgot">
+                Forgot password?
+            </a>
+
         </div>
 
-        <div class="copyright">
-            © 2026 ML Predictor · Tuyishime Eric
-        </div>
+    </div>
 
-    </section>
+</section>
 
-</div>
 
+
+<!-- ==============================
+     FOOTER
+============================== -->
+
+<footer>
+
+    <div>
+        © 2026
+        <strong>Tuyishime Eric</strong>
+        · ML Predictor
+    </div>
+
+    <div class="socials">
+
+        <a
+            href="https://www.instagram.com/nivax_killer"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Instagram · @nivax_killer
+        </a>
+
+
+        <a
+            href="https://www.tiktok.com/@mr_analysiser"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            TikTok · @mr_analysiser
+        </a>
+
+    </div>
+
+</footer>
+
+
+
+<!-- ==============================
+     LOGIN JAVASCRIPT
+============================== -->
 
 <script>
 
-    async function doLogin() {
+async function doLogin() {
 
-        const username =
-            document.getElementById('username').value.trim();
+    const username =
+        document.getElementById('username').value.trim();
 
-        const password =
-            document.getElementById('password').value;
+    const password =
+        document.getElementById('password').value;
 
-        const errorDiv =
-            document.getElementById('errorMsg');
+    const errorDiv =
+        document.getElementById('errorMsg');
 
-        const successDiv =
-            document.getElementById('successMsg');
+    const successDiv =
+        document.getElementById('successMsg');
 
-        const loginButton =
-            document.getElementById('loginButton');
-
-
-        /* Clear previous messages */
-
-        errorDiv.innerText = '';
-        errorDiv.style.display = 'none';
-
-        successDiv.innerText = '';
-        successDiv.style.display = 'none';
+    const loginButton =
+        document.getElementById('loginButton');
 
 
-        /* Validate fields */
+    /* Clear messages */
 
-        if (!username || !password) {
+    errorDiv.innerText = '';
+    errorDiv.style.display = 'none';
 
-            errorDiv.innerText =
-                'Both username and password are required.';
-
-            errorDiv.style.display = 'block';
-
-            return;
-        }
+    successDiv.innerText = '';
+    successDiv.style.display = 'none';
 
 
-        /* Prevent double clicking */
+    /* Check fields */
 
-        loginButton.disabled = true;
-        loginButton.innerText = 'Signing in...';
+    if (!username || !password) {
 
+        errorDiv.innerText =
+            'Both username and password are required.';
 
-        try {
+        errorDiv.style.display = 'block';
 
-            const res = await fetch('/api/login', {
-
-                method: 'POST',
-
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-
-                body: JSON.stringify({
-                    username: username,
-                    password: password
-                })
-
-            });
+        return;
+    }
 
 
-            const data = await res.json();
+    /* Disable button */
+
+    loginButton.disabled = true;
+
+    loginButton.innerText = 'Signing in...';
 
 
-            if (data.success) {
+    try {
 
-                successDiv.innerText =
-                    'Login successful. Opening your dashboard...';
+        const res = await fetch('/api/login', {
 
-                successDiv.style.display = 'block';
+            method: 'POST',
 
+            headers: {
+                'Content-Type': 'application/json'
+            },
 
-                /*
-                    Keep your existing backend redirect.
-                    This prevents breaking your Flask application.
-                */
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
 
-                setTimeout(function () {
-
-                    window.location.href =
-                        data.redirect || '/dashboard';
-
-                }, 300);
-
-            } else {
-
-                errorDiv.innerText =
-                    data.error || 'Invalid username or password.';
-
-                errorDiv.style.display = 'block';
-
-                loginButton.disabled = false;
-                loginButton.innerText = 'Sign in →';
-            }
+        });
 
 
-        } catch (err) {
+        const data = await res.json();
+
+
+        if (data.success) {
+
+            successDiv.innerText =
+                'Login successful. Opening your dashboard...';
+
+            successDiv.style.display = 'block';
+
+
+            setTimeout(function() {
+
+                window.location.href =
+                    data.redirect || '/dashboard';
+
+            }, 300);
+
+
+        } else {
 
             errorDiv.innerText =
-                'Connection error. Please check your internet connection and try again.';
+                data.error ||
+                'Invalid username or password.';
 
             errorDiv.style.display = 'block';
 
             loginButton.disabled = false;
-            loginButton.innerText = 'Sign in →';
 
-            console.error('Login error:', err);
+            loginButton.innerText = 'Sign in →';
         }
 
+
+    } catch (err) {
+
+        console.error('Login error:', err);
+
+        errorDiv.innerText =
+            'Connection error. Please try again.';
+
+        errorDiv.style.display = 'block';
+
+        loginButton.disabled = false;
+
+        loginButton.innerText = 'Sign in →';
     }
 
+}
 
-    /* Allow pressing ENTER to login */
 
-    document
-        .getElementById('password')
-        .addEventListener('keydown', function(event) {
+/* ENTER KEY LOGIN */
 
-            if (event.key === 'Enter') {
-                doLogin();
-            }
+document
+    .getElementById('password')
+    .addEventListener('keydown', function(event) {
 
-        });
+        if (event.key === 'Enter') {
+
+            doLogin();
+
+        }
+
+    });
 
 </script>
 
+
 </body>
 </html>
+```
