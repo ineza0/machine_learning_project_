@@ -1,91 +1,671 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login · ML Predictor</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="ML Predictor is a machine learning student prediction platform that analyzes academic performance and predicts student success.">
+
+    <title>ML Predictor · Welcome</title>
+
     <style>
-        *{ margin:0; padding:0; box-sizing:border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: #0b0c0e;
-            font-family: 'Segoe UI', system-ui, monospace;
+            background:
+                radial-gradient(circle at top left, rgba(249,115,22,0.10), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(59,130,246,0.08), transparent 35%),
+                #0b0c0e;
+
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            color: #e8eaf0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            color: #e8eaf0;
+            padding: 25px;
         }
+
+        .container {
+            width: 100%;
+            max-width: 1050px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 25px;
+            align-items: stretch;
+        }
+
+        /* =========================
+           LEFT SIDE - WELCOME
+        ========================= */
+
+        .welcome {
+            background: linear-gradient(
+                145deg,
+                #13151a,
+                #101216
+            );
+
+            border: 1px solid #2a2d38;
+            border-radius: 28px;
+            padding: 45px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .welcome::before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: rgba(249, 115, 22, 0.07);
+            border-radius: 50%;
+            top: -130px;
+            right: -100px;
+        }
+
+        .welcome::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 50%;
+            bottom: -100px;
+            left: -100px;
+        }
+
+        .brand {
+            color: #f97316;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome h1 {
+            font-size: 43px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome h1 span {
+            color: #f97316;
+        }
+
+        .intro {
+            color: #aeb3c0;
+            font-size: 16px;
+            line-height: 1.8;
+            max-width: 650px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            margin-top: 30px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: #ffffff;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .description {
+            color: #9096a5;
+            font-size: 14px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .steps {
+            margin-top: 22px;
+            display: grid;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #bfc4cf;
+            font-size: 13px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #1b1e25;
+            border: 1px solid #343845;
+            color: #f97316;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .creator {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid #292c35;
+            color: #777e8e;
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .creator strong {
+            color: #d9dce3;
+        }
+
+        .socials {
+            margin-top: 10px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .socials a {
+            color: #f97316;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .socials a:hover {
+            color: #fb923c;
+        }
+
+        /* =========================
+           RIGHT SIDE - LOGIN
+        ========================= */
+
         .card {
             background: #13151a;
             border: 1px solid #2a2d38;
-            border-radius: 24px;
+            border-radius: 28px;
             padding: 40px;
-            width: 100%;
-            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
         }
-        h2 { color: #f97316; margin-bottom: 24px; }
+
+        .login-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            background: rgba(249, 115, 22, 0.10);
+            border: 1px solid rgba(249, 115, 22, 0.20);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            margin-bottom: 18px;
+        }
+
+        .card h2 {
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .login-subtitle {
+            color: #777e8e;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #aeb3c0;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
         input {
             width: 100%;
-            padding: 12px;
-            margin: 8px 0;
+            padding: 13px 14px;
             background: #1a1c23;
             border: 1px solid #2a2d38;
             border-radius: 12px;
             color: white;
+            outline: none;
+            font-size: 14px;
+            transition: 0.2s;
         }
+
+        input::placeholder {
+            color: #5f6572;
+        }
+
+        input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
+        }
+
         button {
             width: 100%;
-            padding: 12px;
+            padding: 13px;
             background: #f97316;
-            color: black;
+            color: #111111;
             border: none;
             border-radius: 40px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             margin-top: 8px;
+            font-size: 14px;
+            transition: 0.2s;
         }
-        button:hover { background: #fb923c; }
-        .error { color: #ef4444; margin-top: 12px; }
-        .links { margin-top: 24px; text-align: center; font-size: 13px; }
-        a { color: #f97316; text-decoration: none; }
+
+        button:hover {
+            background: #fb923c;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.07);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 10px;
+            padding: 9px 11px;
+            margin-top: 12px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .success {
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.07);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            border-radius: 10px;
+            padding: 9px 11px;
+            margin-top: 12px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #676d7b;
+            line-height: 2;
+        }
+
+        a {
+            color: #f97316;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #fb923c;
+        }
+
+        .copyright {
+            margin-top: 25px;
+            text-align: center;
+            color: #505561;
+            font-size: 10px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 850px) {
+            .container {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .welcome {
+                padding: 30px;
+            }
+
+            .welcome h1 {
+                font-size: 34px;
+            }
+
+            .card {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            body {
+                padding: 12px;
+            }
+
+            .welcome,
+            .card {
+                border-radius: 20px;
+            }
+
+            .welcome {
+                padding: 25px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+        }
     </style>
 </head>
+
 <body>
-<div class="card">
-    <h2>🔐 LOGIN</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="doLogin()">Sign in →</button>
-    <div id="errorMsg" class="error"></div>
-    <div class="links">
-        <a href="/signup">Create account</a> &nbsp;|&nbsp;
-        <a href="/forgot">Forgot password?</a>
-    </div>
+
+<div class="container">
+
+    <!-- =========================
+         WELCOME SECTION
+    ========================== -->
+
+    <section class="welcome">
+
+        <div class="brand">
+            ML · MACHINE LEARNING
+        </div>
+
+        <h1>
+            Welcome to<br>
+            <span>ML Predictor</span>
+        </h1>
+
+        <p class="intro">
+            A student prediction and academic analysis platform
+            designed to help students understand their learning
+            performance and estimate their academic outcome.
+        </p>
+
+        <div class="section-title">
+            What does ML Predictor do?
+        </div>
+
+        <p class="description">
+            ML Predictor uses Machine Learning to analyze information
+            such as study hours, attendance, assignments, CAT and
+            practical performance. Based on the information provided,
+            the system predicts whether a student is likely to
+            <strong>PASS</strong> or <strong>FAIL</strong>.
+        </p>
+
+        <div class="section-title">
+            How it works
+        </div>
+
+        <div class="steps">
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div>Create your personal account.</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div>Enter your academic information.</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div>Let the Machine Learning model analyze it.</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div>View your prediction and personal history.</div>
+            </div>
+
+        </div>
+
+        <div class="creator">
+            Developed by <strong>Tuyishime Eric</strong>
+
+            <div class="socials">
+                <a href="https://www.instagram.com/nivax_killer"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Instagram · @nivax_killer
+                </a>
+
+                <a href="https://www.tiktok.com/@mr_analysiser"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    TikTok · @mr_analysiser
+                </a>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         LOGIN SECTION
+    ========================== -->
+
+    <section class="card">
+
+        <div class="login-icon">
+            🔐
+        </div>
+
+        <h2>Login</h2>
+
+        <p class="login-subtitle">
+            Sign in to your personal ML Predictor account.
+            Your predictions and history belong to your account.
+        </p>
+
+        <div class="input-group">
+            <label for="username">Username</label>
+
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+            >
+        </div>
+
+        <div class="input-group">
+            <label for="password">Password</label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+            >
+        </div>
+
+        <button id="loginButton" onclick="doLogin()">
+            Sign in →
+        </button>
+
+        <div id="errorMsg" class="error"></div>
+
+        <div id="successMsg" class="success"></div>
+
+        <div class="links">
+            <a href="/signup">Create account</a>
+            &nbsp; | &nbsp;
+            <a href="/forgot">Forgot password?</a>
+        </div>
+
+        <div class="copyright">
+            © 2026 ML Predictor · Tuyishime Eric
+        </div>
+
+    </section>
+
 </div>
+
+
 <script>
+
     async function doLogin() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const errorDiv = document.getElementById('errorMsg');
+
+        const username =
+            document.getElementById('username').value.trim();
+
+        const password =
+            document.getElementById('password').value;
+
+        const errorDiv =
+            document.getElementById('errorMsg');
+
+        const successDiv =
+            document.getElementById('successMsg');
+
+        const loginButton =
+            document.getElementById('loginButton');
+
+
+        /* Clear previous messages */
+
+        errorDiv.innerText = '';
+        errorDiv.style.display = 'none';
+
+        successDiv.innerText = '';
+        successDiv.style.display = 'none';
+
+
+        /* Validate fields */
+
         if (!username || !password) {
-            errorDiv.innerText = 'Both fields required';
+
+            errorDiv.innerText =
+                'Both username and password are required.';
+
+            errorDiv.style.display = 'block';
+
             return;
         }
+
+
+        /* Prevent double clicking */
+
+        loginButton.disabled = true;
+        loginButton.innerText = 'Signing in...';
+
+
         try {
+
             const res = await fetch('/api/login', {
+
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+
             });
+
+
             const data = await res.json();
+
+
             if (data.success) {
-                window.location.href = data.redirect;
+
+                successDiv.innerText =
+                    'Login successful. Opening your dashboard...';
+
+                successDiv.style.display = 'block';
+
+
+                /*
+                    Keep your existing backend redirect.
+                    This prevents breaking your Flask application.
+                */
+
+                setTimeout(function () {
+
+                    window.location.href =
+                        data.redirect || '/dashboard';
+
+                }, 300);
+
             } else {
-                errorDiv.innerText = data.error;
+
+                errorDiv.innerText =
+                    data.error || 'Invalid username or password.';
+
+                errorDiv.style.display = 'block';
+
+                loginButton.disabled = false;
+                loginButton.innerText = 'Sign in →';
             }
+
+
         } catch (err) {
-            errorDiv.innerText = 'Connection error: ' + err.message;
+
+            errorDiv.innerText =
+                'Connection error. Please check your internet connection and try again.';
+
+            errorDiv.style.display = 'block';
+
+            loginButton.disabled = false;
+            loginButton.innerText = 'Sign in →';
+
+            console.error('Login error:', err);
         }
+
     }
+
+
+    /* Allow pressing ENTER to login */
+
+    document
+        .getElementById('password')
+        .addEventListener('keydown', function(event) {
+
+            if (event.key === 'Enter') {
+                doLogin();
+            }
+
+        });
+
 </script>
+
 </body>
 </html>
+```
