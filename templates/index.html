@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1413,6 +1412,257 @@
 
 
         /* =====================================================
+           COACH FEEDBACK
+        ===================================================== */
+
+        .coach-card {
+
+            margin-top: 22px;
+
+            padding: 22px 24px;
+
+            border-radius: var(--radius-lg);
+
+            display: flex;
+
+            gap: 16px;
+
+            align-items: flex-start;
+
+            position: relative;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+
+        }
+
+
+        .coach-card.coach-good {
+
+            background:
+                linear-gradient(
+                    150deg,
+                    rgba(45,214,115,0.09),
+                    var(--bg-card) 60%
+                );
+
+            border-color: rgba(45,214,115,0.25);
+
+        }
+
+
+        .coach-card.coach-warn {
+
+            background:
+                linear-gradient(
+                    150deg,
+                    rgba(249,115,22,0.10),
+                    var(--bg-card) 60%
+                );
+
+            border-color: rgba(249,115,22,0.28);
+
+        }
+
+
+        .coach-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 130px;
+
+            height: 130px;
+
+            border-radius: 50%;
+
+            right: -50px;
+
+            top: -60px;
+
+            pointer-events: none;
+
+        }
+
+
+        .coach-good::after {
+
+            background: rgba(45,214,115,0.08);
+
+        }
+
+
+        .coach-warn::after {
+
+            background: rgba(249,115,22,0.10);
+
+        }
+
+
+        .coach-icon {
+
+            width: 46px;
+
+            height: 46px;
+
+            border-radius: 14px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 21px;
+
+            flex-shrink: 0;
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+
+        .coach-good .coach-icon {
+
+            background: rgba(45,214,115,0.14);
+
+            border: 1px solid rgba(45,214,115,0.3);
+
+        }
+
+
+        .coach-warn .coach-icon {
+
+            background: rgba(249,115,22,0.14);
+
+            border: 1px solid rgba(249,115,22,0.32);
+
+        }
+
+
+        .coach-body {
+
+            flex: 1;
+
+            min-width: 0;
+
+            position: relative;
+
+            z-index: 1;
+
+        }
+
+
+        .coach-title {
+
+            font-family: 'Space Grotesk', sans-serif;
+
+            font-size: 15.5px;
+
+            font-weight: 600;
+
+            margin-bottom: 6px;
+
+        }
+
+
+        .coach-good .coach-title {
+
+            color: var(--green);
+
+        }
+
+
+        .coach-warn .coach-title {
+
+            color: var(--orange-soft);
+
+        }
+
+
+        .coach-text {
+
+            font-size: 12.5px;
+
+            line-height: 1.65;
+
+            color: var(--text-2);
+
+        }
+
+
+        .coach-focus-list {
+
+            list-style: none;
+
+            margin-top: 14px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+
+        }
+
+
+        .coach-focus-list li {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 9px;
+
+            font-size: 12px;
+
+            line-height: 1.55;
+
+            color: var(--text-2);
+
+            padding: 10px 12px;
+
+            background: rgba(255,255,255,0.025);
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+        }
+
+
+        .coach-focus-tag {
+
+            flex-shrink: 0;
+
+            font-size: 9.5px;
+
+            font-weight: 700;
+
+            letter-spacing: 0.05em;
+
+            text-transform: uppercase;
+
+            padding: 3px 8px;
+
+            border-radius: var(--radius-pill);
+
+            background: rgba(249,115,22,0.14);
+
+            color: var(--orange-soft);
+
+            white-space: nowrap;
+
+            margin-top: 1px;
+
+        }
+
+
+        /* =====================================================
            HISTORY
         ===================================================== */
 
@@ -2223,7 +2473,7 @@
             </div>
 
 
-            <a
+            
                 href="/logout"
                 class="logout-link"
             >
@@ -2749,7 +2999,7 @@
 
             <div class="action-row">
 
-                <a
+                
                     class="refresh-btn"
                     href="/report/pdf"
                 >
@@ -2757,7 +3007,7 @@
                 </a>
 
 
-                <a
+                
                     class="refresh-btn"
                     href="/report/excel"
                 >
@@ -2955,6 +3205,107 @@
             number >= min &&
             number <= max
         );
+
+    }
+
+
+
+    /* =====================================================
+       COACH FEEDBACK
+       Turns the raw prediction into a human message: a
+       congratulation when the outlook is good, or focused,
+       specific advice pointing at the weakest score when it
+       isn't — this is the "what do I do about it" layer on
+       top of the PASS/FAIL number.
+    ===================================================== */
+
+    function buildCoachFeedback(
+        isPass,
+        avgMark,
+        hoursVal,
+        attVal,
+        assignVal,
+        catVal,
+        practVal,
+        studentName
+    ) {
+
+        const name =
+            studentName || 'This student';
+
+
+        if (isPass) {
+
+            const strong =
+                avgMark !== null && avgMark >= 85;
+
+            return {
+                mood: 'coach-good',
+                icon: strong ? '🌟' : '🎉',
+                title: strong
+                    ? 'Outstanding trajectory'
+                    : 'Nice work — on track to pass',
+                text: strong
+                    ? `${escapeHtml(name)} is on track for a strong pass, averaging ${avgMark}% across attendance, assignments, CAT and practicals. Every signal is solid — the goal now is simply keeping this consistency through the rest of the term.`
+                    : `${escapeHtml(name)} is predicted to pass${avgMark !== null ? ` with an average mark of ${avgMark}%` : ''}. That's a good position — a little more consistency in whichever score sits below the rest would turn a comfortable pass into a strong one.`,
+                focus: []
+            };
+
+        }
+
+
+        const areas = [
+            {
+                label: 'Attendance',
+                val: attVal,
+                tip: 'Missed classes compound fast. A fixed daily study slot and a classmate check-in usually brings this back up quickly.'
+            },
+            {
+                label: 'Assignment score',
+                val: assignVal,
+                tip: 'Starting assignments a few days early, and reviewing one worked example per topic first, tends to lift this the most.'
+            },
+            {
+                label: 'CAT score',
+                val: catVal,
+                tip: 'Short, frequent recall practice (10–15 min a day) beats one long cram session before the next CAT.'
+            },
+            {
+                label: 'Practical score',
+                val: practVal,
+                tip: 'Extra time in the lab, or an office-hours walkthrough of the last practical, closes this kind of gap fast.'
+            }
+        ]
+        .filter(a => a.val !== '' && !isNaN(a.val))
+        .sort((a, b) => Number(a.val) - Number(b.val));
+
+
+        const focus =
+            areas.slice(0, 2);
+
+
+        if (
+            hoursVal !== '' &&
+            !isNaN(hoursVal) &&
+            Number(hoursVal) < 8
+        ) {
+
+            focus.push({
+                label: 'Study hours',
+                val: hoursVal,
+                tip: `Only ${hoursVal} hrs/week are logged — aiming for 8–10 hrs/week is a realistic next step.`
+            });
+
+        }
+
+
+        return {
+            mood: 'coach-warn',
+            icon: '📋',
+            title: 'Needs support — here\'s where to focus',
+            text: `${escapeHtml(name)} is currently predicted to fail${avgMark !== null ? ` with an average mark of ${avgMark}%` : ''}. This is exactly what early prediction is for: a focused push on the areas below can change the outcome before results day.`,
+            focus
+        };
 
     }
 
@@ -3375,6 +3726,61 @@
 
                             </div>
 
+
+                        </div>
+
+                    </div>
+
+                `;
+
+
+                /* COACH FEEDBACK: congratulate or advise */
+
+                const coach =
+                    buildCoachFeedback(
+                        isPass,
+                        avgMark,
+                        hoursVal,
+                        attVal,
+                        assignVal,
+                        catVal,
+                        practVal,
+                        data.student_name
+                    );
+
+
+                area.innerHTML += `
+
+                    <div class="coach-card ${coach.mood}">
+
+                        <div class="coach-icon">
+                            ${coach.icon}
+                        </div>
+
+                        <div class="coach-body">
+
+                            <div class="coach-title">
+                                ${coach.title}
+                            </div>
+
+                            <p class="coach-text">
+                                ${coach.text}
+                            </p>
+
+                            ${
+                                coach.focus.length
+                                ? `<ul class="coach-focus-list">
+                                    ${coach.focus.map(f => `
+                                        <li>
+                                            <span class="coach-focus-tag">
+                                                ${escapeHtml(f.label)}
+                                            </span>
+                                            <span>${escapeHtml(f.tip)}</span>
+                                        </li>
+                                    `).join('')}
+                                   </ul>`
+                                : ''
+                            }
 
                         </div>
 
@@ -4061,4 +4467,3 @@
 </body>
 
 </html>
-
