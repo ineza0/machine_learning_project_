@@ -2,96 +2,1376 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Reset password</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Forgot Password · ML Predictor</title>
+
     <style>
-        *{ margin:0; padding:0; box-sizing:border-box; }
-        body { background: #0b0c0e; font-family: monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .card { background: #13151a; border: 1px solid #2a2d38; border-radius: 24px; padding: 40px; width: 100%; max-width: 460px; }
-        h2 { color: #f97316; margin-bottom: 20px; }
-        .step { display: none; }
-        .step.active { display: block; }
-        input, button { width: 100%; padding: 12px; margin: 8px 0; background: #1a1c23; border: 1px solid #2a2d38; border-radius: 12px; color: white; }
-        button { background: #f97316; color: black; font-weight: bold; cursor: pointer; width: auto; padding: 10px 20px; }
-        .error { color: #ef4444; }
-        .success { color: #4ade80; }
-        a { color: #f97316; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #07090d;
+            --panel: #11141a;
+            --panel2: #171a21;
+            --border: #292e39;
+            --orange: #f97316;
+            --orange2: #fb923c;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+            --green: #4ade80;
+            --red: #ef4444;
+            --blue: #60a5fa;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(249,115,22,.10), transparent 30%),
+                radial-gradient(circle at 90% 90%, rgba(96,165,250,.07), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            background: rgba(7,9,13,.82);
+            backdrop-filter: blur(15px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--orange), #ea580c);
+            color: #111;
+            font-weight: 900;
+            box-shadow: 0 10px 30px rgba(249,115,22,.2);
+        }
+
+        .brand span {
+            color: var(--orange2);
+        }
+
+        .back-login {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: .25s;
+        }
+
+        .back-login:hover {
+            color: white;
+            border-color: var(--orange);
+            transform: translateY(-2px);
+        }
+
+        /* MAIN */
+        .page {
+            width: min(1180px, 92%);
+            margin: 45px auto;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        /* LEFT */
+        .visual-card {
+            position: relative;
+            min-height: 680px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            overflow: hidden;
+            background: #0e1116;
+            box-shadow: 0 25px 70px rgba(0,0,0,.35);
+        }
+
+        .visual-card img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: .58;
+        }
+
+        .visual-overlay {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(4,6,10,.15),
+                    rgba(4,6,10,.55) 45%,
+                    rgba(4,6,10,.97)
+                );
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            min-height: 680px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 42px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            width: fit-content;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(249,115,22,.13);
+            border: 1px solid rgba(249,115,22,.35);
+            color: #fdba74;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--green);
+        }
+
+        .visual-content h1 {
+            font-size: clamp(32px, 4vw, 52px);
+            line-height: 1.02;
+            margin-bottom: 18px;
+            letter-spacing: -1.5px;
+        }
+
+        .visual-content h1 span {
+            color: var(--orange2);
+        }
+
+        .visual-content > p {
+            max-width: 570px;
+            color: #c4c8d0;
+            line-height: 1.7;
+            font-size: 15px;
+            margin-bottom: 28px;
+        }
+
+        /* STEPS */
+        .info-steps {
+            display: grid;
+            gap: 11px;
+        }
+
+        .info-step {
+            display: flex;
+            gap: 14px;
+            padding: 13px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(10,12,16,.68);
+            backdrop-filter: blur(10px);
+            border-radius: 14px;
+        }
+
+        .step-number {
+            min-width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: rgba(249,115,22,.15);
+            color: var(--orange2);
+            font-weight: 800;
+        }
+
+        .info-step strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        .info-step p {
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* RIGHT CARD */
+        .form-card {
+            background: linear-gradient(145deg, #13161c, #0e1116);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 38px;
+            box-shadow: 0 25px 70px rgba(0,0,0,.35);
+        }
+
+        .form-header {
+            margin-bottom: 25px;
+        }
+
+        .form-header .mini {
+            color: var(--orange2);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 9px;
+        }
+
+        .form-header h2 {
+            font-size: 31px;
+            margin-bottom: 9px;
+        }
+
+        .form-header p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        /* PROGRESS */
+        .progress-area {
+            margin-bottom: 27px;
+        }
+
+        .progress-line {
+            height: 4px;
+            background: #272b34;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            width: 33.33%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange), var(--orange2));
+            border-radius: 20px;
+            transition: .35s;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-item {
+            font-size: 10px;
+            color: #666d79;
+            text-align: center;
+        }
+
+        .progress-item.active {
+            color: var(--orange2);
+            font-weight: 700;
+        }
+
+        /* STEP */
+        .step {
+            display: none;
+            animation: fade .35s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            background: rgba(249,115,22,.12);
+            border: 1px solid rgba(249,115,22,.25);
+            border-radius: 12px;
+            font-size: 18px;
+        }
+
+        .step-title h3 {
+            font-size: 17px;
+        }
+
+        .explanation {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* INPUT */
+        .field {
+            margin-bottom: 17px;
+        }
+
+        label {
+            display: block;
+            color: #cbd0d8;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 13px;
+            border: 1px solid #2c313c;
+            background: #191c23;
+            color: white;
+            outline: none;
+            font-size: 14px;
+            transition: .25s;
+        }
+
+        input:focus {
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(249,115,22,.09);
+        }
+
+        input::placeholder {
+            color: #626975;
+        }
+
+        /* QUESTION */
+        .question-box {
+            padding: 16px;
+            border-radius: 15px;
+            background: rgba(96,165,250,.07);
+            border: 1px solid rgba(96,165,250,.2);
+            margin-bottom: 18px;
+        }
+
+        .question-label {
+            color: #93c5fd;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+            margin-bottom: 7px;
+        }
+
+        .question-text {
+            color: #e5e7eb;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* BUTTON */
+        .btn {
+            width: 100%;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--orange), #ea580c);
+            color: #111;
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 14px;
+            transition: .25s;
+            box-shadow: 0 12px 25px rgba(249,115,22,.16);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 30px rgba(249,115,22,.25);
+        }
+
+        .btn:disabled {
+            opacity: .65;
+            cursor: wait;
+            transform: none;
+        }
+
+        .back-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 13px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            color: white;
+            border-color: #555d6b;
+        }
+
+        /* MESSAGE */
+        .message {
+            min-height: 20px;
+            margin-top: 13px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .error {
+            color: var(--red);
+        }
+
+        .success {
+            color: var(--green);
+        }
+
+        /* SECURITY CARD */
+        .security-card {
+            margin-top: 25px;
+            padding: 16px;
+            border-radius: 16px;
+            background: #0d1015;
+            border: 1px solid #252a34;
+        }
+
+        .security-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #d1d5db;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .security-card p {
+            color: #777f8d;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        /* DATABASE FLOW */
+        .database-box {
+            margin-top: 14px;
+            padding: 16px;
+            border-radius: 16px;
+            background: linear-gradient(
+                135deg,
+                rgba(249,115,22,.07),
+                rgba(96,165,250,.05)
+            );
+            border: 1px solid #282e39;
+        }
+
+        .database-box h4 {
+            font-size: 12px;
+            margin-bottom: 11px;
+        }
+
+        .flow {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .flow-item {
+            padding: 7px 9px;
+            background: #181b22;
+            border: 1px solid #303642;
+            border-radius: 8px;
+            color: #bfc4cd;
+            font-size: 10px;
+        }
+
+        .arrow {
+            color: var(--orange2);
+            font-size: 12px;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            color: #565d68;
+            font-size: 10px;
+            margin-top: 22px;
+        }
+
+        .footer a {
+            color: var(--orange2);
+            text-decoration: none;
+        }
+
+        /* MOBILE */
+        @media(max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .visual-card {
+                min-height: 450px;
+            }
+
+            .visual-content {
+                min-height: 450px;
+            }
+        }
+
+        @media(max-width: 600px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .brand {
+                font-size: 13px;
+            }
+
+            .page {
+                width: 94%;
+                margin: 25px auto;
+            }
+
+            .form-card {
+                padding: 25px 20px;
+                border-radius: 22px;
+            }
+
+            .visual-content {
+                padding: 25px;
+            }
+
+            .visual-content h1 {
+                font-size: 34px;
+            }
+
+            .back-login {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
+
 <body>
-<div class="card">
-    <h2>Reset password</h2>
-    <div id="step1" class="step active">
-        <input type="text" id="reset_user" placeholder="Username">
-        <button onclick="checkUser()">Continue →</button>
-        <div id="step1_msg" class="error"></div>
-        <a href="/login">← Back to login</a>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="brand">
+        <div class="brand-icon">ML</div>
+        <div>ML <span>PREDICTOR</span></div>
     </div>
-    <div id="step2" class="step">
-        <div id="security_question_display"></div>
-        <input type="text" id="security_answer" placeholder="Your answer">
-        <button onclick="verifyAnswer()">Verify →</button>
-        <div id="step2_msg" class="error"></div>
+
+    <a href="/login" class="back-login">
+        ← Back to Login
+    </a>
+</nav>
+
+
+<main class="page">
+
+    <div class="layout">
+
+        <!-- LEFT SIDE -->
+        <section class="visual-card">
+
+            <!-- Student studying / computer image -->
+            <img
+                src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1500&q=90"
+                alt="Student studying on a computer"
+            >
+
+            <div class="visual-overlay"></div>
+
+            <div class="visual-content">
+
+                <div class="eyebrow">
+                    <span class="dot"></span>
+                    ACCOUNT RECOVERY
+                </div>
+
+                <h1>
+                    Get Back to<br>
+                    Your <span>Learning.</span>
+                </h1>
+
+                <p>
+                    Forgot your password? Don't worry. ML Predictor
+                    provides a secure recovery process that helps you
+                    verify your identity and create a new password.
+                </p>
+
+                <div class="info-steps">
+
+                    <div class="info-step">
+                        <div class="step-number">01</div>
+                        <div>
+                            <strong>Find your account</strong>
+                            <p>
+                                Enter the username associated with
+                                your ML Predictor account.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="info-step">
+                        <div class="step-number">02</div>
+                        <div>
+                            <strong>Verify your identity</strong>
+                            <p>
+                                Answer the security question that
+                                you selected when creating your account.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="info-step">
+                        <div class="step-number">03</div>
+                        <div>
+                            <strong>Create a new password</strong>
+                            <p>
+                                After verification, choose a new password
+                                and continue using your account.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- RIGHT SIDE -->
+        <section class="form-card">
+
+            <div class="form-header">
+                <div class="mini">SECURE ACCOUNT RECOVERY</div>
+
+                <h2>Reset Password</h2>
+
+                <p>
+                    Follow the three simple steps below to recover
+                    access to your ML Predictor account.
+                </p>
+            </div>
+
+
+            <!-- PROGRESS -->
+            <div class="progress-area">
+
+                <div class="progress-line">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+
+                <div class="progress-steps">
+                    <div id="progress1" class="progress-item active">
+                        1 · Account
+                    </div>
+
+                    <div id="progress2" class="progress-item">
+                        2 · Verify
+                    </div>
+
+                    <div id="progress3" class="progress-item">
+                        3 · Password
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- STEP 1 -->
+            <div id="step1" class="step active">
+
+                <div class="step-title">
+                    <div class="step-icon">👤</div>
+
+                    <div>
+                        <h3>Find your account</h3>
+                    </div>
+                </div>
+
+                <p class="explanation">
+                    First, tell us which account you want to recover.
+                    Enter your username below. We will use it to find
+                    your account and display the security question
+                    associated with it.
+                </p>
+
+                <div class="field">
+
+                    <label for="reset_user">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="reset_user"
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                    >
+
+                </div>
+
+                <button
+                    class="btn"
+                    id="checkBtn"
+                    onclick="checkUser()"
+                >
+                    Find My Account →
+                </button>
+
+                <div id="step1_msg" class="message"></div>
+
+            </div>
+
+
+            <!-- STEP 2 -->
+            <div id="step2" class="step">
+
+                <div class="step-title">
+                    <div class="step-icon">🔐</div>
+
+                    <div>
+                        <h3>Verify your identity</h3>
+                    </div>
+                </div>
+
+                <p class="explanation">
+                    This step protects your account. Answer the security
+                    question that you created during registration.
+                    Your answer will be checked before you can change
+                    the password.
+                </p>
+
+                <div class="question-box">
+
+                    <div class="question-label">
+                        Your Security Question
+                    </div>
+
+                    <div
+                        id="security_question_display"
+                        class="question-text"
+                    >
+                        Loading question...
+                    </div>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="security_answer">
+                        Security Answer
+                    </label>
+
+                    <input
+                        type="text"
+                        id="security_answer"
+                        placeholder="Enter your answer"
+                        autocomplete="off"
+                    >
+
+                </div>
+
+                <button
+                    class="btn"
+                    id="verifyBtn"
+                    onclick="verifyAnswer()"
+                >
+                    Verify My Answer →
+                </button>
+
+                <button
+                    class="back-btn"
+                    onclick="goToStep(1)"
+                >
+                    ← Back
+                </button>
+
+                <div id="step2_msg" class="message"></div>
+
+            </div>
+
+
+            <!-- STEP 3 -->
+            <div id="step3" class="step">
+
+                <div class="step-title">
+                    <div class="step-icon">🔑</div>
+
+                    <div>
+                        <h3>Create a new password</h3>
+                    </div>
+                </div>
+
+                <p class="explanation">
+                    Identity verified successfully. Now create a new
+                    password for your account. Use a password that you
+                    can remember but other people cannot easily guess.
+                </p>
+
+                <div class="field">
+
+                    <label for="new_pass">
+                        New Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="new_pass"
+                        placeholder="Enter new password"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+                <div class="field">
+
+                    <label for="confirm_pass">
+                        Confirm New Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirm_pass"
+                        placeholder="Repeat new password"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+                <button
+                    class="btn"
+                    id="resetBtn"
+                    onclick="resetPassword()"
+                >
+                    🔑 Reset My Password
+                </button>
+
+                <div id="step3_msg" class="message"></div>
+
+            </div>
+
+
+            <!-- SECURITY INFORMATION -->
+            <div class="security-card">
+
+                <div class="security-title">
+                    🛡️ Your account is protected
+                </div>
+
+                <p>
+                    Your password recovery process uses your registered
+                    username and security question. Do not share your
+                    password or security answer with another person.
+                </p>
+
+            </div>
+
+
+            <!-- DATABASE FLOW -->
+            <div class="database-box">
+
+                <h4>
+                    ☁️ Password Recovery System
+                </h4>
+
+                <div class="flow">
+
+                    <div class="flow-item">
+                        Recovery Form
+                    </div>
+
+                    <div class="arrow">→</div>
+
+                    <div class="flow-item">
+                        Flask API
+                    </div>
+
+                    <div class="arrow">→</div>
+
+                    <div class="flow-item">
+                        TiDB Cloud
+                    </div>
+
+                    <div class="arrow">→</div>
+
+                    <div class="flow-item">
+                        users table
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="footer">
+
+                Need help?
+                <a href="/login">
+                    Return to Login
+                </a>
+
+                <br><br>
+
+                © 2026 ML Predictor · Secure Student Platform
+
+            </div>
+
+        </section>
+
     </div>
-    <div id="step3" class="step">
-        <input type="password" id="new_pass" placeholder="New password (min 4)">
-        <input type="password" id="confirm_pass" placeholder="Confirm new password">
-        <button onclick="resetPassword()">Reset password</button>
-        <div id="step3_msg" class="error"></div>
-    </div>
-</div>
+
+</main>
+
+
 <script>
+
     let currentUser = '';
+
+    /*
+    -----------------------------------
+    STEP MANAGEMENT
+    -----------------------------------
+    */
+
+    function goToStep(step) {
+
+        document.querySelectorAll('.step').forEach(el => {
+            el.classList.remove('active');
+        });
+
+        document
+            .getElementById('step' + step)
+            .classList.add('active');
+
+        updateProgress(step);
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+
+    function updateProgress(step) {
+
+        const progress = document.getElementById('progressFill');
+
+        progress.style.width =
+            (step * 33.33) + '%';
+
+        document
+            .getElementById('progress1')
+            .classList.toggle('active', step >= 1);
+
+        document
+            .getElementById('progress2')
+            .classList.toggle('active', step >= 2);
+
+        document
+            .getElementById('progress3')
+            .classList.toggle('active', step >= 3);
+    }
+
+
+    /*
+    -----------------------------------
+    STEP 1
+    FIND ACCOUNT
+    -----------------------------------
+    */
+
     async function checkUser() {
-        const user = document.getElementById('reset_user').value;
-        const res = await fetch('/api/get-security-question', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: user })
-        });
-        const data = await res.json();
-        if (data.success) {
-            currentUser = user;
-            document.getElementById('security_question_display').innerHTML = `<p><strong>Question:</strong> ${data.question}</p>`;
-            document.getElementById('step1').classList.remove('active');
-            document.getElementById('step2').classList.add('active');
-        } else {
-            document.getElementById('step1_msg').innerText = data.error;
+
+        const user =
+            document
+            .getElementById('reset_user')
+            .value
+            .trim();
+
+        const msg =
+            document.getElementById('step1_msg');
+
+        const button =
+            document.getElementById('checkBtn');
+
+        msg.className = 'message';
+
+        if (!user) {
+
+            msg.className = 'message error';
+            msg.innerText =
+                'Please enter your username.';
+
+            return;
+        }
+
+        button.disabled = true;
+        button.innerText = 'Checking account...';
+
+        try {
+
+            const res = await fetch(
+                '/api/get-security-question',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        username: user
+                    })
+                }
+            );
+
+            const data = await res.json();
+
+            if (data.success) {
+
+                currentUser = user;
+
+                document
+                    .getElementById(
+                        'security_question_display'
+                    )
+                    .innerText = data.question;
+
+                msg.innerText = '';
+
+                goToStep(2);
+
+            } else {
+
+                msg.className = 'message error';
+
+                msg.innerText =
+                    data.error ||
+                    'Account not found.';
+
+            }
+
+        } catch (error) {
+
+            msg.className = 'message error';
+
+            msg.innerText =
+                'Unable to connect to the server. Please try again.';
+
+        } finally {
+
+            button.disabled = false;
+            button.innerText =
+                'Find My Account →';
+
         }
     }
+
+
+    /*
+    -----------------------------------
+    STEP 2
+    VERIFY SECURITY ANSWER
+    -----------------------------------
+    */
+
     async function verifyAnswer() {
-        const ans = document.getElementById('security_answer').value;
-        const res = await fetch('/api/verify-security-answer', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: currentUser, answer: ans })
-        });
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById('step2').classList.remove('active');
-            document.getElementById('step3').classList.add('active');
-        } else {
-            document.getElementById('step2_msg').innerText = data.error;
+
+        const answer =
+            document
+            .getElementById('security_answer')
+            .value
+            .trim();
+
+        const msg =
+            document.getElementById('step2_msg');
+
+        const button =
+            document.getElementById('verifyBtn');
+
+        msg.className = 'message';
+
+        if (!answer) {
+
+            msg.className = 'message error';
+
+            msg.innerText =
+                'Please enter your security answer.';
+
+            return;
+        }
+
+        button.disabled = true;
+        button.innerText =
+            'Verifying...';
+
+        try {
+
+            const res = await fetch(
+                '/api/verify-security-answer',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        username: currentUser,
+                        answer: answer
+                    })
+                }
+            );
+
+            const data = await res.json();
+
+            if (data.success) {
+
+                msg.innerText = '';
+
+                goToStep(3);
+
+            } else {
+
+                msg.className =
+                    'message error';
+
+                msg.innerText =
+                    data.error ||
+                    'Incorrect security answer.';
+
+            }
+
+        } catch (error) {
+
+            msg.className =
+                'message error';
+
+            msg.innerText =
+                'Unable to verify your answer.';
+
+        } finally {
+
+            button.disabled = false;
+            button.innerText =
+                'Verify My Answer →';
+
         }
     }
+
+
+    /*
+    -----------------------------------
+    STEP 3
+    RESET PASSWORD
+    -----------------------------------
+    */
+
     async function resetPassword() {
-        const newp = document.getElementById('new_pass').value;
-        const conf = document.getElementById('confirm_pass').value;
-        if (newp !== conf) { document.getElementById('step3_msg').innerText = 'Passwords do not match'; return; }
-        if (newp.length < 4) { document.getElementById('step3_msg').innerText = 'Too short (min 4)'; return; }
-        const res = await fetch('/api/reset-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: currentUser, new_password: newp })
-        });
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById('step3_msg').className = 'success';
-            document.getElementById('step3_msg').innerText = '✅ Password reset! Redirecting...';
-            setTimeout(() => window.location.href = '/login', 1500);
-        } else {
-            document.getElementById('step3_msg').innerText = data.error;
+
+        const newPassword =
+            document
+            .getElementById('new_pass')
+            .value;
+
+        const confirmPassword =
+            document
+            .getElementById('confirm_pass')
+            .value;
+
+        const msg =
+            document
+            .getElementById('step3_msg');
+
+        const button =
+            document
+            .getElementById('resetBtn');
+
+        msg.className = 'message';
+
+        if (newPassword.length < 4) {
+
+            msg.className =
+                'message error';
+
+            msg.innerText =
+                'Password must contain at least 4 characters.';
+
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+
+            msg.className =
+                'message error';
+
+            msg.innerText =
+                'Passwords do not match.';
+
+            return;
+        }
+
+        button.disabled = true;
+        button.innerText =
+            'Updating password...';
+
+        try {
+
+            const res = await fetch(
+                '/api/reset-password',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        username: currentUser,
+                        new_password:
+                            newPassword
+                    })
+                }
+            );
+
+            const data = await res.json();
+
+            if (data.success) {
+
+                msg.className =
+                    'message success';
+
+                msg.innerText =
+                    '✅ Password reset successfully! Redirecting to login...';
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        '/login';
+
+                }, 1800);
+
+            } else {
+
+                msg.className =
+                    'message error';
+
+                msg.innerText =
+                    data.error ||
+                    'Password reset failed.';
+
+            }
+
+        } catch (error) {
+
+            msg.className =
+                'message error';
+
+            msg.innerText =
+                'Unable to connect to the server.';
+
+        } finally {
+
+            button.disabled = false;
+
+            button.innerText =
+                '🔑 Reset My Password';
+
         }
     }
+
+
+    /*
+    -----------------------------------
+    ENTER KEY SUPPORT
+    -----------------------------------
+    */
+
+    document.addEventListener(
+        'keydown',
+        function(event) {
+
+            if (event.key !== 'Enter') return;
+
+            const step1 =
+                document
+                .getElementById('step1')
+                .classList.contains('active');
+
+            const step2 =
+                document
+                .getElementById('step2')
+                .classList.contains('active');
+
+            const step3 =
+                document
+                .getElementById('step3')
+                .classList.contains('active');
+
+            if (step1) {
+                checkUser();
+            }
+
+            else if (step2) {
+                verifyAnswer();
+            }
+
+            else if (step3) {
+                resetPassword();
+            }
+        }
+    );
+
 </script>
+
 </body>
 </html>
