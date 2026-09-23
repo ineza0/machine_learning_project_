@@ -1,9 +1,7 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
@@ -17,6 +15,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -34,6 +36,7 @@
             width: 100%;
             height: 65px;
             padding: 0 6%;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -44,9 +47,10 @@
             position: fixed;
             top: 0;
             left: 0;
+
             z-index: 1000;
 
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
         }
 
         .logo {
@@ -54,6 +58,10 @@
             font-size: 19px;
             font-weight: 800;
             letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: #ffffff;
         }
 
         .nav-menu {
@@ -72,7 +80,6 @@
         .nav-menu a:hover {
             color: #f97316;
         }
-
 
         /* ==============================
            HERO
@@ -100,20 +107,30 @@
 
         .tag {
             display: inline-block;
+
             color: #f97316;
+
             border: 1px solid rgba(249,115,22,0.3);
+
             background: rgba(249,115,22,0.07);
+
             padding: 8px 14px;
+
             border-radius: 30px;
+
             font-size: 11px;
             font-weight: 700;
+
             letter-spacing: 1px;
+
             margin-bottom: 20px;
         }
 
         .hero h1 {
             font-size: clamp(38px, 5vw, 65px);
+
             line-height: 1.05;
+
             margin-bottom: 22px;
         }
 
@@ -123,11 +140,13 @@
 
         .hero-description {
             color: #9298a6;
+
             line-height: 1.8;
+
             font-size: 15px;
+
             max-width: 580px;
         }
-
 
         /* ==============================
            STUDENT IMAGE
@@ -135,8 +154,11 @@
 
         .student-image {
             position: relative;
+
             min-height: 430px;
+
             border-radius: 30px;
+
             overflow: hidden;
 
             border: 1px solid #292d37;
@@ -144,41 +166,49 @@
             background-image:
                 linear-gradient(
                     to bottom,
-                    rgba(8,10,14,0.05),
-                    rgba(8,10,14,0.75)
+                    rgba(8,10,14,0.08),
+                    rgba(8,10,14,0.82)
                 ),
-                url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=85");
+                url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=90");
 
             background-size: cover;
+
             background-position: center;
         }
 
         .image-label {
             position: absolute;
+
             bottom: 22px;
             left: 22px;
             right: 22px;
 
-            background: rgba(8,10,14,0.82);
+            background: rgba(8,10,14,0.84);
+
             border: 1px solid rgba(255,255,255,0.1);
 
-            padding: 17px;
+            padding: 18px;
+
             border-radius: 18px;
 
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
         }
 
         .image-label strong {
             display: block;
+
             color: white;
+
             margin-bottom: 5px;
         }
 
         .image-label span {
             color: #aeb3c0;
-            font-size: 12px;
-        }
 
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
 
         /* ==============================
            LEVEL CARDS
@@ -186,19 +216,25 @@
 
         .levels {
             max-width: 1250px;
+
             margin: 0 auto 50px;
 
             padding: 0 6%;
 
             display: grid;
+
             grid-template-columns: repeat(3, 1fr);
+
             gap: 18px;
         }
 
         .level {
             background: #111318;
+
             border: 1px solid #272a34;
+
             border-radius: 20px;
+
             padding: 25px;
 
             transition: 0.25s;
@@ -206,47 +242,211 @@
 
         .level:hover {
             transform: translateY(-5px);
+
             border-color: #f97316;
+
+            box-shadow:
+                0 15px 40px rgba(249,115,22,0.08);
         }
 
         .level-icon {
             font-size: 28px;
+
             margin-bottom: 12px;
         }
 
         .level h3 {
             margin-bottom: 8px;
+
             color: #ffffff;
         }
 
         .level p {
             color: #777e8e;
+
             font-size: 12px;
+
             line-height: 1.6;
         }
 
+        /* ==============================
+           DATABASE FLOW
+        ============================== */
+
+        .database-section {
+            max-width: 1250px;
+
+            margin: 0 auto 55px;
+
+            padding: 0 6%;
+        }
+
+        .section-heading {
+            text-align: center;
+
+            margin-bottom: 25px;
+        }
+
+        .section-heading small {
+            color: #f97316;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 2px;
+        }
+
+        .section-heading h2 {
+            margin-top: 8px;
+
+            font-size: 27px;
+
+            color: #ffffff;
+        }
+
+        .section-heading p {
+            margin: 8px auto 0;
+
+            max-width: 620px;
+
+            color: #777e8e;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+        .database-flow {
+            display: grid;
+
+            grid-template-columns:
+                1fr
+                45px
+                1fr
+                45px
+                1fr
+                45px
+                1fr;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .flow-card {
+            background: #111318;
+
+            border: 1px solid #292d37;
+
+            border-radius: 18px;
+
+            padding: 20px 14px;
+
+            text-align: center;
+
+            transition: 0.25s;
+        }
+
+        .flow-card:hover {
+            border-color: #f97316;
+
+            transform: translateY(-3px);
+        }
+
+        .flow-icon {
+            width: 48px;
+            height: 48px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            margin: 0 auto 10px;
+
+            border-radius: 14px;
+
+            background: rgba(249,115,22,0.09);
+
+            border: 1px solid rgba(249,115,22,0.18);
+
+            font-size: 23px;
+        }
+
+        .flow-card h3 {
+            color: #ffffff;
+
+            font-size: 13px;
+
+            margin-bottom: 5px;
+        }
+
+        .flow-card p {
+            color: #777e8e;
+
+            font-size: 10px;
+
+            line-height: 1.5;
+        }
+
+        .flow-arrow {
+            color: #f97316;
+
+            font-size: 22px;
+
+            text-align: center;
+        }
+
+        .database-badge {
+            display: inline-block;
+
+            margin-top: 9px;
+
+            padding: 4px 8px;
+
+            border-radius: 20px;
+
+            color: #22c55e;
+
+            background: rgba(34,197,94,0.08);
+
+            border: 1px solid rgba(34,197,94,0.15);
+
+            font-size: 9px;
+
+            font-weight: 700;
+        }
 
         /* ==============================
-           MAIN LOGIN AREA
+           LOGIN AREA
         ============================== */
 
         .login-section {
             min-height: 600px;
 
             display: flex;
+
             justify-content: center;
+
             align-items: center;
 
             padding: 50px 20px;
         }
 
+        .login-wrapper {
+            width: 100%;
+
+            max-width: 470px;
+        }
+
         .card {
             width: 100%;
-            max-width: 430px;
 
             background: #13151a;
 
             border: 1px solid #2a2d38;
+
             border-radius: 28px;
 
             padding: 40px;
@@ -260,12 +460,14 @@
             height: 55px;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
 
             border-radius: 16px;
 
             background: rgba(249,115,22,0.1);
+
             border: 1px solid rgba(249,115,22,0.2);
 
             font-size: 25px;
@@ -275,13 +477,17 @@
 
         .card h2 {
             font-size: 29px;
+
             margin-bottom: 8px;
         }
 
         .login-subtitle {
             color: #777e8e;
+
             font-size: 13px;
+
             line-height: 1.6;
+
             margin-bottom: 25px;
         }
 
@@ -291,8 +497,11 @@
 
         .input-group label {
             display: block;
+
             color: #aeb3c0;
+
             font-size: 12px;
+
             margin-bottom: 6px;
         }
 
@@ -345,11 +554,13 @@
 
         button:hover {
             background: #fb923c;
+
             transform: translateY(-1px);
         }
 
         button:disabled {
             opacity: 0.6;
+
             cursor: not-allowed;
         }
 
@@ -399,6 +610,7 @@
 
         .links a {
             color: #f97316;
+
             text-decoration: none;
         }
 
@@ -406,6 +618,191 @@
             color: #fb923c;
         }
 
+        /* ==============================
+           LIVE DATABASE STATUS
+        ============================== */
+
+        .system-status {
+            margin-top: 18px;
+
+            padding: 20px;
+
+            background: #101217;
+
+            border: 1px solid #292d37;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 15px 50px rgba(0,0,0,0.25);
+        }
+
+        .status-header {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 16px;
+        }
+
+        .status-header strong {
+            display: block;
+
+            color: #ffffff;
+
+            font-size: 14px;
+        }
+
+        .status-header span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #707786;
+
+            font-size: 11px;
+        }
+
+        .live-dot {
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            color: #22c55e !important;
+
+            font-size: 10px !important;
+
+            font-weight: 800;
+        }
+
+        .live-dot span {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            box-shadow:
+                0 0 10px rgba(34,197,94,0.7);
+        }
+
+        .status-item {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 11px 0;
+
+            border-bottom: 1px solid #20232c;
+        }
+
+        .status-name {
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            color: #aeb3c0;
+
+            font-size: 12px;
+        }
+
+        .status-icon {
+            font-size: 15px;
+        }
+
+        .status-item strong {
+            font-size: 11px;
+
+            color: #22c55e;
+        }
+
+        .database-info {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 14px;
+
+            padding-top: 14px;
+
+            border-top: 1px solid #252832;
+        }
+
+        .database-info div {
+            background: #171a20;
+
+            border: 1px solid #242833;
+
+            border-radius: 10px;
+
+            padding: 10px;
+
+            text-align: center;
+        }
+
+        .database-info span {
+            display: block;
+
+            color: #666d7b;
+
+            font-size: 9px;
+
+            margin-bottom: 5px;
+        }
+
+        .database-info strong {
+            display: block;
+
+            color: #f97316;
+
+            font-size: 11px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+        /* ==============================
+           SECURITY NOTE
+        ============================== */
+
+        .security-note {
+            margin-top: 12px;
+
+            padding: 11px;
+
+            border-radius: 12px;
+
+            background: rgba(59,130,246,0.06);
+
+            border: 1px solid rgba(59,130,246,0.12);
+
+            color: #788195;
+
+            font-size: 10px;
+
+            line-height: 1.6;
+
+            text-align: center;
+        }
+
+        .security-note strong {
+            color: #9aa5bb;
+        }
 
         /* ==============================
            FOOTER
@@ -431,13 +828,17 @@
             margin-top: 12px;
 
             display: flex;
+
             justify-content: center;
 
             gap: 20px;
+
+            flex-wrap: wrap;
         }
 
         .socials a {
             color: #f97316;
+
             text-decoration: none;
         }
 
@@ -445,10 +846,22 @@
             color: #fb923c;
         }
 
-
         /* ==============================
            MOBILE
         ============================== */
+
+        @media (max-width: 950px) {
+
+            .database-flow {
+                grid-template-columns: 1fr;
+
+                gap: 8px;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
 
         @media (max-width: 850px) {
 
@@ -458,6 +871,7 @@
 
             .hero {
                 grid-template-columns: 1fr;
+
                 padding-top: 95px;
             }
 
@@ -474,6 +888,7 @@
 
             .hero {
                 padding-left: 20px;
+
                 padding-right: 20px;
             }
 
@@ -488,11 +903,14 @@
             .student-image {
                 min-height: 280px;
             }
+
+            .database-info {
+                grid-template-columns: 1fr;
+            }
         }
 
     </style>
 </head>
-
 
 <body>
 
@@ -504,10 +922,11 @@
 <nav class="navbar">
 
     <div class="logo">
-        ML PREDICTOR
+        ML <span>PREDICTOR</span>
     </div>
 
     <ul class="nav-menu">
+
         <li>
             <a href="#home">Home</a>
         </li>
@@ -517,16 +936,20 @@
         </li>
 
         <li>
+            <a href="#database">Technology</a>
+        </li>
+
+        <li>
             <a href="#how">How It Works</a>
         </li>
 
         <li>
             <a href="#login">Login</a>
         </li>
+
     </ul>
 
 </nav>
-
 
 
 <!-- ==============================
@@ -564,8 +987,9 @@
             </strong>
 
             <span>
-                Helping students understand their academic
-                performance through Machine Learning.
+                Helping students study smarter, understand their
+                performance and improve their academic journey
+                through Machine Learning.
             </span>
 
         </div>
@@ -573,7 +997,6 @@
     </div>
 
 </section>
-
 
 
 <!-- ==============================
@@ -640,7 +1063,6 @@
 </section>
 
 
-
 <!-- ==============================
      HOW IT WORKS
 ============================== -->
@@ -705,6 +1127,136 @@
 </section>
 
 
+<!-- ==============================
+     DATABASE TECHNOLOGY
+============================== -->
+
+<section class="database-section" id="database">
+
+    <div class="section-heading">
+
+        <small>
+            SYSTEM ARCHITECTURE
+        </small>
+
+        <h2>
+            How Your Data Connects
+        </h2>
+
+        <p>
+            ML Predictor uses a web application, backend server
+            and cloud database to securely manage authentication,
+            student information and prediction history.
+        </p>
+
+    </div>
+
+
+    <div class="database-flow">
+
+
+        <!-- LOGIN -->
+
+        <div class="flow-card">
+
+            <div class="flow-icon">
+                🔐
+            </div>
+
+            <h3>
+                Login
+            </h3>
+
+            <p>
+                User authentication starts here.
+            </p>
+
+        </div>
+
+
+        <div class="flow-arrow">
+            →
+        </div>
+
+
+        <!-- FLASK -->
+
+        <div class="flow-card">
+
+            <div class="flow-icon">
+                🐍
+            </div>
+
+            <h3>
+                Flask Backend
+            </h3>
+
+            <p>
+                Handles login, prediction and
+                database requests.
+            </p>
+
+        </div>
+
+
+        <div class="flow-arrow">
+            →
+        </div>
+
+
+        <!-- RENDER -->
+
+        <div class="flow-card">
+
+            <div class="flow-icon">
+                ☁️
+            </div>
+
+            <h3>
+                Cloud Server
+            </h3>
+
+            <p>
+                Hosts the ML Predictor application
+                online.
+            </p>
+
+        </div>
+
+
+        <div class="flow-arrow">
+            →
+        </div>
+
+
+        <!-- TIDB -->
+
+        <div class="flow-card">
+
+            <div class="flow-icon">
+                🗄️
+            </div>
+
+            <h3>
+                TiDB Cloud
+            </h3>
+
+            <p>
+                MySQL-compatible cloud database
+                storing application data.
+            </p>
+
+            <span class="database-badge">
+                DATABASE
+            </span>
+
+        </div>
+
+
+    </div>
+
+</section>
+
 
 <!-- ==============================
      LOGIN
@@ -712,86 +1264,235 @@
 
 <section class="login-section" id="login">
 
-    <div class="card">
-
-        <div class="login-icon">
-            🔐
-        </div>
-
-        <h2>
-            Welcome Back
-        </h2>
-
-        <p class="login-subtitle">
-            Login to access your personal ML Predictor dashboard,
-            predictions and academic history.
-        </p>
+    <div class="login-wrapper">
 
 
-        <div class="input-group">
+        <div class="card">
 
-            <label for="username">
-                Username
-            </label>
+            <div class="login-icon">
+                🔐
+            </div>
 
-            <input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="Enter your username"
-                autocomplete="username"
-                autocapitalize="none"
-                spellcheck="false"
+            <h2>
+                Welcome Back
+            </h2>
+
+            <p class="login-subtitle">
+                Login to access your personal ML Predictor
+                dashboard, predictions and academic history.
+            </p>
+
+
+            <div class="input-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    autocapitalize="none"
+                    spellcheck="false"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                >
+
+            </div>
+
+
+            <button
+                id="loginButton"
+                onclick="doLogin()"
             >
+                Sign in →
+            </button>
+
+
+            <div id="errorMsg" class="error"></div>
+
+            <div id="successMsg" class="success"></div>
+
+
+            <div class="links">
+
+                <a href="/signup">
+                    Create account
+                </a>
+
+                &nbsp; | &nbsp;
+
+                <a href="/forgot">
+                    Forgot password?
+                </a>
+
+            </div>
 
         </div>
 
 
-        <div class="input-group">
+        <!-- ==============================
+             LIVE SYSTEM STATUS
+        ============================== -->
 
-            <label for="password">
-                Password
-            </label>
+        <div class="system-status">
 
-            <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                autocomplete="current-password"
-            >
+            <div class="status-header">
 
-        </div>
+                <div>
+
+                    <strong>
+                        System Status
+                    </strong>
+
+                    <span>
+                        ML Predictor infrastructure
+                    </span>
+
+                </div>
+
+                <div class="live-dot">
+
+                    <span></span>
+
+                    LIVE
+
+                </div>
+
+            </div>
 
 
-        <button id="loginButton" onclick="doLogin()">
-            Sign in →
-        </button>
+            <div class="status-item">
+
+                <div class="status-name">
+
+                    <span class="status-icon">
+                        🗄️
+                    </span>
+
+                    Database
+
+                </div>
+
+                <strong id="databaseStatus">
+                    Checking...
+                </strong>
+
+            </div>
 
 
-        <div id="errorMsg" class="error"></div>
+            <div class="status-item">
 
-        <div id="successMsg" class="success"></div>
+                <div class="status-name">
+
+                    <span class="status-icon">
+                        🔐
+                    </span>
+
+                    Authentication
+
+                </div>
+
+                <strong id="authStatus">
+                    Checking...
+                </strong>
+
+            </div>
 
 
-        <div class="links">
+            <div class="status-item">
 
-            <a href="/signup">
-                Create account
-            </a>
+                <div class="status-name">
 
-            &nbsp; | &nbsp;
+                    <span class="status-icon">
+                        🤖
+                    </span>
 
-            <a href="/forgot">
-                Forgot password?
-            </a>
+                    ML Predictor
+
+                </div>
+
+                <strong id="mlStatus">
+                    Checking...
+                </strong>
+
+            </div>
+
+
+            <div class="database-info">
+
+                <div>
+
+                    <span>
+                        DATABASE
+                    </span>
+
+                    <strong id="databaseName">
+                        TiDB Cloud
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        USERS
+                    </span>
+
+                    <strong id="usersCount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        PREDICTIONS
+                    </span>
+
+                    <strong id="predictionsCount">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="security-note">
+
+                🔒 <strong>Your credentials remain protected.</strong>
+                Database passwords and private connection credentials
+                are never displayed on this page.
+
+            </div>
 
         </div>
 
     </div>
 
 </section>
-
 
 
 <!-- ==============================
@@ -801,10 +1502,17 @@
 <footer>
 
     <div>
+
         © 2026
-        <strong>Tuyishime Eric</strong>
+
+        <strong>
+            Tuyishime Eric
+        </strong>
+
         · ML Predictor
+
     </div>
+
 
     <div class="socials">
 
@@ -830,20 +1538,28 @@
 </footer>
 
 
-
 <!-- ==============================
-     LOGIN JAVASCRIPT
+     JAVASCRIPT
 ============================== -->
 
 <script>
 
+/* ==========================================
+   LOGIN
+========================================== */
+
 async function doLogin() {
 
     const username =
-        document.getElementById('username').value.trim();
+        document
+            .getElementById('username')
+            .value
+            .trim();
 
     const password =
-        document.getElementById('password').value;
+        document
+            .getElementById('password')
+            .value;
 
     const errorDiv =
         document.getElementById('errorMsg');
@@ -855,8 +1571,6 @@ async function doLogin() {
         document.getElementById('loginButton');
 
 
-    /* Clear messages */
-
     errorDiv.innerText = '';
     errorDiv.style.display = 'none';
 
@@ -864,45 +1578,49 @@ async function doLogin() {
     successDiv.style.display = 'none';
 
 
-    /* Check fields */
-
     if (!username || !password) {
 
         errorDiv.innerText =
             'Both username and password are required.';
 
-        errorDiv.style.display = 'block';
+        errorDiv.style.display =
+            'block';
 
         return;
     }
 
 
-    /* Disable button */
-
     loginButton.disabled = true;
 
-    loginButton.innerText = 'Signing in...';
+    loginButton.innerText =
+        'Signing in...';
 
 
     try {
 
-        const res = await fetch('/api/login', {
+        const res =
+            await fetch('/api/login', {
 
-            method: 'POST',
+                method: 'POST',
 
-            headers: {
-                'Content-Type': 'application/json'
-            },
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
 
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
+                body: JSON.stringify({
 
-        });
+                    username: username,
+
+                    password: password
+
+                })
+
+            });
 
 
-        const data = await res.json();
+        const data =
+            await res.json();
 
 
         if (data.success) {
@@ -910,13 +1628,15 @@ async function doLogin() {
             successDiv.innerText =
                 'Login successful. Opening your dashboard...';
 
-            successDiv.style.display = 'block';
+            successDiv.style.display =
+                'block';
 
 
             setTimeout(function() {
 
                 window.location.href =
-                    data.redirect || '/dashboard';
+                    data.redirect ||
+                    '/dashboard';
 
             }, 300);
 
@@ -927,48 +1647,232 @@ async function doLogin() {
                 data.error ||
                 'Invalid username or password.';
 
-            errorDiv.style.display = 'block';
+            errorDiv.style.display =
+                'block';
 
-            loginButton.disabled = false;
 
-            loginButton.innerText = 'Sign in →';
+            loginButton.disabled =
+                false;
+
+            loginButton.innerText =
+                'Sign in →';
         }
 
 
     } catch (err) {
 
-        console.error('Login error:', err);
+        console.error(
+            'Login error:',
+            err
+        );
+
 
         errorDiv.innerText =
             'Connection error. Please try again.';
 
-        errorDiv.style.display = 'block';
+        errorDiv.style.display =
+            'block';
 
-        loginButton.disabled = false;
 
-        loginButton.innerText = 'Sign in →';
+        loginButton.disabled =
+            false;
+
+        loginButton.innerText =
+            'Sign in →';
     }
 
 }
 
 
-/* ENTER KEY LOGIN */
+/* ==========================================
+   ENTER KEY LOGIN
+========================================== */
 
 document
     .getElementById('password')
-    .addEventListener('keydown', function(event) {
+    .addEventListener(
+        'keydown',
+        function(event) {
 
-        if (event.key === 'Enter') {
+            if (event.key === 'Enter') {
 
-            doLogin();
+                doLogin();
+
+            }
+
+        }
+    );
+
+
+/* ==========================================
+   SYSTEM STATUS
+========================================== */
+
+async function loadSystemStatus() {
+
+    const databaseStatus =
+        document.getElementById(
+            'databaseStatus'
+        );
+
+    const authStatus =
+        document.getElementById(
+            'authStatus'
+        );
+
+    const mlStatus =
+        document.getElementById(
+            'mlStatus'
+        );
+
+    const databaseName =
+        document.getElementById(
+            'databaseName'
+        );
+
+    const usersCount =
+        document.getElementById(
+            'usersCount'
+        );
+
+    const predictionsCount =
+        document.getElementById(
+            'predictionsCount'
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                '/api/system-status',
+                {
+                    cache: 'no-store'
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (data.success) {
+
+            databaseStatus.innerText =
+                'Connected';
+
+            databaseStatus.style.color =
+                '#22c55e';
+
+
+            authStatus.innerText =
+                data.authentication ||
+                'Online';
+
+            authStatus.style.color =
+                '#22c55e';
+
+
+            mlStatus.innerText =
+                data.ml_predictor ||
+                'Ready';
+
+            mlStatus.style.color =
+                '#22c55e';
+
+
+            databaseName.innerText =
+                data.database_name ||
+                'TiDB Cloud';
+
+
+            usersCount.innerText =
+                data.users ?? '0';
+
+
+            predictionsCount.innerText =
+                data.predictions ?? '0';
+
+
+        } else {
+
+            setDatabaseOffline();
 
         }
 
-    });
+
+    } catch (error) {
+
+        console.error(
+            'System status error:',
+            error
+        );
+
+        setDatabaseOffline();
+
+    }
+
+}
+
+
+/* ==========================================
+   OFFLINE STATUS
+========================================== */
+
+function setDatabaseOffline() {
+
+    const databaseStatus =
+        document.getElementById(
+            'databaseStatus'
+        );
+
+    const authStatus =
+        document.getElementById(
+            'authStatus'
+        );
+
+    const mlStatus =
+        document.getElementById(
+            'mlStatus'
+        );
+
+
+    databaseStatus.innerText =
+        'Disconnected';
+
+    databaseStatus.style.color =
+        '#ef4444';
+
+
+    authStatus.innerText =
+        'Offline';
+
+    authStatus.style.color =
+        '#ef4444';
+
+
+    mlStatus.innerText =
+        'Unavailable';
+
+    mlStatus.style.color =
+        '#ef4444';
+}
+
+
+/* ==========================================
+   START SYSTEM CHECK
+========================================== */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function() {
+
+        loadSystemStatus();
+
+    }
+);
 
 </script>
 
-
 </body>
 </html>
-```
