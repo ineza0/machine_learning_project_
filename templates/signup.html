@@ -1,69 +1,1902 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="Create your ML Predictor student account.">
+
     <title>Signup · ML Predictor</title>
+
     <style>
-        /* CSS iyo (same as login) – copy the style block from above */
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body { background: #0b0c0e; font-family: 'Segoe UI', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #e8eaf0; }
-        .card { background: #13151a; border: 1px solid #2a2d38; border-radius: 24px; padding: 40px; width: 100%; max-width: 480px; }
-        h2 { color: #f97316; margin-bottom: 24px; }
-        .field { margin-bottom: 20px; }
-        label { display: block; font-size: 12px; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
-        input, select { width: 100%; padding: 12px; background: #1a1c23; border: 1px solid #2a2d38; border-radius: 12px; color: white; font-size: 14px; outline: none; }
-        select { padding: 12px; }
-        button { width: 100%; padding: 12px; background: #f97316; color: black; border: none; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 8px; }
-        .error { color: #ef4444; margin-top: 12px; font-size: 13px; }
-        .success { color: #4ade80; }
-        .links { margin-top: 24px; text-align: center; }
-        a { color: #f97316; text-decoration: none; }
-    </style>
-</head>
-<body>
-<div class="card">
-    <h2>📝 SIGN UP</h2>
-    <div class="field"><label>Username</label><input type="text" id="su_username" placeholder="choose username"></div>
-    <div class="field"><label>Password (min 4)</label><input type="password" id="su_password" placeholder="••••••"></div>
-    <div class="field"><label>Confirm password</label><input type="password" id="su_confirm" placeholder="repeat password"></div>
-    <div class="field"><label>Security question</label>
-        <select id="su_question">
-            <option value="What is your mother's maiden name?">Mother's maiden name?</option>
-            <option value="What was your first pet's name?">First pet's name?</option>
-            <option value="What city were you born in?">Birth city?</option>
-        </select>
-    </div>
-    <div class="field"><label>Security answer</label><input type="text" id="su_answer" placeholder="your answer (case insensitive)"></div>
-    <button onclick="doSignup()">Register →</button>
-    <div id="su_msg" class="error"></div>
-    <div class="links">Already have an account? <a href="/login">Login</a></div>
-</div>
-<script>
-    async function doSignup() {
-        const username = document.getElementById('su_username').value;
-        const pass = document.getElementById('su_password').value;
-        const conf = document.getElementById('su_confirm').value;
-        const question = document.getElementById('su_question').value;
-        const answer = document.getElementById('su_answer').value;
-        const msgDiv = document.getElementById('su_msg');
-        if (pass !== conf) { msgDiv.innerText = 'Passwords do not match'; return; }
-        if (pass.length < 4) { msgDiv.innerText = 'Password too short (min 4)'; return; }
-        if (!answer) { msgDiv.innerText = 'Security answer required'; return; }
-        const res = await fetch('/api/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password: pass, security_question: question, security_answer: answer })
-        });
-        const data = await res.json();
-        if (data.success) {
-            msgDiv.style.color = '#4ade80';
-            msgDiv.innerText = '✅ Account created! Redirecting...';
-            setTimeout(() => window.location.href = '/login', 1500);
-        } else {
-            msgDiv.style.color = '#ef4444';
-            msgDiv.innerText = data.error;
+
+        /* =========================================
+           RESET
+        ========================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(249,115,22,0.08),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(59,130,246,0.06),
+                    transparent 30%
+                ),
+                #080a0e;
+
+            color: #e8eaf0;
+
+            font-family:
+                'Segoe UI',
+                system-ui,
+                -apple-system,
+                sans-serif;
+        }
+
+
+        /* =========================================
+           NAVBAR
+        ========================================= */
+
+        .navbar {
+
+            height: 68px;
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+
+            z-index: 1000;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                0 6%;
+
+            background:
+                rgba(8,10,14,0.90);
+
+            border-bottom:
+                1px solid #242832;
+
+            backdrop-filter:
+                blur(16px);
+        }
+
+
+        .logo {
+
+            color: #f97316;
+
+            font-size: 18px;
+
+            font-weight: 900;
+
+            letter-spacing: 1px;
+        }
+
+
+        .logo span {
+
+            color: white;
+        }
+
+
+        .nav-link {
+
+            color: #aeb3c0;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            transition: 0.2s;
+        }
+
+
+        .nav-link:hover {
+
+            color: #f97316;
+        }
+
+
+        /* =========================================
+           MAIN
+        ========================================= */
+
+        .page {
+
+            width: 100%;
+
+            max-width: 1400px;
+
+            margin: auto;
+
+            padding:
+                105px 5% 60px;
+
+            display: grid;
+
+            grid-template-columns:
+                1.05fr
+                0.95fr;
+
+            gap: 50px;
+
+            align-items: center;
+        }
+
+
+        /* =========================================
+           LEFT SIDE
+        ========================================= */
+
+        .visual {
+
+            min-height: 650px;
+
+            position: relative;
+
+            border-radius: 32px;
+
+            overflow: hidden;
+
+            border:
+                1px solid #292d37;
+
+            background-image:
+
+                linear-gradient(
+                    to bottom,
+                    rgba(8,10,14,0.08),
+                    rgba(8,10,14,0.92)
+                ),
+
+                url(
+                    "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1500&q=90"
+                );
+
+            background-size: cover;
+
+            background-position: center;
+        }
+
+
+        .visual::after {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(249,115,22,0.10),
+                    transparent 45%
+                );
+
+            pointer-events: none;
+        }
+
+
+        .visual-content {
+
+            position: absolute;
+
+            left: 30px;
+
+            right: 30px;
+
+            bottom: 30px;
+
+            z-index: 2;
+        }
+
+
+        .visual-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding:
+                8px 13px;
+
+            margin-bottom: 18px;
+
+            border-radius: 30px;
+
+            background:
+                rgba(249,115,22,0.12);
+
+            border:
+                1px solid
+                rgba(249,115,22,0.30);
+
+            color: #fb923c;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+        }
+
+
+        .visual-content h1 {
+
+            font-size:
+                clamp(35px, 4vw, 57px);
+
+            line-height: 1.05;
+
+            margin-bottom: 17px;
+        }
+
+
+        .visual-content h1 span {
+
+            color: #f97316;
+        }
+
+
+        .visual-content p {
+
+            max-width: 570px;
+
+            color: #aeb3c0;
+
+            line-height: 1.8;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================================
+           FEATURE BOXES
+        ========================================= */
+
+        .features {
+
+            margin-top: 24px;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 10px;
+        }
+
+
+        .feature {
+
+            padding: 14px;
+
+            border-radius: 15px;
+
+            background:
+                rgba(8,10,14,0.72);
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .feature-icon {
+
+            font-size: 20px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .feature strong {
+
+            display: block;
+
+            color: white;
+
+            font-size: 11px;
+
+            margin-bottom: 4px;
+        }
+
+
+        .feature span {
+
+            color: #7d8492;
+
+            font-size: 9px;
+
+            line-height: 1.4;
+        }
+
+
+        /* =========================================
+           RIGHT SIDE
+        ========================================= */
+
+        .signup-area {
+
+            width: 100%;
+
+            max-width: 500px;
+
+            margin: auto;
+        }
+
+
+        .signup-card {
+
+            background:
+                rgba(19,21,26,0.96);
+
+            border:
+                1px solid #2a2d38;
+
+            border-radius: 28px;
+
+            padding: 35px;
+
+            box-shadow:
+                0 30px 90px
+                rgba(0,0,0,0.40);
+        }
+
+
+        .signup-icon {
+
+            width: 56px;
+            height: 56px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 16px;
+
+            background:
+                rgba(249,115,22,0.10);
+
+            border:
+                1px solid
+                rgba(249,115,22,0.22);
+
+            font-size: 25px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .signup-card h2 {
+
+            font-size: 29px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .subtitle {
+
+            color: #777e8e;
+
+            font-size: 12px;
+
+            line-height: 1.7;
+
+            margin-bottom: 25px;
+        }
+
+
+        /* =========================================
+           FORM
+        ========================================= */
+
+        .field {
+
+            margin-bottom: 16px;
+        }
+
+
+        .field label {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            color: #aeb3c0;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            margin-bottom: 7px;
+        }
+
+
+        .input-wrapper {
+
+            position: relative;
+        }
+
+
+        input,
+        select {
+
+            width: 100%;
+
+            height: 48px;
+
+            padding:
+                0 14px;
+
+            background:
+                #1a1c23;
+
+            border:
+                1px solid #2a2d38;
+
+            border-radius: 12px;
+
+            color: white;
+
+            outline: none;
+
+            font-size: 13px;
+
+            transition: 0.2s;
+        }
+
+
+        input:focus,
+        select:focus {
+
+            border-color:
+                #f97316;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(249,115,22,0.08);
+        }
+
+
+        input::placeholder {
+
+            color: #5f6673;
+        }
+
+
+        select {
+
+            cursor: pointer;
+        }
+
+
+        select option {
+
+            background: #17191f;
+
+            color: white;
+        }
+
+
+        /* =========================================
+           SHOW PASSWORD
+        ========================================= */
+
+        .password-toggle {
+
+            position: absolute;
+
+            right: 12px;
+
+            top: 50%;
+
+            transform:
+                translateY(-50%);
+
+            background: transparent;
+
+            border: none;
+
+            color: #737b8b;
+
+            width: auto;
+
+            padding: 5px;
+
+            margin: 0;
+
+            font-size: 13px;
+
+            cursor: pointer;
+        }
+
+
+        .password-toggle:hover {
+
+            background: transparent;
+
+            color: #f97316;
+
+            transform:
+                translateY(-50%);
+        }
+
+
+        /* =========================================
+           PASSWORD STRENGTH
+        ========================================= */
+
+        .strength {
+
+            margin-top: 8px;
+        }
+
+
+        .strength-bars {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap: 4px;
+        }
+
+
+        .strength-bars span {
+
+            height: 3px;
+
+            border-radius: 5px;
+
+            background: #292d37;
+        }
+
+
+        .strength-text {
+
+            display: block;
+
+            margin-top: 5px;
+
+            color: #666d7b;
+
+            font-size: 9px;
+        }
+
+
+        /* =========================================
+           REGISTER BUTTON
+        ========================================= */
+
+        .register-btn {
+
+            width: 100%;
+
+            height: 49px;
+
+            margin-top: 8px;
+
+            border: none;
+
+            border-radius: 30px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f97316,
+                    #fb923c
+                );
+
+            color: #111;
+
+            font-size: 13px;
+
+            font-weight: 900;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+
+        .register-btn:hover {
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 12px 30px
+                rgba(249,115,22,0.20);
+        }
+
+
+        .register-btn:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+
+        /* =========================================
+           MESSAGE
+        ========================================= */
+
+        .message {
+
+            display: none;
+
+            margin-top: 14px;
+
+            padding: 11px;
+
+            border-radius: 11px;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+
+        .message.error {
+
+            color: #ef4444;
+
+            background:
+                rgba(239,68,68,0.08);
+
+            border:
+                1px solid
+                rgba(239,68,68,0.12);
+        }
+
+
+        .message.success {
+
+            color: #22c55e;
+
+            background:
+                rgba(34,197,94,0.08);
+
+            border:
+                1px solid
+                rgba(34,197,94,0.12);
+        }
+
+
+        /* =========================================
+           ACCOUNT LINK
+        ========================================= */
+
+        .login-link {
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: #666d7b;
+
+            font-size: 11px;
+        }
+
+
+        .login-link a {
+
+            color: #f97316;
+
+            text-decoration: none;
+
+            font-weight: 700;
+        }
+
+
+        .login-link a:hover {
+
+            color: #fb923c;
+        }
+
+
+        /* =========================================
+           DATABASE INFO
+        ========================================= */
+
+        .database-card {
+
+            margin-top: 16px;
+
+            padding: 18px;
+
+            border-radius: 19px;
+
+            background:
+                #101217;
+
+            border:
+                1px solid #292d37;
+        }
+
+
+        .database-title {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 14px;
+        }
+
+
+        .database-title strong {
+
+            color: white;
+
+            font-size: 12px;
+        }
+
+
+        .database-title span {
+
+            color: #22c55e;
+
+            font-size: 9px;
+
+            font-weight: 800;
+        }
+
+
+        .db-row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding: 9px 0;
+
+            border-bottom:
+                1px solid #20232c;
+        }
+
+
+        .db-row:last-child {
+
+            border-bottom: none;
+        }
+
+
+        .db-row span {
+
+            color: #707786;
+
+            font-size: 10px;
+        }
+
+
+        .db-row strong {
+
+            color: #d8dbe2;
+
+            font-size: 10px;
+        }
+
+
+        .connected {
+
+            color: #22c55e !important;
+        }
+
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        footer {
+
+            padding:
+                25px 20px 35px;
+
+            text-align: center;
+
+            color: #5f6673;
+
+            font-size: 10px;
+
+            border-top:
+                1px solid #222630;
+        }
+
+
+        footer strong {
+
+            color: #cfd3dc;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 1000px) {
+
+            .page {
+
+                grid-template-columns: 1fr;
+
+                max-width: 700px;
+            }
+
+
+            .visual {
+
+                min-height: 500px;
+            }
+
+
+            .signup-area {
+
+                max-width: 600px;
+            }
+        }
+
+
+        @media (max-width: 600px) {
+
+            .navbar {
+
+                padding:
+                    0 20px;
+            }
+
+
+            .nav-link {
+
+                display: none;
+            }
+
+
+            .page {
+
+                padding:
+                    95px 18px 40px;
+            }
+
+
+            .visual {
+
+                min-height: 470px;
+
+                border-radius: 24px;
+            }
+
+
+            .visual-content {
+
+                left: 20px;
+
+                right: 20px;
+
+                bottom: 20px;
+            }
+
+
+            .features {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .signup-card {
+
+                padding: 27px 20px;
+
+                border-radius: 23px;
+            }
+
+
+            .signup-card h2 {
+
+                font-size: 25px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================
+     NAVBAR
+========================================= -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        ML <span>PREDICTOR</span>
+    </div>
+
+    <a
+        href="/login"
+        class="nav-link"
+    >
+        ← Back to Login
+    </a>
+
+</nav>
+
+
+<!-- =========================================
+     MAIN PAGE
+========================================= -->
+
+<main class="page">
+
+
+    <!-- =====================================
+         STUDENT IMAGE / INFORMATION
+    ====================================== -->
+
+    <section class="visual">
+
+        <div class="visual-content">
+
+            <div class="visual-badge">
+                🎓 STUDENT LEARNING PLATFORM
+            </div>
+
+
+            <h1>
+
+                Build Your
+                <span>Academic Future.</span>
+
+            </h1>
+
+
+            <p>
+
+                Create your ML Predictor account and use
+                Machine Learning to understand your academic
+                performance, monitor your progress and learn
+                where you can improve.
+
+            </p>
+
+
+            <div class="features">
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🤖
+                    </div>
+
+                    <strong>
+                        Machine Learning
+                    </strong>
+
+                    <span>
+                        Analyze academic information
+                        using ML.
+                    </span>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        📊
+                    </div>
+
+                    <strong>
+                        Track Progress
+                    </strong>
+
+                    <span>
+                        Keep your prediction history
+                        in one place.
+                    </span>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🔐
+                    </div>
+
+                    <strong>
+                        Protected Account
+                    </strong>
+
+                    <span>
+                        Your account data is handled
+                        through the backend.
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         SIGNUP AREA
+    ====================================== -->
+
+    <section class="signup-area">
+
+
+        <div class="signup-card">
+
+
+            <div class="signup-icon">
+                📝
+            </div>
+
+
+            <h2>
+                Create Account
+            </h2>
+
+
+            <p class="subtitle">
+
+                Join ML Predictor to save your academic
+                information, predictions and learning history
+                in your personal account.
+
+            </p>
+
+
+            <!-- USERNAME -->
+
+            <div class="field">
+
+                <label for="su_username">
+
+                    Username
+
+                    <span>
+                        Required
+                    </span>
+
+                </label>
+
+                <input
+                    type="text"
+                    id="su_username"
+                    placeholder="Choose your username"
+                    autocomplete="username"
+                    maxlength="50"
+                >
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="field">
+
+                <label for="su_password">
+                    Password
+                </label>
+
+
+                <div class="input-wrapper">
+
+                    <input
+                        type="password"
+                        id="su_password"
+                        placeholder="Create a password"
+                        autocomplete="new-password"
+                    >
+
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        onclick="togglePassword(
+                            'su_password',
+                            this
+                        )"
+                    >
+                        👁
+                    </button>
+
+                </div>
+
+
+                <div class="strength">
+
+                    <div class="strength-bars">
+
+                        <span id="bar1"></span>
+                        <span id="bar2"></span>
+                        <span id="bar3"></span>
+                        <span id="bar4"></span>
+
+                    </div>
+
+                    <span
+                        class="strength-text"
+                        id="strengthText"
+                    >
+                        Password strength
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONFIRM PASSWORD -->
+
+            <div class="field">
+
+                <label for="su_confirm">
+                    Confirm Password
+                </label>
+
+
+                <div class="input-wrapper">
+
+                    <input
+                        type="password"
+                        id="su_confirm"
+                        placeholder="Repeat your password"
+                        autocomplete="new-password"
+                    >
+
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        onclick="togglePassword(
+                            'su_confirm',
+                            this
+                        )"
+                    >
+                        👁
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SECURITY QUESTION -->
+
+            <div class="field">
+
+                <label for="su_question">
+                    Security Question
+                </label>
+
+
+                <select id="su_question">
+
+                    <option
+                        value="What is your mother's maiden name?"
+                    >
+                        Mother's maiden name?
+                    </option>
+
+
+                    <option
+                        value="What was your first pet's name?"
+                    >
+                        First pet's name?
+                    </option>
+
+
+                    <option
+                        value="What city were you born in?"
+                    >
+                        Birth city?
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SECURITY ANSWER -->
+
+            <div class="field">
+
+                <label for="su_answer">
+                    Security Answer
+                </label>
+
+
+                <input
+                    type="text"
+                    id="su_answer"
+                    placeholder="Enter your answer"
+                    autocomplete="off"
+                    maxlength="100"
+                >
+
+            </div>
+
+
+            <!-- REGISTER -->
+
+            <button
+                type="button"
+                class="register-btn"
+                id="registerButton"
+                onclick="doSignup()"
+            >
+
+                Create My Account →
+
+            </button>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                id="su_msg"
+                class="message"
+            ></div>
+
+
+            <!-- LOGIN -->
+
+            <div class="login-link">
+
+                Already have an account?
+
+                <a href="/login">
+                    Login here
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             DATABASE INFORMATION
+        ====================================== -->
+
+        <div class="database-card">
+
+            <div class="database-title">
+
+                <strong>
+                    ☁️ Platform Infrastructure
+                </strong>
+
+                <span>
+                    ● CLOUD READY
+                </span>
+
+            </div>
+
+
+            <div class="db-row">
+
+                <span>
+                    Application
+                </span>
+
+                <strong>
+                    ML Predictor
+                </strong>
+
+            </div>
+
+
+            <div class="db-row">
+
+                <span>
+                    Backend
+                </span>
+
+                <strong>
+                    Flask / Python
+                </strong>
+
+            </div>
+
+
+            <div class="db-row">
+
+                <span>
+                    Cloud Database
+                </span>
+
+                <strong>
+                    TiDB Cloud
+                </strong>
+
+            </div>
+
+
+            <div class="db-row">
+
+                <span>
+                    Database Type
+                </span>
+
+                <strong>
+                    MySQL Compatible
+                </strong>
+
+            </div>
+
+
+            <div class="db-row">
+
+                <span>
+                    Data
+                </span>
+
+                <strong class="connected">
+                    Users · Students · Predictions
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+</main>
+
+
+<!-- =========================================
+     FOOTER
+========================================= -->
+
+<footer>
+
+    © 2026
+
+    <strong>
+        Tuyishime Eric
+    </strong>
+
+    · ML Predictor
+
+</footer>
+
+
+<script>
+
+
+/* =========================================
+   PASSWORD VISIBILITY
+========================================= */
+
+function togglePassword(
+    inputId,
+    button
+) {
+
+    const input =
+        document.getElementById(
+            inputId
+        );
+
+
+    if (input.type === 'password') {
+
+        input.type = 'text';
+
+        button.innerText = '🙈';
+
+    } else {
+
+        input.type = 'password';
+
+        button.innerText = '👁';
+
     }
+
+}
+
+
+/* =========================================
+   PASSWORD STRENGTH
+========================================= */
+
+document
+    .getElementById('su_password')
+    .addEventListener(
+        'input',
+        function() {
+
+            const password =
+                this.value;
+
+
+            const bars = [
+
+                document.getElementById('bar1'),
+
+                document.getElementById('bar2'),
+
+                document.getElementById('bar3'),
+
+                document.getElementById('bar4')
+
+            ];
+
+
+            const text =
+                document.getElementById(
+                    'strengthText'
+                );
+
+
+            bars.forEach(function(bar) {
+
+                bar.style.background =
+                    '#292d37';
+
+            });
+
+
+            if (!password) {
+
+                text.innerText =
+                    'Password strength';
+
+                text.style.color =
+                    '#666d7b';
+
+                return;
+            }
+
+
+            let score = 0;
+
+
+            if (password.length >= 4)
+                score++;
+
+
+            if (password.length >= 8)
+                score++;
+
+
+            if (/[A-Z]/.test(password))
+                score++;
+
+
+            if (
+                /[0-9]/.test(password) &&
+                /[^A-Za-z0-9]/.test(password)
+            )
+                score++;
+
+
+            const colors = [
+
+                '#ef4444',
+                '#f97316',
+                '#eab308',
+                '#22c55e'
+
+            ];
+
+
+            for (
+                let i = 0;
+                i < score;
+                i++
+            ) {
+
+                bars[i].style.background =
+                    colors[score - 1];
+
+            }
+
+
+            const labels = [
+
+                'Very weak',
+
+                'Weak',
+
+                'Good',
+
+                'Strong'
+
+            ];
+
+
+            text.innerText =
+                labels[score - 1] ||
+                'Very weak';
+
+
+            text.style.color =
+                colors[score - 1] ||
+                '#ef4444';
+
+        }
+    );
+
+
+/* =========================================
+   SIGNUP
+========================================= */
+
+async function doSignup() {
+
+
+    const username =
+        document
+            .getElementById(
+                'su_username'
+            )
+            .value
+            .trim();
+
+
+    const pass =
+        document
+            .getElementById(
+                'su_password'
+            )
+            .value;
+
+
+    const conf =
+        document
+            .getElementById(
+                'su_confirm'
+            )
+            .value;
+
+
+    const question =
+        document
+            .getElementById(
+                'su_question'
+            )
+            .value;
+
+
+    const answer =
+        document
+            .getElementById(
+                'su_answer'
+            )
+            .value
+            .trim();
+
+
+    const msgDiv =
+        document.getElementById(
+            'su_msg'
+        );
+
+
+    const button =
+        document.getElementById(
+            'registerButton'
+        );
+
+
+    /* CLEAR MESSAGE */
+
+    msgDiv.innerText = '';
+
+    msgDiv.style.display =
+        'none';
+
+
+    /* VALIDATION */
+
+    if (!username) {
+
+        showError(
+            'Please enter a username.'
+        );
+
+        return;
+    }
+
+
+    if (username.length < 3) {
+
+        showError(
+            'Username must contain at least 3 characters.'
+        );
+
+        return;
+    }
+
+
+    if (!pass) {
+
+        showError(
+            'Please create a password.'
+        );
+
+        return;
+    }
+
+
+    if (pass.length < 4) {
+
+        showError(
+            'Password must contain at least 4 characters.'
+        );
+
+        return;
+    }
+
+
+    if (pass !== conf) {
+
+        showError(
+            'Passwords do not match.'
+        );
+
+        return;
+    }
+
+
+    if (!answer) {
+
+        showError(
+            'Security answer is required.'
+        );
+
+        return;
+    }
+
+
+    /* LOADING */
+
+    button.disabled = true;
+
+    button.innerText =
+        'Creating account...';
+
+
+    try {
+
+
+        const res =
+            await fetch(
+                '/api/signup',
+                {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type':
+                            'application/json'
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            username:
+                                username,
+
+                            password:
+                                pass,
+
+                            security_question:
+                                question,
+
+                            security_answer:
+                                answer
+
+                        })
+
+                }
+            );
+
+
+        const data =
+            await res.json();
+
+
+        if (data.success) {
+
+
+            msgDiv.className =
+                'message success';
+
+
+            msgDiv.innerText =
+                '✅ Account created successfully! Redirecting to login...';
+
+
+            msgDiv.style.display =
+                'block';
+
+
+            button.innerText =
+                'Account Created ✓';
+
+
+            setTimeout(
+                function() {
+
+                    window.location.href =
+                        '/login';
+
+                },
+                1500
+            );
+
+
+        } else {
+
+
+            showError(
+                data.error ||
+                'Unable to create account.'
+            );
+
+
+            button.disabled =
+                false;
+
+
+            button.innerText =
+                'Create My Account →';
+
+        }
+
+
+    } catch (error) {
+
+
+        console.error(
+            'Signup error:',
+            error
+        );
+
+
+        showError(
+            'Connection error. Please check your internet connection and try again.'
+        );
+
+
+        button.disabled =
+            false;
+
+
+        button.innerText =
+            'Create My Account →';
+
+    }
+
+}
+
+
+/* =========================================
+   SHOW ERROR
+========================================= */
+
+function showError(message) {
+
+    const msgDiv =
+        document.getElementById(
+            'su_msg'
+        );
+
+
+    msgDiv.className =
+        'message error';
+
+
+    msgDiv.innerText =
+        '⚠️ ' + message;
+
+
+    msgDiv.style.display =
+        'block';
+
+}
+
+
+/* =========================================
+   ENTER KEY
+========================================= */
+
+document.addEventListener(
+    'keydown',
+    function(event) {
+
+        if (
+            event.key === 'Enter'
+        ) {
+
+            const active =
+                document.activeElement;
+
+
+            if (
+                active &&
+                active.tagName === 'INPUT'
+            ) {
+
+                doSignup();
+
+            }
+
+        }
+
+    }
+);
+
 </script>
+
+
 </body>
 </html>
