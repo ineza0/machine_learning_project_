@@ -8,3 +8,5 @@ openpyxl
 gunicorn
 werkzeug
 mysql-connector-python
+Authlib
+requests
