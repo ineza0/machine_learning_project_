@@ -1,1878 +1,398 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta name="description"
-          content="ML Predictor - Machine Learning student academic prediction platform.">
-
-    <title>ML Predictor · Welcome</title>
-
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background: #080a0e;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: #e8eaf0;
-            min-height: 100vh;
-        }
-
-        /* ==============================
-           NAVBAR
-        ============================== */
-
-        .navbar {
-            width: 100%;
-            height: 65px;
-            padding: 0 6%;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            background: rgba(11, 12, 14, 0.92);
-            border-bottom: 1px solid #252832;
-
-            position: fixed;
-            top: 0;
-            left: 0;
-
-            z-index: 1000;
-
-            backdrop-filter: blur(14px);
-        }
-
-        .logo {
-            color: #f97316;
-            font-size: 19px;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-
-        .logo span {
-            color: #ffffff;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 28px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            color: #aeb3c0;
-            text-decoration: none;
-            font-size: 13px;
-            transition: 0.2s;
-        }
-
-        .nav-menu a:hover {
-            color: #f97316;
-        }
-
-        /* ==============================
-           HERO
-        ============================== */
-
-        .hero {
-            padding-top: 110px;
-            padding-left: 6%;
-            padding-right: 6%;
-            padding-bottom: 50px;
-
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 45px;
-
-            max-width: 1400px;
-            margin: auto;
-
-            align-items: center;
-        }
-
-        .hero-text {
-            padding: 25px 0;
-        }
-
-        .tag {
-            display: inline-block;
-
-            color: #f97316;
-
-            border: 1px solid rgba(249,115,22,0.3);
-
-            background: rgba(249,115,22,0.07);
-
-            padding: 8px 14px;
-
-            border-radius: 30px;
-
-            font-size: 11px;
-            font-weight: 700;
-
-            letter-spacing: 1px;
-
-            margin-bottom: 20px;
-        }
-
-        .hero h1 {
-            font-size: clamp(38px, 5vw, 65px);
-
-            line-height: 1.05;
-
-            margin-bottom: 22px;
-        }
-
-        .hero h1 span {
-            color: #f97316;
-        }
-
-        .hero-description {
-            color: #9298a6;
-
-            line-height: 1.8;
-
-            font-size: 15px;
-
-            max-width: 580px;
-        }
-
-        /* ==============================
-           STUDENT IMAGE
-        ============================== */
-
-        .student-image {
-            position: relative;
-
-            min-height: 430px;
-
-            border-radius: 30px;
-
-            overflow: hidden;
-
-            border: 1px solid #292d37;
-
-            background-image:
-                linear-gradient(
-                    to bottom,
-                    rgba(8,10,14,0.08),
-                    rgba(8,10,14,0.82)
-                ),
-                url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=90");
-
-            background-size: cover;
-
-            background-position: center;
-        }
-
-        .image-label {
-            position: absolute;
-
-            bottom: 22px;
-            left: 22px;
-            right: 22px;
-
-            background: rgba(8,10,14,0.84);
-
-            border: 1px solid rgba(255,255,255,0.1);
-
-            padding: 18px;
-
-            border-radius: 18px;
-
-            backdrop-filter: blur(10px);
-        }
-
-        .image-label strong {
-            display: block;
-
-            color: white;
-
-            margin-bottom: 5px;
-        }
-
-        .image-label span {
-            color: #aeb3c0;
-
-            font-size: 12px;
-
-            line-height: 1.6;
-        }
-
-        /* ==============================
-           LEVEL CARDS
-        ============================== */
-
-        .levels {
-            max-width: 1250px;
-
-            margin: 0 auto 50px;
-
-            padding: 0 6%;
-
-            display: grid;
-
-            grid-template-columns: repeat(3, 1fr);
-
-            gap: 18px;
-        }
-
-        .level {
-            background: #111318;
-
-            border: 1px solid #272a34;
-
-            border-radius: 20px;
-
-            padding: 25px;
-
-            transition: 0.25s;
-        }
-
-        .level:hover {
-            transform: translateY(-5px);
-
-            border-color: #f97316;
-
-            box-shadow:
-                0 15px 40px rgba(249,115,22,0.08);
-        }
-
-        .level-icon {
-            font-size: 28px;
-
-            margin-bottom: 12px;
-        }
-
-        .level h3 {
-            margin-bottom: 8px;
-
-            color: #ffffff;
-        }
-
-        .level p {
-            color: #777e8e;
-
-            font-size: 12px;
-
-            line-height: 1.6;
-        }
-
-        /* ==============================
-           DATABASE FLOW
-        ============================== */
-
-        .database-section {
-            max-width: 1250px;
-
-            margin: 0 auto 55px;
-
-            padding: 0 6%;
-        }
-
-        .section-heading {
-            text-align: center;
-
-            margin-bottom: 25px;
-        }
-
-        .section-heading small {
-            color: #f97316;
-
-            font-size: 10px;
-
-            font-weight: 800;
-
-            letter-spacing: 2px;
-        }
-
-        .section-heading h2 {
-            margin-top: 8px;
-
-            font-size: 27px;
-
-            color: #ffffff;
-        }
-
-        .section-heading p {
-            margin: 8px auto 0;
-
-            max-width: 620px;
-
-            color: #777e8e;
-
-            font-size: 12px;
-
-            line-height: 1.6;
-        }
-
-        .database-flow {
-            display: grid;
-
-            grid-template-columns:
-                1fr
-                45px
-                1fr
-                45px
-                1fr
-                45px
-                1fr;
-
-            align-items: center;
-
-            gap: 10px;
-        }
-
-        .flow-card {
-            background: #111318;
-
-            border: 1px solid #292d37;
-
-            border-radius: 18px;
-
-            padding: 20px 14px;
-
-            text-align: center;
-
-            transition: 0.25s;
-        }
-
-        .flow-card:hover {
-            border-color: #f97316;
-
-            transform: translateY(-3px);
-        }
-
-        .flow-icon {
-            width: 48px;
-            height: 48px;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            margin: 0 auto 10px;
-
-            border-radius: 14px;
-
-            background: rgba(249,115,22,0.09);
-
-            border: 1px solid rgba(249,115,22,0.18);
-
-            font-size: 23px;
-        }
-
-        .flow-card h3 {
-            color: #ffffff;
-
-            font-size: 13px;
-
-            margin-bottom: 5px;
-        }
-
-        .flow-card p {
-            color: #777e8e;
-
-            font-size: 10px;
-
-            line-height: 1.5;
-        }
-
-        .flow-arrow {
-            color: #f97316;
-
-            font-size: 22px;
-
-            text-align: center;
-        }
-
-        .database-badge {
-            display: inline-block;
-
-            margin-top: 9px;
-
-            padding: 4px 8px;
-
-            border-radius: 20px;
-
-            color: #22c55e;
-
-            background: rgba(34,197,94,0.08);
-
-            border: 1px solid rgba(34,197,94,0.15);
-
-            font-size: 9px;
-
-            font-weight: 700;
-        }
-
-        /* ==============================
-           LOGIN AREA
-        ============================== */
-
-        .login-section {
-            min-height: 600px;
-
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
-            padding: 50px 20px;
-        }
-
-        .login-wrapper {
-            width: 100%;
-
-            max-width: 470px;
-        }
-
-        .card {
-            width: 100%;
-
-            background: #13151a;
-
-            border: 1px solid #2a2d38;
-
-            border-radius: 28px;
-
-            padding: 40px;
-
-            box-shadow:
-                0 25px 80px rgba(0,0,0,0.35);
-        }
-
-        .login-icon {
-            width: 55px;
-            height: 55px;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 16px;
-
-            background: rgba(249,115,22,0.1);
-
-            border: 1px solid rgba(249,115,22,0.2);
-
-            font-size: 25px;
-
-            margin-bottom: 18px;
-        }
-
-        .card h2 {
-            font-size: 29px;
-
-            margin-bottom: 8px;
-        }
-
-        .login-subtitle {
-            color: #777e8e;
-
-            font-size: 13px;
-
-            line-height: 1.6;
-
-            margin-bottom: 25px;
-        }
-
-        .input-group {
-            margin-bottom: 14px;
-        }
-
-        .input-group label {
-            display: block;
-
-            color: #aeb3c0;
-
-            font-size: 12px;
-
-            margin-bottom: 6px;
-        }
-
-        input {
-            width: 100%;
-
-            padding: 14px;
-
-            background: #1a1c23;
-
-            border: 1px solid #2a2d38;
-
-            border-radius: 12px;
-
-            color: white;
-
-            outline: none;
-
-            font-size: 14px;
-        }
-
-        input:focus {
-            border-color: #f97316;
-
-            box-shadow:
-                0 0 0 3px rgba(249,115,22,0.08);
-        }
-
-        button {
-            width: 100%;
-
-            padding: 14px;
-
-            margin-top: 8px;
-
-            background: #f97316;
-
-            color: #111;
-
-            border: none;
-
-            border-radius: 40px;
-
-            font-weight: 800;
-
-            cursor: pointer;
-
-            transition: 0.2s;
-        }
-
-        button:hover {
-            background: #fb923c;
-
-            transform: translateY(-1px);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-
-            cursor: not-allowed;
-        }
-
-        .error {
-            display: none;
-
-            margin-top: 13px;
-
-            padding: 10px;
-
-            border-radius: 10px;
-
-            color: #ef4444;
-
-            background: rgba(239,68,68,0.08);
-
-            font-size: 12px;
-        }
-
-        .success {
-            display: none;
-
-            margin-top: 13px;
-
-            padding: 10px;
-
-            border-radius: 10px;
-
-            color: #22c55e;
-
-            background: rgba(34,197,94,0.08);
-
-            font-size: 12px;
-        }
-
-        .links {
-            margin-top: 24px;
-
-            text-align: center;
-
-            font-size: 12px;
-
-            color: #666d7b;
-
-            line-height: 2;
-        }
-
-        .links a {
-            color: #f97316;
-
-            text-decoration: none;
-        }
-
-        .links a:hover {
-            color: #fb923c;
-        }
-
-        /* ==============================
-           LIVE DATABASE STATUS
-        ============================== */
-
-        .system-status {
-            margin-top: 18px;
-
-            padding: 20px;
-
-            background: #101217;
-
-            border: 1px solid #292d37;
-
-            border-radius: 20px;
-
-            box-shadow:
-                0 15px 50px rgba(0,0,0,0.25);
-        }
-
-        .status-header {
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            margin-bottom: 16px;
-        }
-
-        .status-header strong {
-            display: block;
-
-            color: #ffffff;
-
-            font-size: 14px;
-        }
-
-        .status-header span {
-            display: block;
-
-            margin-top: 3px;
-
-            color: #707786;
-
-            font-size: 11px;
-        }
-
-        .live-dot {
-            display: flex;
-
-            align-items: center;
-
-            gap: 6px;
-
-            color: #22c55e !important;
-
-            font-size: 10px !important;
-
-            font-weight: 800;
-        }
-
-        .live-dot span {
-            width: 7px;
-            height: 7px;
-
-            border-radius: 50%;
-
-            background: #22c55e;
-
-            box-shadow:
-                0 0 10px rgba(34,197,94,0.7);
-        }
-
-        .status-item {
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            padding: 11px 0;
-
-            border-bottom: 1px solid #20232c;
-        }
-
-        .status-name {
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-
-            color: #aeb3c0;
-
-            font-size: 12px;
-        }
-
-        .status-icon {
-            font-size: 15px;
-        }
-
-        .status-item strong {
-            font-size: 11px;
-
-            color: #22c55e;
-        }
-
-        .database-info {
-            display: grid;
-
-            grid-template-columns:
-                1fr 1fr 1fr;
-
-            gap: 8px;
-
-            margin-top: 14px;
-
-            padding-top: 14px;
-
-            border-top: 1px solid #252832;
-        }
-
-        .database-info div {
-            background: #171a20;
-
-            border: 1px solid #242833;
-
-            border-radius: 10px;
-
-            padding: 10px;
-
-            text-align: center;
-        }
-
-        .database-info span {
-            display: block;
-
-            color: #666d7b;
-
-            font-size: 9px;
-
-            margin-bottom: 5px;
-        }
-
-        .database-info strong {
-            display: block;
-
-            color: #f97316;
-
-            font-size: 11px;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-
-            white-space: nowrap;
-        }
-
-        /* ==============================
-           SECURITY NOTE
-        ============================== */
-
-        .security-note {
-            margin-top: 12px;
-
-            padding: 11px;
-
-            border-radius: 12px;
-
-            background: rgba(59,130,246,0.06);
-
-            border: 1px solid rgba(59,130,246,0.12);
-
-            color: #788195;
-
-            font-size: 10px;
-
-            line-height: 1.6;
-
-            text-align: center;
-        }
-
-        .security-note strong {
-            color: #9aa5bb;
-        }
-
-        /* ==============================
-           FOOTER
-        ============================== */
-
-        footer {
-            border-top: 1px solid #252832;
-
-            padding: 35px 20px;
-
-            text-align: center;
-
-            color: #656b78;
-
-            font-size: 12px;
-        }
-
-        footer strong {
-            color: #d9dce3;
-        }
-
-        .socials {
-            margin-top: 12px;
-
-            display: flex;
-
-            justify-content: center;
-
-            gap: 20px;
-
-            flex-wrap: wrap;
-        }
-
-        .socials a {
-            color: #f97316;
-
-            text-decoration: none;
-        }
-
-        .socials a:hover {
-            color: #fb923c;
-        }
-
-        /* ==============================
-           MOBILE
-        ============================== */
-
-        @media (max-width: 950px) {
-
-            .database-flow {
-                grid-template-columns: 1fr;
-
-                gap: 8px;
-            }
-
-            .flow-arrow {
-                transform: rotate(90deg);
-            }
-        }
-
-        @media (max-width: 850px) {
-
-            .nav-menu {
-                display: none;
-            }
-
-            .hero {
-                grid-template-columns: 1fr;
-
-                padding-top: 95px;
-            }
-
-            .student-image {
-                min-height: 330px;
-            }
-
-            .levels {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 500px) {
-
-            .hero {
-                padding-left: 20px;
-
-                padding-right: 20px;
-            }
-
-            .hero h1 {
-                font-size: 40px;
-            }
-
-            .card {
-                padding: 28px 22px;
-            }
-
-            .student-image {
-                min-height: 280px;
-            }
-
-            .database-info {
-                grid-template-columns: 1fr;
-            }
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ML Predictor - Machine Learning student academic prediction platform.">
+<title>ML Predictor · Welcome</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%23f97316'/><text x='32' y='43' font-size='32' text-anchor='middle' fill='%23111' font-family='Arial' font-weight='800'>ML</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{--o:#f97316;--o2:#fb923c;--bg:#080a0e;--card:#111318;--line:#272a34;--mut:#8a91a0;--g:#22c55e;--p:#a855f7;--b:#3b82f6}
+body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:#e8eaf0;min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(600px 400px at 10% 10%,rgba(249,115,22,.13),transparent),radial-gradient(600px 500px at 90% 40%,rgba(168,85,247,.10),transparent),radial-gradient(500px 400px at 30% 90%,rgba(59,130,246,.09),transparent)}
+a{color:inherit}
+.navbar{position:fixed;top:0;left:0;width:100%;height:65px;padding:0 6%;display:flex;align-items:center;justify-content:space-between;background:rgba(11,12,14,.92);border-bottom:1px solid #252832;z-index:1000;backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand svg{width:38px;height:38px}
+.logo{color:var(--o);font-size:19px;font-weight:800;letter-spacing:1px}.logo span{color:#fff}
+.nav-menu{display:flex;gap:24px;list-style:none;align-items:center}
+.nav-menu a{color:#aeb3c0;text-decoration:none;font-size:13px;transition:.2s}.nav-menu a:hover{color:var(--o)}
+.nav-cta{background:var(--o);color:#111!important;padding:8px 16px;border-radius:30px;font-weight:800}
+.ticker{margin-top:65px;background:linear-gradient(90deg,var(--o),#ec4899,var(--p));overflow:hidden;white-space:nowrap;padding:9px 0}
+.ticker div{display:inline-block;padding-left:100%;animation:tick 32s linear infinite;color:#fff;font-weight:700;font-size:13px}
+.ticker:hover div{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-100%)}}
+.hero{padding:50px 6%;display:grid;grid-template-columns:1fr 1fr;gap:45px;max-width:1400px;margin:auto;align-items:center}
+.tag{display:inline-block;color:var(--o);border:1px solid rgba(249,115,22,.3);background:rgba(249,115,22,.07);padding:8px 14px;border-radius:30px;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:20px}
+.hero h1{font-size:clamp(36px,5vw,62px);line-height:1.05;margin-bottom:18px}
+.hero h1 span{background:linear-gradient(90deg,var(--o),#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rot{color:var(--g);font-weight:800;font-size:18px;min-height:30px;margin-bottom:12px;transition:opacity .4s}
+.hero-description{color:#9aa0ae;line-height:1.8;font-size:15px;max-width:580px}
+.hero-btns{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 26px;border-radius:40px;font-weight:800;font-size:14px;text-decoration:none;transition:.2s}
+.btn.p{background:var(--o);color:#111}.btn.p:hover{background:var(--o2);transform:translateY(-2px)}
+.btn.s{border:1px solid #3a3f4d;color:#fff}.btn.s:hover{border-color:var(--o);color:var(--o)}
+.student-image{position:relative;min-height:430px;border-radius:30px;overflow:hidden;border:1px solid #292d37;background:linear-gradient(to bottom,rgba(8,10,14,.08),rgba(8,10,14,.82)),url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=90") center/cover;animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.image-label{position:absolute;bottom:22px;left:22px;right:22px;background:rgba(8,10,14,.84);border:1px solid rgba(255,255,255,.1);padding:18px;border-radius:18px;backdrop-filter:blur(10px)}
+.image-label strong{display:block;margin-bottom:5px}.image-label span{color:#aeb3c0;font-size:12px;line-height:1.6}
+.stats{max-width:1100px;margin:0 auto 40px;padding:0 6%;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 10px}
+.stat b{display:block;font-size:26px;color:var(--o)}.stat span{font-size:11px;color:var(--mut)}
+.sec{max-width:1250px;margin:0 auto 60px;padding:0 6%}
+.sh{text-align:center;margin-bottom:26px}
+.sh small{color:var(--o);font-size:10px;font-weight:800;letter-spacing:2px}
+.sh h2{margin-top:8px;font-size:28px}
+.sh p{margin:8px auto 0;max-width:640px;color:var(--mut);font-size:13px;line-height:1.7}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.level{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:25px;transition:.25s}
+.level:hover{transform:translateY(-5px);border-color:var(--o);box-shadow:0 15px 40px rgba(249,115,22,.1)}
+.level-icon{font-size:28px;margin-bottom:12px;color:var(--o);font-weight:800}
+.level h3{margin-bottom:8px}.level p{color:var(--mut);font-size:13px;line-height:1.7}
+.steps{display:grid;gap:14px;max-width:820px;margin:auto}
+.step{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;transition:.25s}
+.step:hover{border-color:var(--o);transform:translateX(6px)}
+.num{flex:none;width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--o),#ec4899);color:#111;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:18px}
+.step h3{font-size:15px;margin-bottom:4px}.step p{color:var(--mut);font-size:13px;line-height:1.7}
+.videos{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.vid{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.vbox{aspect-ratio:16/9;background:linear-gradient(135deg,#1b1e27,#12141a);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--mut);font-size:12px;padding:12px}
+.vbox iframe,.vbox video{width:100%;height:100%;border:0}
+.vid h3{padding:14px 16px 4px;font-size:14px}.vid p{padding:0 16px 16px;color:var(--mut);font-size:12px}
+.slider{max-width:760px;margin:auto;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:34px 26px;min-height:200px}
+.slide{display:none;animation:fade .6s}.slide.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateX(30px)}}
+.slide q{display:block;font-size:17px;line-height:1.7;color:#dfe2ea;font-style:italic;margin-bottom:14px;quotes:none}
+.slide b{color:var(--o);font-size:13px}
+.dots{display:flex;justify-content:center;gap:8px;margin-top:20px}
+.dots i{width:9px;height:9px;border-radius:50%;background:#3a3f4d;cursor:pointer}.dots i.on{background:var(--o);width:24px;border-radius:6px}
+.database-flow{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr 40px 1fr;align-items:center;gap:10px}
+.flow-card{background:var(--card);border:1px solid #292d37;border-radius:18px;padding:20px 14px;text-align:center;transition:.25s}
+.flow-card:hover{border-color:var(--o);transform:translateY(-3px)}
+.flow-icon{width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;border-radius:14px;background:rgba(249,115,22,.09);border:1px solid rgba(249,115,22,.18);font-size:23px}
+.flow-card h3{font-size:13px;margin-bottom:5px}.flow-card p{color:var(--mut);font-size:11px;line-height:1.5}
+.flow-arrow{color:var(--o);font-size:22px;text-align:center}
+.database-badge{display:inline-block;margin-top:9px;padding:4px 8px;border-radius:20px;color:var(--g);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);font-size:9px;font-weight:700}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 auto 10px;max-width:820px}
+summary{cursor:pointer;font-weight:700;font-size:14px}
+details p{color:var(--mut);font-size:13px;line-height:1.7;margin-top:10px}
+.login-section{display:flex;justify-content:center;padding:50px 20px}
+.login-wrapper{width:100%;max-width:470px}
+.card{background:#13151a;border:1px solid #2a2d38;border-radius:28px;padding:40px;box-shadow:0 25px 80px rgba(0,0,0,.35)}
+.login-icon{width:55px;height:55px;display:flex;align-items:center;justify-content:center;border-radius:16px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);font-size:25px;margin-bottom:18px}
+.card h2{font-size:29px;margin-bottom:8px}
+.login-subtitle{color:var(--mut);font-size:13px;line-height:1.6;margin-bottom:22px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;background:#fff;color:#222;border-radius:40px;font-weight:700;font-size:14px;text-decoration:none;transition:.2s}
+.gbtn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,255,255,.12)}
+.gbtn svg{width:20px;height:20px}
+.or{display:flex;align-items:center;gap:10px;color:#666d7b;font-size:11px;margin:18px 0}
+.or:before,.or:after{content:"";flex:1;height:1px;background:#2a2d38}
+.input-group{margin-bottom:14px}
+.input-group label{display:block;color:#aeb3c0;font-size:12px;margin-bottom:6px}
+input{width:100%;padding:14px;background:#1a1c23;border:1px solid #2a2d38;border-radius:12px;color:#fff;outline:none;font-size:14px}
+input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+button{width:100%;padding:14px;margin-top:8px;background:var(--o);color:#111;border:none;border-radius:40px;font-weight:800;cursor:pointer;transition:.2s}
+button:hover{background:var(--o2);transform:translateY(-1px)}
+button:disabled{opacity:.6;cursor:not-allowed}
+.error,.success{display:none;margin-top:13px;padding:10px;border-radius:10px;font-size:12px}
+.error{color:#ef4444;background:rgba(239,68,68,.08)}.success{color:var(--g);background:rgba(34,197,94,.08)}
+.links{margin-top:24px;text-align:center;font-size:12px;color:#666d7b;line-height:2}
+.links a{color:var(--o);text-decoration:none}
+.system-status{margin-top:18px;padding:20px;background:#101217;border:1px solid #292d37;border-radius:20px}
+.status-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.status-header strong{display:block;font-size:14px}.status-header span{display:block;margin-top:3px;color:#707786;font-size:11px}
+.live-dot{display:flex;align-items:center;gap:6px;color:var(--g)!important;font-size:10px!important;font-weight:800}
+.live-dot span{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 10px rgba(34,197,94,.7);animation:pulse 1.5s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.status-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #20232c}
+.status-name{display:flex;align-items:center;gap:9px;color:#aeb3c0;font-size:12px}
+.status-item strong{font-size:11px;color:var(--g)}
+.database-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;padding-top:14px}
+.database-info div{background:#171a20;border:1px solid #242833;border-radius:10px;padding:10px;text-align:center}
+.database-info span{display:block;color:#666d7b;font-size:9px;margin-bottom:5px}
+.database-info strong{display:block;color:var(--o);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.security-note{margin-top:12px;padding:11px;border-radius:12px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);color:#788195;font-size:10px;line-height:1.6;text-align:center}
+.contact{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:auto}
+.cc{text-align:center;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 14px;transition:.25s}
+.cc:hover{transform:translateY(-5px)}
+.cc svg{width:34px;height:34px;margin-bottom:10px}
+.cc b{display:block;font-size:14px;margin-bottom:4px}.cc span{font-size:12px;color:var(--mut);word-break:break-all}
+.cc.w:hover{border-color:#25d366}.cc.c:hover{border-color:var(--b)}.cc.e:hover{border-color:#ec4899}
+footer{border-top:1px solid #252832;padding:35px 20px 90px;text-align:center;color:#656b78;font-size:12px}
+footer strong{color:#d9dce3}
+.socials{margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+.socials a{color:var(--o);text-decoration:none}
+.fab{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:999}
+.fab a{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:.2s}
+.fab a:hover{transform:scale(1.1)}
+.fab svg{width:26px;height:26px;fill:#fff}
+.rv{opacity:0;transform:translateY(30px);transition:.7s}.rv.in{opacity:1;transform:none}
+@media(max-width:950px){.database-flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}}
+@media(max-width:850px){.nav-menu li:not(:last-child){display:none}.hero{grid-template-columns:1fr}.student-image{min-height:320px}.grid3,.videos,.contact{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.card{padding:28px 22px}.database-info{grid-template-columns:1fr}}
+</style>
 </head>
-
 <body>
 
-
-<!-- ==============================
-     NAVIGATION
-============================== -->
-
 <nav class="navbar">
-
-    <div class="logo">
-        ML <span>PREDICTOR</span>
-    </div>
-
-    <ul class="nav-menu">
-
-        <li>
-            <a href="#home">Home</a>
-        </li>
-
-        <li>
-            <a href="#about">About</a>
-        </li>
-
-        <li>
-            <a href="#database">Technology</a>
-        </li>
-
-        <li>
-            <a href="#how">How It Works</a>
-        </li>
-
-        <li>
-            <a href="#login">Login</a>
-        </li>
-
-    </ul>
-
+  <a class="brand" href="#home">
+    <svg viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f97316"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#lg)"/><path d="M12 44V22l10 12 10-12v22M38 22v22h14" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="16" r="4" fill="#111"/></svg>
+    <div class="logo">ML <span>PREDICTOR</span></div>
+  </a>
+  <ul class="nav-menu">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a class="nav-cta" href="#login">Login</a></li>
+  </ul>
 </nav>
 
-
-<!-- ==============================
-     HERO
-============================== -->
+<div class="ticker"><div>🎓 Welcome to ML Predictor &nbsp;•&nbsp; 📊 Know your results before the exam &nbsp;•&nbsp; 🤖 Machine Learning helps you study smarter &nbsp;•&nbsp; 🚀 Pass with confidence &nbsp;•&nbsp; 📚 O-Level · A-Level · NIT &nbsp;•&nbsp; 🔐 Your data is protected &nbsp;•&nbsp; 💬 Chat with us on WhatsApp: 0798555810</div></div>
 
 <section class="hero" id="home">
-
-    <div class="hero-text">
-
-        <div class="tag">
-            MACHINE LEARNING · EDUCATION
-        </div>
-
-        <h1>
-            Understand Your
-            <span>Academic Future.</span>
-        </h1>
-
-        <p class="hero-description">
-            Welcome to ML Predictor, a Machine Learning platform
-            designed to analyze student academic information and
-            provide a prediction of their learning outcome.
-        </p>
-
-    </div>
-
-
-    <div class="student-image">
-
-        <div class="image-label">
-
-            <strong>
-                🎓 Learn · Analyze · Improve
-            </strong>
-
-            <span>
-                Helping students study smarter, understand their
-                performance and improve their academic journey
-                through Machine Learning.
-            </span>
-
-        </div>
-
-    </div>
-
+  <div>
+    <div class="tag">MACHINE LEARNING · EDUCATION</div>
+    <h1>Understand Your <span>Academic Future.</span></h1>
+    <div class="rot" id="rot"></div>
+    <p class="hero-description">Welcome to ML Predictor, a Machine Learning platform designed to analyze student academic information and provide a prediction of their learning outcome.</p>
+    <div class="hero-btns"><a class="btn p" href="#login">Sign in →</a><a class="btn s" href="#how">See how it works</a></div>
+  </div>
+  <div class="student-image">
+    <div class="image-label"><strong>🎓 Learn · Analyze · Improve</strong><span>Helping students study smarter, understand their performance and improve their academic journey through Machine Learning.</span></div>
+  </div>
 </section>
 
+<div class="stats rv">
+  <div class="stat"><b data-to="3">0</b><span>Main levels (O, A, NIT)</span></div>
+  <div class="stat"><b data-to="100" data-suf="%">0</b><span>Easy to use</span></div>
+  <div class="stat"><b data-to="24" data-suf="/7">0</b><span>Available anytime</span></div>
+  <div class="stat"><b>PASS/FAIL</b><span>Result + probability (%)</span></div>
+</div>
 
-<!-- ==============================
-     EDUCATION LEVELS
-============================== -->
-
-<section class="levels" id="about">
-
-    <div class="level">
-
-        <div class="level-icon">
-            📚
-        </div>
-
-        <h3>
-            O-Level
-        </h3>
-
-        <p>
-            Students can use academic information to understand
-            their learning performance and identify areas that
-            may require improvement.
-        </p>
-
-    </div>
-
-
-    <div class="level">
-
-        <div class="level-icon">
-            🎓
-        </div>
-
-        <h3>
-            A-Level
-        </h3>
-
-        <p>
-            Academic data can be analyzed to help students
-            understand their progress and estimate their
-            possible academic outcome.
-        </p>
-
-    </div>
-
-
-    <div class="level">
-
-        <div class="level-icon">
-            💻
-        </div>
-
-        <h3>
-            NIT & Technical Students
-        </h3>
-
-        <p>
-            Students can enter study hours, attendance,
-            assignments, CAT and practical marks for analysis.
-        </p>
-
-    </div>
-
+<section class="sec rv" id="about">
+  <div class="sh"><small>ABOUT</small><h2>Who Is It For?</h2><p>ML Predictor serves students at different levels and helps them understand where they stand.</p></div>
+  <div class="grid3">
+    <div class="level"><div class="level-icon">📚</div><h3>O-Level</h3><p>Students can use academic information to understand their learning performance and identify areas that may require improvement.</p></div>
+    <div class="level"><div class="level-icon">🎓</div><h3>A-Level</h3><p>Academic data can be analyzed to help students understand their progress and estimate their possible academic outcome.</p></div>
+    <div class="level"><div class="level-icon">💻</div><h3>NIT & Technical Students</h3><p>Students can enter study hours, attendance, assignments, CAT and practical marks for analysis.</p></div>
+  </div>
 </section>
 
-
-<!-- ==============================
-     HOW IT WORKS
-============================== -->
-
-<section class="levels" id="how">
-
-    <div class="level">
-
-        <div class="level-icon">
-            01
-        </div>
-
-        <h3>
-            Create Account
-        </h3>
-
-        <p>
-            Create your own account so that your academic
-            information and prediction history remain connected
-            to your personal account.
-        </p>
-
-    </div>
-
-
-    <div class="level">
-
-        <div class="level-icon">
-            02
-        </div>
-
-        <h3>
-            Enter Information
-        </h3>
-
-        <p>
-            Enter your subject, study hours, attendance,
-            assignment, CAT and practical performance.
-        </p>
-
-    </div>
-
-
-    <div class="level">
-
-        <div class="level-icon">
-            03
-        </div>
-
-        <h3>
-            Get Prediction
-        </h3>
-
-        <p>
-            The Machine Learning model analyzes your information
-            and provides a PASS or FAIL prediction with its
-            estimated probability.
-        </p>
-
-    </div>
-
+<section class="sec rv" id="how">
+  <div class="sh"><small>STEP BY STEP</small><h2>How to Use ML Predictor</h2><p>Follow these 6 simple steps and get your result in minutes.</p></div>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><div><h3>Create your account</h3><p>Click "Create account" in the login box below. Enter a username, email and a strong password, or simply use Google to sign up in seconds.</p></div></div>
+    <div class="step"><div class="num">2</div><div><h3>Sign in</h3><p>Enter your username and password and click "Sign in →", or click "Continue with Google". You will be taken to your personal dashboard.</p></div></div>
+    <div class="step"><div class="num">3</div><div><h3>Choose a subject</h3><p>In the dashboard, enter or select the subject you want to analyze (for example Mathematics, Physics or Networking).</p></div></div>
+    <div class="step"><div class="num">4</div><div><h3>Fill in your information</h3><p>Enter your study hours, attendance, assignments, CAT and practical marks. The more accurate your data, the better the prediction.</p></div></div>
+    <div class="step"><div class="num">5</div><div><h3>Click "Predict"</h3><p>The Machine Learning model analyzes your data and gives you a <b style="color:#22c55e">PASS</b> or <b style="color:#ef4444">FAIL</b> result with its probability.</p></div></div>
+    <div class="step"><div class="num">6</div><div><h3>Improve and try again</h3><p>If the result is not good, study more or attend more classes, then try again. Your full prediction history is saved to your account.</p></div></div>
+  </div>
 </section>
 
-
-<!-- ==============================
-     DATABASE TECHNOLOGY
-============================== -->
-
-<section class="database-section" id="database">
-
-    <div class="section-heading">
-
-        <small>
-            SYSTEM ARCHITECTURE
-        </small>
-
-        <h2>
-            How Your Data Connects
-        </h2>
-
-        <p>
-            ML Predictor uses a web application, backend server
-            and cloud database to securely manage authentication,
-            student information and prediction history.
-        </p>
-
-    </div>
-
-
-    <div class="database-flow">
-
-
-        <!-- LOGIN -->
-
-        <div class="flow-card">
-
-            <div class="flow-icon">
-                🔐
-            </div>
-
-            <h3>
-                Login
-            </h3>
-
-            <p>
-                User authentication starts here.
-            </p>
-
-        </div>
-
-
-        <div class="flow-arrow">
-            →
-        </div>
-
-
-        <!-- FLASK -->
-
-        <div class="flow-card">
-
-            <div class="flow-icon">
-                🐍
-            </div>
-
-            <h3>
-                Flask Backend
-            </h3>
-
-            <p>
-                Handles login, prediction and
-                database requests.
-            </p>
-
-        </div>
-
-
-        <div class="flow-arrow">
-            →
-        </div>
-
-
-        <!-- RENDER -->
-
-        <div class="flow-card">
-
-            <div class="flow-icon">
-                ☁️
-            </div>
-
-            <h3>
-                Cloud Server
-            </h3>
-
-            <p>
-                Hosts the ML Predictor application
-                online.
-            </p>
-
-        </div>
-
-
-        <div class="flow-arrow">
-            →
-        </div>
-
-
-        <!-- TIDB -->
-
-        <div class="flow-card">
-
-            <div class="flow-icon">
-                🗄️
-            </div>
-
-            <h3>
-                TiDB Cloud
-            </h3>
-
-            <p>
-                MySQL-compatible cloud database
-                storing application data.
-            </p>
-
-            <span class="database-badge">
-                DATABASE
-            </span>
-
-        </div>
-
-
-    </div>
-
+<section class="sec rv" id="videos">
+  <div class="sh"><small>INSPIRATION</small><h2>Student Study Videos</h2><p>Watch proven study strategies and get motivated to study smarter and pass with confidence!</p></div>
+  <div class="videos" id="videoGrid"></div>
 </section>
 
+<section class="sec rv">
+  <div class="sh"><small>FEEDBACK</small><h2>What Students Say</h2></div>
+  <div class="slider">
+    <div class="slide on"><q>I saw my chances before the exam, studied more hours, and passed!</q><b>— A-Level student</b></div>
+    <div class="slide"><q>Easy to use, and the result is very clear.</q><b>— NIT student</b></div>
+    <div class="slide"><q>It helped me find the subject that needs more effort.</q><b>— O-Level student</b></div>
+    <div class="slide"><q>The dashboard and my prediction history are excellent.</q><b>— Technical student</b></div>
+    <div class="dots" id="dots"></div>
+  </div>
+</section>
 
-<!-- ==============================
-     LOGIN
-============================== -->
+<section class="sec rv" id="database">
+  <div class="sh"><small>SYSTEM ARCHITECTURE</small><h2>How Your Data Connects</h2><p>ML Predictor uses a web application, backend server and cloud database to securely manage authentication, student information and prediction history.</p></div>
+  <div class="database-flow">
+    <div class="flow-card"><div class="flow-icon">🔐</div><h3>Login</h3><p>User authentication starts here.</p></div><div class="flow-arrow">→</div>
+    <div class="flow-card"><div class="flow-icon">🐍</div><h3>Flask Backend</h3><p>Handles login, prediction and database requests.</p></div><div class="flow-arrow">→</div>
+    <div class="flow-card"><div class="flow-icon">☁️</div><h3>Cloud Server</h3><p>Hosts the ML Predictor application online.</p></div><div class="flow-arrow">→</div>
+    <div class="flow-card"><div class="flow-icon">🗄️</div><h3>TiDB Cloud</h3><p>MySQL-compatible cloud database storing application data.</p><span class="database-badge">DATABASE</span></div>
+  </div>
+</section>
+
+<section class="sec rv">
+  <div class="sh"><small>FAQ</small><h2>Frequently Asked Questions</h2></div>
+  <details><summary>Is my data protected?</summary><p>Yes. Passwords are stored securely and are never displayed on the website.</p></details>
+  <details><summary>Is the prediction 100% accurate?</summary><p>No. It is an estimate based on the information you enter. It helps you prepare but does not decide your exam results.</p></details>
+  <details><summary>I forgot my password. What should I do?</summary><p>Click "Forgot password?" in the login box and follow the instructions.</p></details>
+  <details><summary>How can I get help?</summary><p>Contact us on WhatsApp, by phone or by email at the bottom of this page.</p></details>
+</section>
 
 <section class="login-section" id="login">
-
-    <div class="login-wrapper">
-
-
-        <div class="card">
-
-            <div class="login-icon">
-                🔐
-            </div>
-
-            <h2>
-                Welcome Back
-            </h2>
-
-            <p class="login-subtitle">
-                Login to access your personal ML Predictor
-                dashboard, predictions and academic history.
-            </p>
-
-
-            <div class="input-group">
-
-                <label for="username">
-                    Username
-                </label>
-
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
-                    autocomplete="username"
-                    autocapitalize="none"
-                    spellcheck="false"
-                >
-
-            </div>
-
-
-            <div class="input-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                >
-
-            </div>
-
-
-            <button
-                id="loginButton"
-                onclick="doLogin()"
-            >
-                Sign in →
-            </button>
-
-
-            <div id="errorMsg" class="error"></div>
-
-            <div id="successMsg" class="success"></div>
-
-
-            <div class="links">
-
-                <a href="/signup">
-                    Create account
-                </a>
-
-                &nbsp; | &nbsp;
-
-                <a href="/forgot">
-                    Forgot password?
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- ==============================
-             LIVE SYSTEM STATUS
-        ============================== -->
-
-        <div class="system-status">
-
-            <div class="status-header">
-
-                <div>
-
-                    <strong>
-                        System Status
-                    </strong>
-
-                    <span>
-                        ML Predictor infrastructure
-                    </span>
-
-                </div>
-
-                <div class="live-dot">
-
-                    <span></span>
-
-                    LIVE
-
-                </div>
-
-            </div>
-
-
-            <div class="status-item">
-
-                <div class="status-name">
-
-                    <span class="status-icon">
-                        🗄️
-                    </span>
-
-                    Database
-
-                </div>
-
-                <strong id="databaseStatus">
-                    Checking...
-                </strong>
-
-            </div>
-
-
-            <div class="status-item">
-
-                <div class="status-name">
-
-                    <span class="status-icon">
-                        🔐
-                    </span>
-
-                    Authentication
-
-                </div>
-
-                <strong id="authStatus">
-                    Checking...
-                </strong>
-
-            </div>
-
-
-            <div class="status-item">
-
-                <div class="status-name">
-
-                    <span class="status-icon">
-                        🤖
-                    </span>
-
-                    ML Predictor
-
-                </div>
-
-                <strong id="mlStatus">
-                    Checking...
-                </strong>
-
-            </div>
-
-
-            <div class="database-info">
-
-                <div>
-
-                    <span>
-                        DATABASE
-                    </span>
-
-                    <strong id="databaseName">
-                        TiDB Cloud
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        USERS
-                    </span>
-
-                    <strong id="usersCount">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        PREDICTIONS
-                    </span>
-
-                    <strong id="predictionsCount">
-                        —
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <div class="security-note">
-
-                🔒 <strong>Your credentials remain protected.</strong>
-                Database passwords and private connection credentials
-                are never displayed on this page.
-
-            </div>
-
-        </div>
-
+  <div class="login-wrapper">
+    <div class="card">
+      <div class="login-icon">🔐</div>
+      <h2>Welcome Back</h2>
+      <p class="login-subtitle">Login to access your personal ML Predictor dashboard, predictions and academic history.</p>
+
+      <a class="gbtn" href="/auth/google">
+        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 12-2.1 16-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+        Continue with Google
+      </a>
+      <div class="or">or sign in with username</div>
+
+      <div class="input-group"><label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+      <div class="input-group"><label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password"></div>
+
+      <button id="loginButton" onclick="doLogin()">Sign in →</button>
+      <div id="errorMsg" class="error"></div>
+      <div id="successMsg" class="success"></div>
+      <div class="links"><a href="/signup">Create account</a> &nbsp;|&nbsp; <a href="/forgot">Forgot password?</a></div>
     </div>
 
+    <div class="system-status">
+      <div class="status-header">
+        <div><strong>System Status</strong><span>ML Predictor infrastructure</span></div>
+        <div class="live-dot"><span></span>LIVE</div>
+      </div>
+      <div class="status-item"><div class="status-name">🗄️ Database</div><strong id="databaseStatus">Checking...</strong></div>
+      <div class="status-item"><div class="status-name">🔐 Authentication</div><strong id="authStatus">Checking...</strong></div>
+      <div class="status-item"><div class="status-name">🤖 ML Predictor</div><strong id="mlStatus">Checking...</strong></div>
+      <div class="database-info">
+        <div><span>DATABASE</span><strong id="databaseName">TiDB Cloud</strong></div>
+        <div><span>USERS</span><strong id="usersCount">—</strong></div>
+        <div><span>PREDICTIONS</span><strong id="predictionsCount">—</strong></div>
+      </div>
+      <div class="security-note">🔒 <strong>Your credentials remain protected.</strong> Database passwords and private connection credentials are never displayed on this page.</div>
+    </div>
+  </div>
 </section>
 
-
-<!-- ==============================
-     FOOTER
-============================== -->
+<section class="sec rv" id="contact">
+  <div class="sh"><small>CONTACT</small><h2>Need help? Contact us!</h2><p>Have a question about your account or want to learn more? We are here to help.</p></div>
+  <div class="contact">
+    <a class="cc w" href="https://wa.me/250798555810" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="#25d366"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.8 14.2c-.2.7-1.4 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.1-.2-1.2-1.6-1.2-3s.8-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.4-.4.5c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 1.9 1.1 1 2 1.3 2.3 1.4.3.1.4.1.6-.1l.8-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.1.1.7-.1 1.4z"/></svg>
+      <b>WhatsApp</b><span>0798555810</span></a>
+    <a class="cc c" href="tel:+250798555810">
+      <svg viewBox="0 0 24 24" fill="#3b82f6"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.3.2 2.5.6 3.6a1 1 0 0 1-.25 1z"/></svg>
+      <b>Call us</b><span>0798555810</span></a>
+    <a class="cc e" href="mailto:tuyishimeeric139@gmail.com">
+      <svg viewBox="0 0 24 24" fill="#ec4899"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg>
+      <b>Email</b><span>tuyishimeeric139@gmail.com</span></a>
+  </div>
+</section>
 
 <footer>
-
-    <div>
-
-        © 2026
-
-        <strong>
-            Tuyishime Eric
-        </strong>
-
-        · ML Predictor
-
-    </div>
-
-
-    <div class="socials">
-
-        <a
-            href="https://www.instagram.com/nivax_killer"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            Instagram · @nivax_killer
-        </a>
-
-
-        <a
-            href="https://www.tiktok.com/@mr_analysiser"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            TikTok · @mr_analysiser
-        </a>
-
-    </div>
-
+  <div>© 2026 <strong>Tuyishime Eric</strong> · ML Predictor</div>
+  <div class="socials">
+    <a href="https://www.instagram.com/nivax_killer" target="_blank" rel="noopener noreferrer">Instagram · @nivax_killer</a>
+    <a href="https://www.tiktok.com/@mr_analysiser" target="_blank" rel="noopener noreferrer">TikTok · @mr_analysiser</a>
+  </div>
 </footer>
 
-
-<!-- ==============================
-     JAVASCRIPT
-============================== -->
+<div class="fab">
+  <a href="https://wa.me/250798555810" target="_blank" rel="noopener noreferrer" style="background:#25d366" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.8 14.2c-.2.7-1.4 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.1-.2-1.2-1.6-1.2-3s.8-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.4-.4.5c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 1.9 1.1 1 2 1.3 2.3 1.4.3.1.4.1.6-.1l.8-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.1.1.7-.1 1.4z"/></svg></a>
+  <a href="tel:+250798555810" style="background:#3b82f6" title="Call"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.3.2 2.5.6 3.6a1 1 0 0 1-.25 1z"/></svg></a>
+  <a href="mailto:tuyishimeeric139@gmail.com" style="background:#ec4899" title="Email"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg></a>
+</div>
 
 <script>
-
-/* ==========================================
-   LOGIN
-========================================== */
-
-async function doLogin() {
-
-    const username =
-        document
-            .getElementById('username')
-            .value
-            .trim();
-
-    const password =
-        document
-            .getElementById('password')
-            .value;
-
-    const errorDiv =
-        document.getElementById('errorMsg');
-
-    const successDiv =
-        document.getElementById('successMsg');
-
-    const loginButton =
-        document.getElementById('loginButton');
-
-
-    errorDiv.innerText = '';
-    errorDiv.style.display = 'none';
-
-    successDiv.innerText = '';
-    successDiv.style.display = 'none';
-
-
-    if (!username || !password) {
-
-        errorDiv.innerText =
-            'Both username and password are required.';
-
-        errorDiv.style.display =
-            'block';
-
-        return;
+/* ===== VIDEOS: YouTube ID or mp4 path ===== */
+var VIDEOS = [
+  {title:"Study HARD, Study SMART", desc:"Motivational video on how to study effectively", src:"KxV5Oh0eb6Y"},
+  {title:"Study LESS, Study SMART", desc:"Get better results in less time", src:"AL08YZCYShc"},
+  {title:"3 Tips on How to Study Effectively", desc:"How the brain learns and stores information", src:"TjPFZaMe2yw"}
+];
+(function(){
+  var g=document.getElementById('videoGrid');
+  VIDEOS.forEach(function(v){
+    var inner='<div class="vbox">🎬 Add a video in the VIDEOS list</div>';
+    if(v.src){
+      inner=/\.(mp4|webm)$/i.test(v.src)
+        ? '<div class="vbox"><video controls preload="none" src="'+v.src+'"></video></div>'
+        : '<div class="vbox"><iframe loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/'+v.src+'"></iframe></div>';
     }
+    g.insertAdjacentHTML('beforeend','<div class="vid">'+inner+'<h3>'+v.title+'</h3><p>'+v.desc+'</p></div>');
+  });
+})();
 
+/* ===== Rotating words ===== */
+var words=["📊 Know your results before the exam","🤖 Machine Learning works for you","🚀 Pass your exams with confidence","📚 Study with purpose"],wi=0,rot=document.getElementById('rot');
+function nextWord(){rot.style.opacity=0;setTimeout(function(){rot.textContent=words[wi++%words.length];rot.style.opacity=1},400)}
+nextWord();setInterval(nextWord,3000);
 
-    loginButton.disabled = true;
+/* ===== Testimonial slider ===== */
+var slides=document.querySelectorAll('.slide'),dots=document.getElementById('dots'),si=0;
+slides.forEach(function(_,i){var d=document.createElement('i');d.onclick=function(){show(i)};dots.appendChild(d)});
+function show(i){si=i;slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)})}
+show(0);setInterval(function(){show((si+1)%slides.length)},4500);
 
-    loginButton.innerText =
-        'Signing in...';
+/* ===== Scroll reveal + counters ===== */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){
+  if(e.isIntersecting){e.target.classList.add('in');
+    e.target.querySelectorAll('[data-to]').forEach(function(n){
+      var to=+n.dataset.to,c=0,st=Math.max(1,Math.round(to/40));
+      var t=setInterval(function(){c=Math.min(to,c+st);n.textContent=c+(n.dataset.suf||'');if(c>=to)clearInterval(t)},30)});
+    io.unobserve(e.target)}})},{threshold:.15});
+document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
 
-
-    try {
-
-        const res =
-            await fetch('/api/login', {
-
-                method: 'POST',
-
-                headers: {
-                    'Content-Type':
-                        'application/json'
-                },
-
-                body: JSON.stringify({
-
-                    username: username,
-
-                    password: password
-
-                })
-
-            });
-
-
-        const data =
-            await res.json();
-
-
-        if (data.success) {
-
-            successDiv.innerText =
-                'Login successful. Opening your dashboard...';
-
-            successDiv.style.display =
-                'block';
-
-
-            setTimeout(function() {
-
-                window.location.href =
-                    data.redirect ||
-                    '/dashboard';
-
-            }, 300);
-
-
-        } else {
-
-            errorDiv.innerText =
-                data.error ||
-                'Invalid username or password.';
-
-            errorDiv.style.display =
-                'block';
-
-
-            loginButton.disabled =
-                false;
-
-            loginButton.innerText =
-                'Sign in →';
-        }
-
-
-    } catch (err) {
-
-        console.error(
-            'Login error:',
-            err
-        );
-
-
-        errorDiv.innerText =
-            'Connection error. Please try again.';
-
-        errorDiv.style.display =
-            'block';
-
-
-        loginButton.disabled =
-            false;
-
-        loginButton.innerText =
-            'Sign in →';
+/* ===== LOGIN ===== */
+async function doLogin(){
+  var username=document.getElementById('username').value.trim();
+  var password=document.getElementById('password').value;
+  var errorDiv=document.getElementById('errorMsg'),successDiv=document.getElementById('successMsg'),btn=document.getElementById('loginButton');
+  errorDiv.style.display='none';successDiv.style.display='none';
+  if(!username||!password){errorDiv.innerText='Both username and password are required.';errorDiv.style.display='block';return}
+  btn.disabled=true;btn.innerText='Signing in...';
+  try{
+    var res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username,password:password})});
+    var data=await res.json();
+    if(data.success){
+      successDiv.innerText='Login successful. Opening your dashboard...';successDiv.style.display='block';
+      setTimeout(function(){window.location.href=data.redirect||'/dashboard'},300);
+    }else{
+      errorDiv.innerText=data.error||'Invalid username or password.';errorDiv.style.display='block';
+      btn.disabled=false;btn.innerText='Sign in →';
     }
-
+  }catch(err){
+    console.error('Login error:',err);
+    errorDiv.innerText='Connection error. Please try again.';errorDiv.style.display='block';
+    btn.disabled=false;btn.innerText='Sign in →';
+  }
 }
+document.getElementById('password').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
 
-
-/* ==========================================
-   ENTER KEY LOGIN
-========================================== */
-
-document
-    .getElementById('password')
-    .addEventListener(
-        'keydown',
-        function(event) {
-
-            if (event.key === 'Enter') {
-
-                doLogin();
-
-            }
-
-        }
-    );
-
-
-/* ==========================================
-   SYSTEM STATUS
-========================================== */
-
-async function loadSystemStatus() {
-
-    const databaseStatus =
-        document.getElementById(
-            'databaseStatus'
-        );
-
-    const authStatus =
-        document.getElementById(
-            'authStatus'
-        );
-
-    const mlStatus =
-        document.getElementById(
-            'mlStatus'
-        );
-
-    const databaseName =
-        document.getElementById(
-            'databaseName'
-        );
-
-    const usersCount =
-        document.getElementById(
-            'usersCount'
-        );
-
-    const predictionsCount =
-        document.getElementById(
-            'predictionsCount'
-        );
-
-
-    try {
-
-        const response =
-            await fetch(
-                '/api/system-status',
-                {
-                    cache: 'no-store'
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (data.success) {
-
-            databaseStatus.innerText =
-                'Connected';
-
-            databaseStatus.style.color =
-                '#22c55e';
-
-
-            authStatus.innerText =
-                data.authentication ||
-                'Online';
-
-            authStatus.style.color =
-                '#22c55e';
-
-
-            mlStatus.innerText =
-                data.ml_predictor ||
-                'Ready';
-
-            mlStatus.style.color =
-                '#22c55e';
-
-
-            databaseName.innerText =
-                data.database_name ||
-                'TiDB Cloud';
-
-
-            usersCount.innerText =
-                data.users ?? '0';
-
-
-            predictionsCount.innerText =
-                data.predictions ?? '0';
-
-
-        } else {
-
-            setDatabaseOffline();
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            'System status error:',
-            error
-        );
-
-        setDatabaseOffline();
-
-    }
-
+/* ===== SYSTEM STATUS ===== */
+async function loadSystemStatus(){
+  var $=function(id){return document.getElementById(id)};
+  try{
+    var r=await fetch('/api/system-status',{cache:'no-store'});
+    var d=await r.json();
+    if(d.success){
+      $('databaseStatus').innerText='Connected';
+      $('authStatus').innerText=d.authentication||'Online';
+      $('mlStatus').innerText=d.ml_predictor||'Ready';
+      ['databaseStatus','authStatus','mlStatus'].forEach(function(i){$(i).style.color='#22c55e'});
+      $('databaseName').innerText=d.database_name||'TiDB Cloud';
+      $('usersCount').innerText=d.users??'0';
+      $('predictionsCount').innerText=d.predictions??'0';
+    }else{offline()}
+  }catch(e){console.error('System status error:',e);offline()}
 }
-
-
-/* ==========================================
-   OFFLINE STATUS
-========================================== */
-
-function setDatabaseOffline() {
-
-    const databaseStatus =
-        document.getElementById(
-            'databaseStatus'
-        );
-
-    const authStatus =
-        document.getElementById(
-            'authStatus'
-        );
-
-    const mlStatus =
-        document.getElementById(
-            'mlStatus'
-        );
-
-
-    databaseStatus.innerText =
-        'Disconnected';
-
-    databaseStatus.style.color =
-        '#ef4444';
-
-
-    authStatus.innerText =
-        'Offline';
-
-    authStatus.style.color =
-        '#ef4444';
-
-
-    mlStatus.innerText =
-        'Unavailable';
-
-    mlStatus.style.color =
-        '#ef4444';
+function offline(){
+  var m={databaseStatus:'Disconnected',authStatus:'Offline',mlStatus:'Unavailable'};
+  for(var k in m){var el=document.getElementById(k);el.innerText=m[k];el.style.color='#ef4444'}
 }
+document.addEventListener('DOMContentLoaded',loadSystemStatus);
 
-
-/* ==========================================
-   START SYSTEM CHECK
-========================================== */
-
-document.addEventListener(
-    'DOMContentLoaded',
-    function() {
-
-        loadSystemStatus();
-
-    }
-);
-
+/* ===== Google login errors ===== */
+(function(){var e=new URLSearchParams(location.search).get('error');if(!e)return;
+var m={google_failed:'Google sign-in failed. Please try again.',google_unverified:'Your Google email is not verified.',google_disabled:'Google sign-in is not configured yet.'};
+var d=document.getElementById('errorMsg');d.innerText=m[e]||'Sign-in error.';d.style.display='block';
+document.getElementById('login').scrollIntoView();})();
 </script>
-
 </body>
 </html>
