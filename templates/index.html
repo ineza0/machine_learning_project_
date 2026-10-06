@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +11,9 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
 <style>
 
@@ -45,6 +47,8 @@
     --red-bg:#2a1018;
 
     --blue:#60a5fa;
+    --purple:#a78bfa;
+    --yellow:#f59e0b;
 
     --radius-sm:9px;
     --radius-md:14px;
@@ -1588,11 +1592,15 @@ tbody tr:last-child td {
 
     box-shadow:var(--shadow);
 
-    transition:transform .2s;
+    transition:
+        transform .2s,
+        border-color .2s;
 }
 
 .stat-card:hover {
     transform:translateY(-2px);
+
+    border-color:var(--border-hover);
 }
 
 .stat-number {
@@ -1617,6 +1625,134 @@ tbody tr:last-child td {
     text-transform:uppercase;
 
     letter-spacing:.07em;
+}
+
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+.charts-grid {
+    display:grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0,1fr));
+
+    gap:16px;
+
+    margin-top:20px;
+
+    margin-bottom:20px;
+}
+
+.chart-card {
+    background:
+        linear-gradient(
+            160deg,
+            var(--bg-card-2),
+            var(--bg-card)
+        );
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius-lg);
+
+    padding:22px;
+
+    box-shadow:var(--shadow);
+
+    min-width:0;
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+.chart-card::before {
+    content:"";
+
+    position:absolute;
+
+    width:120px;
+    height:120px;
+
+    border-radius:50%;
+
+    background:var(--orange-glow);
+
+    right:-65px;
+    top:-65px;
+
+    pointer-events:none;
+}
+
+.chart-card.full-width {
+    grid-column:1 / -1;
+}
+
+.chart-heading {
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    gap:12px;
+
+    margin-bottom:18px;
+}
+
+.chart-title {
+    font-family:'Space Grotesk',sans-serif;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:var(--text-1);
+}
+
+.chart-subtitle {
+    color:var(--text-3);
+
+    font-size:10.5px;
+
+    line-height:1.5;
+
+    margin-top:4px;
+}
+
+.chart-badge {
+    padding:5px 9px;
+
+    border-radius:var(--radius-pill);
+
+    border:1px solid var(--border);
+
+    color:var(--text-3);
+
+    font-size:9px;
+
+    font-family:'JetBrains Mono',monospace;
+
+    white-space:nowrap;
+}
+
+.chart-container {
+    position:relative;
+
+    width:100%;
+
+    height:290px;
+}
+
+.chart-container.small {
+    height:270px;
+}
+
+.chart-container canvas {
+    width:100% !important;
+    height:100% !important;
 }
 
 
@@ -1682,6 +1818,71 @@ tbody tr:last-child td {
     font-size:11px;
 
     color:var(--text-2);
+}
+
+
+/* =========================================================
+   STAT REFRESH
+========================================================= */
+
+.stats-toolbar {
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    margin-top:25px;
+
+    margin-bottom:5px;
+}
+
+.stats-live {
+    font-size:10px;
+
+    color:var(--text-3);
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+}
+
+.stats-live-dot {
+    width:7px;
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--green);
+
+    box-shadow:
+        0 0 0 4px rgba(45,214,115,.08);
+}
+
+.stats-refresh-btn {
+    border:1px solid var(--border);
+
+    background:var(--bg-card);
+
+    color:var(--text-2);
+
+    border-radius:var(--radius-pill);
+
+    padding:7px 12px;
+
+    font-size:10px;
+
+    transition:.2s;
+}
+
+.stats-refresh-btn:hover {
+    color:var(--orange-soft);
+
+    border-color:var(--orange);
 }
 
 
@@ -1898,6 +2099,14 @@ tbody tr:last-child td {
         grid-template-columns:
             repeat(2,1fr);
     }
+
+    .charts-grid {
+        grid-template-columns:1fr;
+    }
+
+    .chart-card.full-width {
+        grid-column:auto;
+    }
 }
 
 @media(max-width:700px) {
@@ -1965,6 +2174,10 @@ tbody tr:last-child td {
     .footer {
         flex-direction:column;
     }
+
+    .chart-container {
+        height:250px;
+    }
 }
 
 @media(max-width:430px) {
@@ -1994,6 +2207,19 @@ tbody tr:last-child td {
     .theme-toggle {
         flex:1;
         justify-content:center;
+    }
+
+    .chart-card {
+        padding:17px;
+    }
+
+    .chart-container {
+        height:225px;
+    }
+
+    .stats-toolbar {
+        align-items:flex-start;
+        flex-direction:column;
     }
 }
 
@@ -2717,14 +2943,33 @@ tbody tr:last-child td {
 </h1>
 
 <p class="page-sub">
-    A summary of prediction activity.
+    Real-time analysis of your student prediction data.
 </p>
+
+
+<div class="stats-toolbar">
+
+    <div class="stats-live">
+
+        <span class="stats-live-dot"></span>
+
+        Live data from your prediction history
+
+    </div>
+
+    <button
+        class="stats-refresh-btn"
+        onclick="loadStats()"
+    >
+        ↻ Refresh statistics
+    </button>
+
+</div>
 
 
 <div
     class="stats-grid"
     id="statsArea"
-    style="margin-top:25px"
 >
 </div>
 
@@ -2846,6 +3091,24 @@ function toggleTheme() {
     );
 
     updateThemeButton();
+
+    /*
+       Re-render charts so their colors
+       remain readable in both themes.
+    */
+    setTimeout(() => {
+
+        if (
+            document
+                .getElementById('statsPanel')
+                .classList.contains('active')
+        ) {
+
+            loadStats();
+
+        }
+
+    },100);
 
     showToast(
         mode === 'light'
@@ -4150,6 +4413,1040 @@ function filterHistory() {
 
 
 /* =========================================================
+   CHART VARIABLES
+========================================================= */
+
+let performanceChart = null;
+let subjectChart = null;
+let trendChart = null;
+let studyConfidenceChart = null;
+
+
+/* =========================================================
+   CHART THEME COLORS
+========================================================= */
+
+function getChartColors() {
+
+    const light =
+        document.body.classList.contains('light');
+
+    return {
+
+        text:
+            light
+                ? '#475569'
+                : '#9ba1b3',
+
+        grid:
+            light
+                ? 'rgba(148,163,184,.20)'
+                : 'rgba(148,163,184,.10)',
+
+        green:'#22c55e',
+
+        greenBorder:'#16a34a',
+
+        red:'#ef4444',
+
+        redBorder:'#dc2626',
+
+        blue:'#3b82f6',
+
+        orange:'#f59e0b',
+
+        purple:'#8b5cf6'
+
+    };
+
+}
+
+
+/* =========================================================
+   DESTROY EXISTING CHARTS
+========================================================= */
+
+function destroyCharts() {
+
+    if (performanceChart) {
+
+        performanceChart.destroy();
+
+        performanceChart = null;
+
+    }
+
+    if (subjectChart) {
+
+        subjectChart.destroy();
+
+        subjectChart = null;
+
+    }
+
+    if (trendChart) {
+
+        trendChart.destroy();
+
+        trendChart = null;
+
+    }
+
+    if (studyConfidenceChart) {
+
+        studyConfidenceChart.destroy();
+
+        studyConfidenceChart = null;
+
+    }
+
+}
+
+
+/* =========================================================
+   CHART COMMON OPTIONS
+========================================================= */
+
+function commonChartOptions() {
+
+    const colors =
+        getChartColors();
+
+    return {
+
+        responsive:true,
+
+        maintainAspectRatio:false,
+
+        animation:{
+            duration:700
+        },
+
+        plugins:{
+
+            legend:{
+                labels:{
+                    color:colors.text,
+
+                    font:{
+                        family:'Inter',
+                        size:11
+                    },
+
+                    usePointStyle:true,
+
+                    padding:18
+                }
+            },
+
+            tooltip:{
+
+                backgroundColor:
+                    document.body.classList.contains('light')
+                        ? '#ffffff'
+                        : '#12141c',
+
+                titleColor:
+                    document.body.classList.contains('light')
+                        ? '#111827'
+                        : '#f3f4f8',
+
+                bodyColor:colors.text,
+
+                borderColor:
+                    document.body.classList.contains('light')
+                        ? '#e2e8f0'
+                        : '#232631',
+
+                borderWidth:1,
+
+                padding:11,
+
+                cornerRadius:10
+
+            }
+
+        }
+
+    };
+
+}
+
+
+/* =========================================================
+   BUILD PERFORMANCE CHART
+========================================================= */
+
+function buildPerformanceChart(stats) {
+
+    const canvas =
+        document.getElementById(
+            'performanceChart'
+        );
+
+    if (!canvas) return;
+
+
+    const colors =
+        getChartColors();
+
+
+    performanceChart =
+        new Chart(
+            canvas,
+            {
+
+                type:'doughnut',
+
+                data:{
+
+                    labels:[
+                        'PASS',
+                        'FAIL'
+                    ],
+
+                    datasets:[{
+
+                        data:[
+                            Number(stats.passed) || 0,
+                            Number(stats.failed) || 0
+                        ],
+
+                        backgroundColor:[
+                            colors.green,
+                            colors.red
+                        ],
+
+                        borderColor:
+                            document.body.classList.contains('light')
+                                ? '#ffffff'
+                                : '#12141c',
+
+                        borderWidth:4,
+
+                        hoverOffset:8
+
+                    }]
+
+                },
+
+                options:{
+
+                    ...commonChartOptions(),
+
+                    cutout:'68%',
+
+                    plugins:{
+
+                        ...commonChartOptions().plugins,
+
+                        legend:{
+                            position:'bottom',
+
+                            labels:{
+                                color:colors.text,
+
+                                usePointStyle:true,
+
+                                padding:20,
+
+                                font:{
+                                    family:'Inter',
+                                    size:11
+                                }
+                            }
+                        },
+
+                        tooltip:{
+                            ...commonChartOptions().plugins.tooltip,
+
+                            callbacks:{
+
+                                label:function(context){
+
+                                    const total =
+                                        Number(stats.total) || 0;
+
+                                    const value =
+                                        Number(context.raw) || 0;
+
+                                    const percent =
+                                        total
+                                            ? ((value / total) * 100).toFixed(1)
+                                            : '0.0';
+
+                                    return ` ${context.label}: ${value} (${percent}%)`;
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+/* =========================================================
+   BUILD SUBJECT CHART
+========================================================= */
+
+function buildSubjectChart(stats) {
+
+    const canvas =
+        document.getElementById(
+            'subjectChart'
+        );
+
+    if (!canvas) return;
+
+
+    const colors =
+        getChartColors();
+
+
+    const subjects =
+        Array.isArray(stats.subjects)
+            ? stats.subjects
+            : [];
+
+
+    const labels =
+        subjects.map(
+            x => x.subject
+        );
+
+
+    const values =
+        subjects.map(
+            x => Number(x.pass_rate) || 0
+        );
+
+
+    subjectChart =
+        new Chart(
+            canvas,
+            {
+
+                type:'bar',
+
+                data:{
+
+                    labels:labels,
+
+                    datasets:[{
+
+                        label:'Pass Rate %',
+
+                        data:values,
+
+                        backgroundColor:
+                            values.map(
+                                value =>
+                                    value >= 70
+                                        ? colors.green
+                                        : value >= 50
+                                            ? colors.orange
+                                            : colors.red
+                            ),
+
+                        borderColor:
+                            values.map(
+                                value =>
+                                    value >= 70
+                                        ? colors.greenBorder
+                                        : value >= 50
+                                            ? '#d97706'
+                                            : colors.redBorder
+                            ),
+
+                        borderWidth:1,
+
+                        borderRadius:8,
+
+                        maxBarThickness:42
+
+                    }]
+
+                },
+
+                options:{
+
+                    ...commonChartOptions(),
+
+                    scales:{
+
+                        x:{
+
+                            ticks:{
+                                color:colors.text,
+
+                                font:{
+                                    family:'Inter',
+                                    size:10
+                                },
+
+                                maxRotation:35,
+
+                                minRotation:0
+                            },
+
+                            grid:{
+                                display:false
+                            }
+
+                        },
+
+                        y:{
+
+                            beginAtZero:true,
+
+                            max:100,
+
+                            ticks:{
+
+                                color:colors.text,
+
+                                callback:
+                                    value => value + '%',
+
+                                font:{
+                                    family:'JetBrains Mono',
+                                    size:10
+                                }
+
+                            },
+
+                            grid:{
+                                color:colors.grid
+                            }
+
+                        }
+
+                    },
+
+                    plugins:{
+
+                        ...commonChartOptions().plugins,
+
+                        legend:{
+                            display:false
+                        },
+
+                        tooltip:{
+
+                            ...commonChartOptions().plugins.tooltip,
+
+                            callbacks:{
+
+                                label:function(context){
+
+                                    return ` Pass rate: ${context.raw}%`;
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+/* =========================================================
+   BUILD PASS RATE TREND
+========================================================= */
+
+function buildTrendChart(history) {
+
+    const canvas =
+        document.getElementById(
+            'trendChart'
+        );
+
+    if (!canvas) return;
+
+
+    const colors =
+        getChartColors();
+
+
+    if (
+        !Array.isArray(history) ||
+        !history.length
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       API returns newest first.
+       Reverse it so the chart moves
+       from oldest to newest.
+    */
+
+    const chronological =
+        [...history]
+            .filter(
+                item =>
+                    item &&
+                    item.timestamp
+            )
+            .reverse();
+
+
+    let passed = 0;
+    let total = 0;
+
+
+    const labels = [];
+    const values = [];
+
+
+    chronological.forEach(
+        (item,index) => {
+
+            total++;
+
+            if (
+                String(
+                    item.prediction || ''
+                ).toUpperCase() === 'PASS'
+            ) {
+
+                passed++;
+
+            }
+
+
+            const rate =
+                total
+                    ? Number(
+                        (
+                            passed /
+                            total *
+                            100
+                        ).toFixed(2)
+                    )
+                    : 0;
+
+
+            const date =
+                new Date(
+                    String(
+                        item.timestamp
+                    ).replace(' ','T')
+                );
+
+
+            let label;
+
+
+            if (
+                !isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                label =
+                    date.toLocaleDateString(
+                        'en-US',
+                        {
+                            month:'short',
+                            day:'numeric'
+                        }
+                    );
+
+            } else {
+
+                label =
+                    `#${index + 1}`;
+
+            }
+
+
+            labels.push(
+                `${label} · #${index + 1}`
+            );
+
+            values.push(rate);
+
+        }
+    );
+
+
+    trendChart =
+        new Chart(
+            canvas,
+            {
+
+                type:'line',
+
+                data:{
+
+                    labels:labels,
+
+                    datasets:[{
+
+                        label:'Cumulative Pass Rate',
+
+                        data:values,
+
+                        borderColor:
+                            colors.blue,
+
+                        backgroundColor:
+                            'rgba(59,130,246,.12)',
+
+                        fill:true,
+
+                        tension:.35,
+
+                        pointRadius:
+                            chronological.length > 30
+                                ? 2
+                                : 4,
+
+                        pointHoverRadius:6,
+
+                        pointBackgroundColor:
+                            colors.blue,
+
+                        pointBorderColor:
+                            document.body.classList.contains('light')
+                                ? '#ffffff'
+                                : '#12141c',
+
+                        pointBorderWidth:2
+
+                    }]
+
+                },
+
+                options:{
+
+                    ...commonChartOptions(),
+
+                    scales:{
+
+                        x:{
+
+                            ticks:{
+
+                                color:colors.text,
+
+                                maxTicksLimit:8,
+
+                                font:{
+                                    family:'Inter',
+                                    size:9
+                                }
+
+                            },
+
+                            grid:{
+                                display:false
+                            }
+
+                        },
+
+                        y:{
+
+                            beginAtZero:true,
+
+                            max:100,
+
+                            ticks:{
+
+                                color:colors.text,
+
+                                callback:
+                                    value => value + '%',
+
+                                font:{
+                                    family:'JetBrains Mono',
+                                    size:10
+                                }
+
+                            },
+
+                            grid:{
+                                color:colors.grid
+                            }
+
+                        }
+
+                    },
+
+                    plugins:{
+
+                        ...commonChartOptions().plugins,
+
+                        legend:{
+                            display:true,
+
+                            labels:{
+                                color:colors.text,
+
+                                usePointStyle:true,
+
+                                font:{
+                                    family:'Inter',
+                                    size:10
+                                }
+                            }
+                        },
+
+                        tooltip:{
+
+                            ...commonChartOptions().plugins.tooltip,
+
+                            callbacks:{
+
+                                label:function(context){
+
+                                    return ` Pass rate: ${context.raw}%`;
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+/* =========================================================
+   BUILD STUDY HOURS / CONFIDENCE SCATTER
+========================================================= */
+
+function buildStudyConfidenceChart(history) {
+
+    const canvas =
+        document.getElementById(
+            'studyConfidenceChart'
+        );
+
+    if (!canvas) return;
+
+
+    const colors =
+        getChartColors();
+
+
+    if (
+        !Array.isArray(history) ||
+        !history.length
+    ) {
+
+        return;
+
+    }
+
+
+    const passPoints = [];
+    const failPoints = [];
+
+
+    history.forEach(
+        item => {
+
+            const hours =
+                Number(
+                    item.study_hours
+                );
+
+            const confidence =
+                Number(
+                    item.confidence
+                );
+
+
+            if (
+                !Number.isFinite(hours) ||
+                !Number.isFinite(confidence)
+            ) {
+
+                return;
+
+            }
+
+
+            const point = {
+
+                x:hours,
+
+                y:confidence,
+
+                student:
+                    item.student_name || 'Unknown',
+
+                subject:
+                    item.subject || 'Unknown',
+
+                result:
+                    String(
+                        item.prediction || ''
+                    ).toUpperCase()
+
+            };
+
+
+            if (
+                point.result === 'PASS'
+            ) {
+
+                passPoints.push(point);
+
+            } else {
+
+                failPoints.push(point);
+
+            }
+
+        }
+    );
+
+
+    studyConfidenceChart =
+        new Chart(
+            canvas,
+            {
+
+                type:'scatter',
+
+                data:{
+
+                    datasets:[
+
+                        {
+
+                            label:'PASS',
+
+                            data:passPoints,
+
+                            backgroundColor:
+                                colors.green,
+
+                            borderColor:
+                                colors.greenBorder,
+
+                            pointRadius:6,
+
+                            pointHoverRadius:9,
+
+                            borderWidth:1
+
+                        },
+
+                        {
+
+                            label:'FAIL',
+
+                            data:failPoints,
+
+                            backgroundColor:
+                                colors.red,
+
+                            borderColor:
+                                colors.redBorder,
+
+                            pointRadius:6,
+
+                            pointHoverRadius:9,
+
+                            borderWidth:1
+
+                        }
+
+                    ]
+
+                },
+
+                options:{
+
+                    ...commonChartOptions(),
+
+                    scales:{
+
+                        x:{
+
+                            type:'linear',
+
+                            min:0,
+
+                            max:20,
+
+                            title:{
+
+                                display:true,
+
+                                text:'Study Hours / Week',
+
+                                color:colors.text,
+
+                                font:{
+                                    family:'Inter',
+                                    size:10,
+                                    weight:'600'
+                                }
+
+                            },
+
+                            ticks:{
+                                color:colors.text
+                            },
+
+                            grid:{
+                                color:colors.grid
+                            }
+
+                        },
+
+                        y:{
+
+                            beginAtZero:true,
+
+                            max:100,
+
+                            title:{
+
+                                display:true,
+
+                                text:'ML Confidence %',
+
+                                color:colors.text,
+
+                                font:{
+                                    family:'Inter',
+                                    size:10,
+                                    weight:'600'
+                                }
+
+                            },
+
+                            ticks:{
+
+                                color:colors.text,
+
+                                callback:
+                                    value => value + '%'
+
+                            },
+
+                            grid:{
+                                color:colors.grid
+                            }
+
+                        }
+
+                    },
+
+                    plugins:{
+
+                        ...commonChartOptions().plugins,
+
+                        tooltip:{
+
+                            ...commonChartOptions().plugins.tooltip,
+
+                            callbacks:{
+
+                                label:function(context){
+
+                                    const p =
+                                        context.raw;
+
+                                    return [
+
+                                        ` Student: ${p.student}`,
+
+                                        ` Subject: ${p.subject}`,
+
+                                        ` Result: ${p.result}`,
+
+                                        ` Study hours: ${p.x}h`,
+
+                                        ` Confidence: ${p.y}%`
+
+                                    ];
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+/* =========================================================
+   RENDER ALL CHARTS
+========================================================= */
+
+function renderStatisticsCharts(
+    stats,
+    history
+) {
+
+    destroyCharts();
+
+
+    buildPerformanceChart(
+        stats
+    );
+
+
+    buildSubjectChart(
+        stats
+    );
+
+
+    buildTrendChart(
+        history
+    );
+
+
+    buildStudyConfidenceChart(
+        history
+    );
+
+}
+
+
+/* =========================================================
    STATISTICS
 ========================================================= */
 
@@ -4162,23 +5459,31 @@ async function loadStats() {
 
 
     area.innerHTML =
-        '<div class="empty-state">⏳ Loading statistics...</div>';
+        '<div class="empty-state" style="grid-column:1/-1">⏳ Loading statistics...</div>';
 
 
     try {
 
-        const res =
+        /*
+           Get summary data from the existing
+           Flask /api/stats endpoint.
+        */
+
+        const statsResponse =
             await fetch(
-                '/api/stats'
+                '/api/stats',
+                {
+                    cache:'no-store'
+                }
             );
 
 
         const s =
-            await res.json();
+            await statsResponse.json();
 
 
         if (
-            !res.ok ||
+            !statsResponse.ok ||
             s.error
         ) {
 
@@ -4190,12 +5495,44 @@ async function loadStats() {
         }
 
 
+        /*
+           Get history data for the
+           trend and scatter charts.
+        */
+
+        const historyResponse =
+            await fetch(
+                '/api/history',
+                {
+                    cache:'no-store'
+                }
+            );
+
+
+        const history =
+            await historyResponse.json();
+
+
+        if (
+            !historyResponse.ok ||
+            !Array.isArray(history)
+        ) {
+
+            throw new Error(
+                'Failed to load prediction history'
+            );
+
+        }
+
+
         area.innerHTML = `
+
+            <!-- KPI CARDS -->
 
             <div class="stat-card">
 
                 <div class="stat-number">
-                    ${s.total}
+                    ${Number(s.total) || 0}
                 </div>
 
                 <div class="stat-label">
@@ -4211,7 +5548,7 @@ async function loadStats() {
                     class="stat-number"
                     style="color:var(--green)"
                 >
-                    ${s.passed}
+                    ${Number(s.passed) || 0}
                 </div>
 
                 <div class="stat-label">
@@ -4227,7 +5564,7 @@ async function loadStats() {
                     class="stat-number"
                     style="color:var(--red)"
                 >
-                    ${s.failed}
+                    ${Number(s.failed) || 0}
                 </div>
 
                 <div class="stat-label">
@@ -4239,8 +5576,11 @@ async function loadStats() {
 
             <div class="stat-card">
 
-                <div class="stat-number">
-                    ${s.pass_rate}%
+                <div
+                    class="stat-number"
+                    style="color:var(--blue)"
+                >
+                    ${Number(s.pass_rate) || 0}%
                 </div>
 
                 <div class="stat-label">
@@ -4250,13 +5590,213 @@ async function loadStats() {
             </div>
 
 
+            <!-- CHARTS -->
+
+            <div class="charts-grid">
+
+                <!-- OVERALL PERFORMANCE -->
+
+                <div class="chart-card">
+
+                    <div class="chart-heading">
+
+                        <div>
+
+                            <div class="chart-title">
+                                Overall Performance
+                            </div>
+
+                            <div class="chart-subtitle">
+                                Clear PASS vs FAIL distribution
+                            </div>
+
+                        </div>
+
+                        <div class="chart-badge">
+                            PASS / FAIL
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-container small">
+
+                        ${
+                            Number(s.total) > 0
+
+                            ? `
+                                <canvas
+                                    id="performanceChart"
+                                ></canvas>
+                              `
+
+                            : `
+                                <div class="empty-state">
+                                    No prediction data yet.
+                                </div>
+                              `
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- SUBJECT PERFORMANCE -->
+
+                <div class="chart-card">
+
+                    <div class="chart-heading">
+
+                        <div>
+
+                            <div class="chart-title">
+                                Performance by Subject
+                            </div>
+
+                            <div class="chart-subtitle">
+                                Pass rate for each subject
+                            </div>
+
+                        </div>
+
+                        <div class="chart-badge">
+                            RATE %
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-container small">
+
+                        ${
+                            (s.subjects || []).length
+
+                            ? `
+                                <canvas
+                                    id="subjectChart"
+                                ></canvas>
+                              `
+
+                            : `
+                                <div class="empty-state">
+                                    No subject data yet.
+                                </div>
+                              `
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- PASS RATE TREND -->
+
+                <div class="chart-card full-width">
+
+                    <div class="chart-heading">
+
+                        <div>
+
+                            <div class="chart-title">
+                                Pass Rate Trend
+                            </div>
+
+                            <div class="chart-subtitle">
+                                Cumulative pass rate as predictions are recorded
+                            </div>
+
+                        </div>
+
+                        <div class="chart-badge">
+                            TREND
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-container">
+
+                        ${
+                            history.length
+
+                            ? `
+                                <canvas
+                                    id="trendChart"
+                                ></canvas>
+                              `
+
+                            : `
+                                <div class="empty-state">
+                                    No prediction history yet.
+                                </div>
+                              `
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- STUDY VS CONFIDENCE -->
+
+                <div class="chart-card full-width">
+
+                    <div class="chart-heading">
+
+                        <div>
+
+                            <div class="chart-title">
+                                Study Hours vs ML Confidence
+                            </div>
+
+                            <div class="chart-subtitle">
+                                Each point represents one prediction. Green = PASS · Red = FAIL.
+                            </div>
+
+                        </div>
+
+                        <div class="chart-badge">
+                            ML ANALYSIS
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-container">
+
+                        ${
+                            history.length
+
+                            ? `
+                                <canvas
+                                    id="studyConfidenceChart"
+                                ></canvas>
+                              `
+
+                            : `
+                                <div class="empty-state">
+                                    No prediction history yet.
+                                </div>
+                              `
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SUBJECT DETAIL -->
+
             <div
                 class="subject-statistics"
                 style="grid-column:1/-1"
             >
 
                 <h3 class="subject-stat-title">
-                    Performance by subject
+                    Performance details
                 </h3>
 
 
@@ -4276,7 +5816,7 @@ async function loadStats() {
                                     </div>
 
                                     <div class="subject-count">
-                                        ${x.total}
+                                        ${Number(x.total) || 0}
                                         predictions
                                     </div>
 
@@ -4285,11 +5825,31 @@ async function loadStats() {
 
                                 <div class="subject-performance">
 
-                                    ${x.passed} PASS
+                                    <span
+                                        style="
+                                            color:var(--green);
+                                            font-weight:700
+                                        "
+                                    >
+                                        ${Number(x.passed) || 0} PASS
+                                    </span>
+
                                     ·
-                                    ${x.failed} FAIL
+
+                                    <span
+                                        style="
+                                            color:var(--red);
+                                            font-weight:700
+                                        "
+                                    >
+                                        ${Number(x.failed) || 0} FAIL
+                                    </span>
+
                                     ·
-                                    ${x.pass_rate}% pass rate
+
+                                    <strong>
+                                        ${Number(x.pass_rate) || 0}% pass rate
+                                    </strong>
 
                                 </div>
 
@@ -4313,11 +5873,34 @@ async function loadStats() {
         `;
 
 
+        /*
+           Charts must be created AFTER
+           the canvases have been inserted.
+        */
+
+        renderStatisticsCharts(
+            s,
+            history
+        );
+
+
     } catch (e) {
+
+        console.error(
+            'Statistics error:',
+            e
+        );
+
+
+        destroyCharts();
+
 
         area.innerHTML = `
 
-            <div class="empty-state">
+            <div
+                class="empty-state"
+                style="grid-column:1/-1"
+            >
 
                 ⚠ Failed to load statistics
 
@@ -4369,4 +5952,3 @@ loadStats();
 
 </body>
 </html>
-
