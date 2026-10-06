@@ -1,104 +1,374 @@
-@app.route('/api/predict', methods=['POST'])
-def predict():
+import re
+import sys
+import shutil
 
-    if 'username' not in session:
-        return jsonify({'success': False, 'error': 'Login required'})
 
-    if model is None:
-        return jsonify({
-            'success': False,
-            'error': 'Model not loaded. Run train_model.py'
-        })
+# ============================================================
+# USAGE
+# python fix_index.py templates/index.html
+# ============================================================
 
-    try:
-        student_name = request.form.get('student_name', '').strip()
-        subject = request.form.get('subject', '').strip()
+path = sys.argv[1] if len(sys.argv) > 1 else "index.html"
 
-        if not student_name or not subject:
-            return jsonify({
-                'success': False,
-                'error': 'Student name and subject are required'
-            })
+# ------------------------------------------------------------
+# Backup
+# ------------------------------------------------------------
+backup_path = path + ".bak"
+shutil.copy2(path, backup_path)
 
-        def num(*names):
-            for n in names:
-                v = request.form.get(n)
-                if v is not None and str(v).strip() != '':
-                    return float(v)
-            raise ValueError('missing ' + names[0])
+with open(path, "r", encoding="utf-8") as f:
+    s = f.read()
 
-        hours = num('study_hours')
-        att = num('attendance')
-        ass = num('assignment_score', 'assignment')
-        cat = num('cat_score', 'cat')
-        pract = num('practical_score', 'practical')
 
-        if not (
-            0 <= hours <= 24
-            and all(0 <= v <= 100 for v in (att, ass, cat, pract))
-        ):
-            return jsonify({
-                'success': False,
-                'error': 'Check the score ranges'
-            })
+def sub(pattern, repl, label, flags=re.S):
+    global s
 
-        features = [[hours, att, ass, cat, pract]]
+    s, n = re.subn(
+        pattern,
+        repl,
+        s,
+        count=1,
+        flags=flags
+    )
 
-        pred = int(model.predict(features)[0])
-        prob = float(model.predict_proba(features)[0][pred] * 100)
-        result = 'PASS' if pred == 1 else 'FAIL'
+    print(("OK " if n else "SKIP ") + label)
 
-        conn = get_db_connection()
-        cur = conn.cursor()
 
-        try:
-            cur.execute(
-                'SELECT id FROM students WHERE student_name=%s LIMIT 1',
-                (student_name,)
-            )
-            row = cur.fetchone()
+# ============================================================
+# 1. PREDICTION FORM PAYLOAD
+# ============================================================
+PAYLOAD = r'''
+const formData = new FormData();
 
-            if row:
-                sid = row[0]
-            else:
-                cur.execute(
-                    'INSERT INTO students (student_name) VALUES (%s)',
-                    (student_name,)
-                )
-                sid = cur.lastrowid
+const payload = {
+    student_name: studentName,
+    subject: subject,
 
-            cur.execute(
-                '''
-                INSERT INTO predictions
-                (student_id, username, subject, study_hours, attendance,
-                 assignment, cat, practical, prediction, probability)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ''',
-                (
-                    sid, session['username'], subject, hours, att,
-                    ass, cat, pract, result, round(prob / 100, 4)
-                )
-            )
+    // Backend names
+    hours: hours,
+    att: attendance,
+    assign: assignment,
+    cat: cat,
+    pract: practical
+};
 
-            conn.commit()
+Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, String(value));
+});
+'''
 
-        finally:
-            cur.close()
-            conn.close()
+sub(
+    r"const\s+formData\s*=\s*new\s+FormData\s*\(\s*form\s*\)\s*;",
+    PAYLOAD,
+    "prediction payload fix"
+)
 
-        return jsonify({
-            'success': True,
-            'student_name': student_name,
-            'subject': subject,
-            'result': result,
-            'confidence': round(prob, 2)
-        })
 
-    except (KeyError, ValueError):
-        return jsonify({
-            'success': False,
-            'error': 'Please fill in all fields with valid numbers'
-        })
+# ============================================================
+# 2. THEME FAB CSS
+# ============================================================
+CSS = r'''
+<style id="theme-fab-fix">
+.theme-fab {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 2000;
 
-    except Exception as e:
-        return server_error(e)
+    width: 44px;
+    height: 44px;
+
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+
+    background: var(--bg-card);
+    color: var(--text-1);
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: var(--shadow);
+
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        color .2s ease;
+}
+
+.theme-fab:hover {
+    transform: scale(1.08);
+}
+
+@media (max-width: 850px) {
+    .mobile-topbar .menu-btn:last-child {
+        display: none;
+    }
+
+    .theme-fab {
+        top: 12px;
+        right: 12px;
+    }
+}
+</style>
+'''
+
+# Add before </head>
+if "theme-fab-fix" not in s:
+    sub(
+        r"</head>",
+        CSS + "\n</head>",
+        "theme icon CSS"
+    )
+else:
+    print("SKIP theme icon CSS already exists")
+
+
+# ============================================================
+# 3. THEME BUTTON
+# ============================================================
+THEME_BUTTON = r'''
+<button
+    type="button"
+    id="themeFab"
+    class="theme-fab"
+    aria-label="Toggle theme"
+    title="Toggle theme">
+    🌙
+</button>
+'''
+
+if 'id="themeFab"' not in s:
+    sub(
+        r"(<body[^>]*>)",
+        r"\1\n" + THEME_BUTTON,
+        "theme icon button"
+    )
+else:
+    print("SKIP theme icon button already exists")
+
+
+# ============================================================
+# 4. THEME ICON JAVASCRIPT
+# ============================================================
+FAB_JS = r'''
+const fab = document.getElementById("themeFab");
+
+if (fab) {
+    fab.textContent = theme === "light" ? "🌙" : "☀️";
+}
+'''
+
+# Find localStorage theme line
+sub(
+    r'(localStorage\.setItem\(\s*[\'"]ml_predictor_theme[\'"]\s*,\s*theme\s*\)\s*;)',
+    lambda m: m.group(1) + "\n" + FAB_JS,
+    "theme icon JS"
+)
+
+
+# ============================================================
+# 5. HISTORY CACHE
+# ============================================================
+NEW_HISTORY = r'''
+let historyLoaded = false;
+
+async function loadHistory(force = false) {
+
+    const container =
+        document.getElementById("historyTableContainer");
+
+    if (!container) {
+        console.warn("historyTableContainer not found");
+        return;
+    }
+
+    if (historyLoaded && !force) {
+        if (typeof renderHistory === "function") {
+            renderHistory(currentHistory);
+        }
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/history",
+            {
+                cache: "no-store",
+                headers: {
+                    "Cache-Control": "no-cache"
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                "Could not load history."
+            );
+        }
+
+        const data = await response.json();
+
+        currentHistory =
+            Array.isArray(data)
+                ? data
+                : [];
+
+        historyLoaded = true;
+
+        if (typeof renderHistory === "function") {
+            renderHistory(currentHistory);
+        }
+
+    } catch (error) {
+
+        console.error(
+            "History loading error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div style="
+                padding:20px;
+                text-align:center;
+                color:var(--text-2);
+            ">
+                <div style="
+                    font-size:30px;
+                    margin-bottom:8px;
+                ">⚠️</div>
+
+                <div>
+                    Unable to load prediction history.
+                </div>
+            </div>
+        `;
+    }
+}
+'''
+
+sub(
+    r"async\s+function\s+loadHistory\s*\(\s*\)\s*\{.*?(?=function\s+renderHistory\s*\()",
+    NEW_HISTORY + "\n",
+    "history cache"
+)
+
+
+# ============================================================
+# 6. FORCE HISTORY RELOAD AFTER PREDICTION
+# ============================================================
+sub(
+    r"loadHistory\(\);\s*loadPredictionAnalytics\(\);",
+    "loadHistory(true);\nloadPredictionAnalytics();",
+    "reload after prediction"
+)
+
+
+# ============================================================
+# 7. REFRESH BUTTON
+# ============================================================
+def fix_refresh(match):
+    block = match.group(0)
+
+    block = block.replace(
+        "loadHistory()",
+        "loadHistory(true)"
+    )
+
+    return block
+
+
+sub(
+    r"function\s+refreshCurrentData\s*\(\s*\)\s*\{.*?(?=/\*[\s=]*STARTUP)",
+    fix_refresh,
+    "reload on Refresh button"
+)
+
+
+# ============================================================
+# 8. REPORT LINKS
+# ============================================================
+s = s.replace(
+    "/download_report/pdf",
+    "/report/pdf"
+)
+
+s = s.replace(
+    "/download_report/excel",
+    "/report/excel"
+)
+
+print("OK download links fixed")
+
+
+# ============================================================
+# 9. MAKE SURE PREDICTION ANALYTICS CONTAINER EXISTS
+# ============================================================
+ANALYTICS_HTML = r'''
+<div
+    id="predictionAnalytics"
+    class="prediction-analytics"
+    style="display:none;">
+</div>
+'''
+
+if 'id="predictionAnalytics"' not in s:
+
+    # Try to put it after coach feedback
+    if 'id="coachFeedback"' in s:
+
+        pattern = (
+            r'(<[^>]+id=["\']coachFeedback["\'][^>]*>'
+            r'.*?</[^>]+>)'
+        )
+
+        sub(
+            pattern,
+            lambda m: m.group(1) + "\n" + ANALYTICS_HTML,
+            "prediction analytics container"
+        )
+
+    else:
+
+        # Fallback: before closing body
+        sub(
+            r"</body>",
+            ANALYTICS_HTML + "\n</body>",
+            "prediction analytics container fallback"
+        )
+
+else:
+    print(
+        "SKIP prediction analytics container already exists"
+    )
+
+
+# ============================================================
+# 10. SAVE
+# ============================================================
+with open(path, "w", encoding="utf-8") as f:
+    f.write(s)
+
+
+print()
+print("==============================================")
+print("FIX COMPLETED SUCCESSFULLY")
+print("==============================================")
+print("File   :", path)
+print("Backup :", backup_path)
+print()
+print("IMPORTANT:")
+print("Backend prediction fields:")
+print("  hours")
+print("  att")
+print("  assign")
+print("  cat")
+print("  pract")
+print()
+print("If prediction still gives an error,")
+print("check the /api/predict route in app.py.")
