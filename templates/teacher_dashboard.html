@@ -1,1 +1,110 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>StudentPredict | Teacher Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script defer src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <style>
+        .dashboard { max-width: 1400px; margin: auto; padding: 24px; }
+        .top { display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap; }
+        .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; margin:24px 0; }
+        .card { background:var(--panel,#fff); color:var(--text,#172033); padding:20px; border-radius:14px; border:1px solid var(--line,#e4eaf2); }
+        .value { font-size:30px; font-weight:800; margin-top:8px; }
+        .muted { color:var(--muted,#68758b); }
+        .section { margin-top:20px; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; min-width:550px; }
+        th,td { text-align:left; padding:12px; border-bottom:1px solid var(--line,#e4eaf2); }
+        .btn { padding:9px 13px; border-radius:8px; cursor:pointer; }
+        .notice { padding:14px; border:1px dashed var(--line,#ddd); border-radius:10px; }
+        @media(max-width:600px) { .dashboard { padding:12px; } }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <header class="top">
+        <div>
+            <p class="muted">StudentPredict / Teacher</p>
+            <h1>Teacher Dashboard</h1>
+            <p>Welcome, {{ session.get('full_name') or session.get('username', 'Teacher') }}</p>
+        </div>
+        <div>
+            <select id="language-select" aria-label="Language">
+                <option value="en">English</option>
+                <option value="rw">Kinyarwanda</option>
+                <option value="fr">Français</option>
+            </select>
+            <button class="btn" id="theme-toggle" type="button">Dark mode</button>
+            <button class="btn" type="button" data-logout>Log out</button>
+        </div>
+    </header>
 
+    <section class="cards">
+        <article class="card">
+            <div class="muted">Assigned classes</div>
+            <div class="value" id="class-count">—</div>
+        </article>
+        <article class="card">
+            <div class="muted">Assigned subjects</div>
+            <div class="value" id="subject-count">—</div>
+        </article>
+        <article class="card">
+            <div class="muted">Grades entered</div>
+            <div class="value" id="grade-count">—</div>
+        </article>
+        <article class="card">
+            <div class="muted">Pending grades</div>
+            <div class="value" id="pending-count">—</div>
+        </article>
+    </section>
+
+    <section class="card section">
+        <h2>My teaching assignments</h2>
+        <p class="muted">Only classes and subjects assigned to your account should appear here.</p>
+        <div class="notice" id="assignment-message">
+            Teacher assignment API has not been connected yet.
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th>Academic year</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="assignment-table">
+                    <tr>
+                        <td colspan="4">Assignments will appear after the API is connected.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card section">
+        <h2>Grade entry</h2>
+        <p class="muted">
+            The grade-entry form will be enabled after the secure Flask API is ready.
+            The server must verify your teacher assignment before accepting a grade.
+        </p>
+        <ol>
+            <li>Select an assigned class and subject.</li>
+            <li>Select a student from that class.</li>
+            <li>Enter the score, maximum score, term and academic year.</li>
+            <li>Submit the grade for the school's configured approval process.</li>
+        </ol>
+    </section>
+
+    <section class="card section">
+        <h2>Recent grade activity</h2>
+        <p class="muted">Recent activity will appear after the teacher-grade API is implemented.</p>
+    </section>
+</div>
+</body>
+</html>
+```
