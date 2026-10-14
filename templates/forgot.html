@@ -16,9 +16,7 @@
   --line:#d5e2ff;
   --field:#fff;
 }
-
 * { box-sizing:border-box; }
-
 body {
   margin:0;
   min-height:100vh;
@@ -29,9 +27,7 @@ body {
   color:var(--ink);
   transition:background .2s,color .2s;
 }
-
 a { color:var(--blue); text-decoration:none; }
-
 header {
   background:linear-gradient(110deg,#0876ff,#0746b8);
   color:white;
@@ -42,18 +38,14 @@ header {
   gap:12px;
   flex-wrap:wrap;
 }
-
 .brand { font-size:24px; font-weight:800; color:white; }
-
 .tools { display:flex; gap:10px; align-items:center; }
-
 select,.theme {
   padding:9px;
   border:0;
   border-radius:8px;
   cursor:pointer;
 }
-
 main {
   flex:1;
   display:flex;
@@ -61,7 +53,6 @@ main {
   justify-content:center;
   padding:35px 16px;
 }
-
 .card {
   background:var(--card);
   border:1px solid var(--line);
@@ -71,20 +62,15 @@ main {
   max-width:480px;
   box-shadow:0 15px 45px #0a347d12;
 }
-
 .logo { text-align:center; font-size:48px; }
-
 h1 { text-align:center; font-size:29px; margin:12px 0; }
-
 p { color:var(--muted); line-height:1.6; text-align:center; }
-
 label {
   display:block;
   font-weight:700;
   margin:22px 0 9px;
   font-size:14px;
 }
-
 input {
   width:100%;
   padding:14px;
@@ -94,9 +80,7 @@ input {
   color:var(--ink);
   font-size:15px;
 }
-
 input:focus { outline:2px solid #8ab8ff; }
-
 .submit {
   width:100%;
   padding:14px;
@@ -109,9 +93,7 @@ input:focus { outline:2px solid #8ab8ff; }
   font-size:16px;
   cursor:pointer;
 }
-
 button:disabled { opacity:.6; cursor:wait; }
-
 .msg {
   display:none;
   padding:12px;
@@ -121,12 +103,19 @@ button:disabled { opacity:.6; cursor:wait; }
   line-height:1.5;
   overflow-wrap:anywhere;
 }
-
 .error { background:#fff0f1; color:#a21d32; }
 .success { background:#eafaf0; color:#08753a; }
-
+.question-box {
+  display:none;
+  margin-top:20px;
+  padding:14px;
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:10px;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
 .back { text-align:center; margin-top:22px; font-size:14px; }
-
 footer {
   background:#08275a;
   color:#e0eaff;
@@ -135,9 +124,8 @@ footer {
   font-size:13px;
   line-height:1.9;
 }
-
 footer a { color:white; }
-
+.hidden { display:none !important; }
 body.dark {
   --bg:#0b1220;
   --card:#121e32;
@@ -146,10 +134,8 @@ body.dark {
   --line:#293d5e;
   --field:#101a2c;
 }
-
 body.dark .error { background:#451c2a; color:#ffc6d0; }
 body.dark .success { background:#123b2b; color:#b6f3ce; }
-
 @media(max-width:500px) {
   .card { padding:24px; }
   .brand { font-size:20px; }
@@ -160,19 +146,14 @@ body.dark .success { background:#123b2b; color:#b6f3ce; }
 <body>
 <header>
   <a class="brand" href="/login">🎓 StudentPredict</a>
-
   <div class="tools">
     <select id="language" aria-label="Language">
       <option value="en">English</option>
       <option value="rw">Kinyarwanda</option>
       <option value="fr">Français</option>
     </select>
-
     <button class="theme" id="theme" type="button"
-      aria-label="Toggle theme"
-      style="width:auto;margin:0;padding:9px">
-      ☀️ / 🌙
-    </button>
+      aria-label="Toggle theme">☀️ / 🌙</button>
   </div>
 </header>
 
@@ -180,42 +161,87 @@ body.dark .success { background:#123b2b; color:#b6f3ce; }
 <section class="card">
   <div class="logo">🔐</div>
 
-  <h1 data-en="Forgot password?"
-      data-rw="Wibagiwe ijambo ry'ibanga?"
-      data-fr="Mot de passe oublié ?">
-    Forgot password?
+  <h1 data-en="Reset your password"
+      data-rw="Hindura ijambo ry'ibanga"
+      data-fr="Réinitialiser votre mot de passe">
+    Reset your password
   </h1>
 
-  <p data-en="Enter the email associated with your account. If the account is eligible, you will receive instructions to reset your password."
-     data-rw="Andika email ukoresha muri konti yawe. Niba konti yemerewe, urahabwa amabwiriza yo guhindura ijambo ry'ibanga."
-     data-fr="Saisissez l'adresse e-mail associée à votre compte. Si le compte est éligible, vous recevrez les instructions de réinitialisation.">
-    Enter the email associated with your account. If the account is eligible, you will receive instructions to reset your password.
+  <p data-en="Enter your username, answer your security question, and choose a new password."
+     data-rw="Andika username yawe, usubize ikibazo cy'umutekano, hanyuma uhitemo password nshya."
+     data-fr="Saisissez votre nom d'utilisateur, répondez à la question de sécurité et choisissez un nouveau mot de passe.">
+    Enter your username, answer your security question, and choose a new password.
   </p>
 
   <div class="msg error" id="error" role="alert" aria-live="assertive"></div>
   <div class="msg success" id="success" role="status" aria-live="polite"></div>
 
-  <form id="forgotForm" method="post" action="/forgot">
-    <label for="email"
-      data-en="Email address"
-      data-rw="Email yawe"
-      data-fr="Adresse e-mail">
-      Email address
-    </label>
+  <!-- STEP 1: Find account -->
+  <form id="usernameForm">
+    <label for="username"
+      data-en="Username"
+      data-rw="Username yawe"
+      data-fr="Nom d'utilisateur">Username</label>
 
-    <input
-      type="email"
-      id="email"
-      name="email"
-      autocomplete="email"
-      placeholder="you@example.com"
-      required>
+    <input id="username" name="username" autocomplete="username"
+      maxlength="100" required>
 
-    <button class="submit" id="submitBtn" type="submit"
-      data-en="Send reset instructions"
-      data-rw="Ohereza amabwiriza yo guhindura password"
-      data-fr="Envoyer les instructions">
-      Send reset instructions
+    <button class="submit" id="findBtn" type="submit"
+      data-en="Find security question"
+      data-rw="Shaka ikibazo cy'umutekano"
+      data-fr="Trouver la question de sécurité">
+      Find security question
+    </button>
+  </form>
+
+  <div class="question-box" id="questionBox">
+    <strong data-en="Your security question:"
+      data-rw="Ikibazo cyawe cy'umutekano:"
+      data-fr="Votre question de sécurité :">Your security question:</strong>
+    <div id="securityQuestion"></div>
+  </div>
+
+  <!-- STEP 2: Verify answer -->
+  <form id="answerForm" class="hidden">
+    <label for="answer"
+      data-en="Your answer"
+      data-rw="Igisubizo cyawe"
+      data-fr="Votre réponse">Your answer</label>
+
+    <input id="answer" name="answer" autocomplete="off"
+      maxlength="255" required>
+
+    <button class="submit" id="verifyBtn" type="submit"
+      data-en="Verify answer"
+      data-rw="Genzura igisubizo"
+      data-fr="Vérifier la réponse">
+      Verify answer
+    </button>
+  </form>
+
+  <!-- STEP 3: Set new password -->
+  <form id="passwordForm" class="hidden">
+    <label for="newPassword"
+      data-en="New password"
+      data-rw="Password nshya"
+      data-fr="Nouveau mot de passe">New password</label>
+
+    <input id="newPassword" type="password" autocomplete="new-password"
+      minlength="8" maxlength="128" required>
+
+    <label for="confirmPassword"
+      data-en="Confirm new password"
+      data-rw="Emeza password nshya"
+      data-fr="Confirmer le nouveau mot de passe">Confirm new password</label>
+
+    <input id="confirmPassword" type="password"
+      autocomplete="new-password" minlength="8" maxlength="128" required>
+
+    <button class="submit" id="resetBtn" type="submit"
+      data-en="Reset password"
+      data-rw="Hindura password"
+      data-fr="Réinitialiser le mot de passe">
+      Reset password
     </button>
   </form>
 
@@ -223,9 +249,7 @@ body.dark .success { background:#123b2b; color:#b6f3ce; }
     <a href="/login"
       data-en="← Back to Login"
       data-rw="← Subira kuri Login"
-      data-fr="← Retour à la connexion">
-      ← Back to Login
-    </a>
+      data-fr="← Retour à la connexion">← Back to Login</a>
   </div>
 </section>
 </main>
@@ -240,54 +264,81 @@ body.dark .success { background:#123b2b; color:#b6f3ce; }
 <script>
 "use strict";
 
-const language = document.getElementById("language");
-const themeButton = document.getElementById("theme");
-const form = document.getElementById("forgotForm");
-const emailInput = document.getElementById("email");
-const submitButton = document.getElementById("submitBtn");
-const errorBox = document.getElementById("error");
-const successBox = document.getElementById("success");
+const $ = id => document.getElementById(id);
+
+const language = $("language");
+const themeButton = $("theme");
+const usernameForm = $("usernameForm");
+const answerForm = $("answerForm");
+const passwordForm = $("passwordForm");
+const usernameInput = $("username");
+const answerInput = $("answer");
+const newPasswordInput = $("newPassword");
+const confirmPasswordInput = $("confirmPassword");
+const questionBox = $("questionBox");
+const questionText = $("securityQuestion");
+const errorBox = $("error");
+const successBox = $("success");
+
+let verified = false;
 
 const messages = {
   en: {
-    required: "Please enter your email address.",
-    sending: "Sending...",
+    required: "Please enter your username.",
+    answerRequired: "Please enter your security answer.",
+    sending: "Please wait...",
     failed: "Unable to process your request. Please try again.",
-    html: "The server returned HTML instead of JSON. The Flask /forgot route needs to be checked.",
+    html: "The server returned an HTML page instead of JSON. Check the Flask API route and server logs.",
     invalid: "The server returned an invalid JSON response.",
-    network: "A connection error occurred. Please check your internet connection.",
-    success: "If your account is eligible, reset instructions will be sent.",
+    network: "Connection error. Please check your internet connection.",
+    noQuestion: "No security question was found for this account.",
+    answerWrong: "The security answer could not be verified.",
+    passwordRequired: "Please complete both password fields.",
+    passwordShort: "Password must contain at least 8 characters.",
+    passwordMismatch: "The passwords do not match.",
+    resetSuccess: "Password reset successfully. You can now log in.",
     toggle: "Toggle light or dark mode"
   },
   rw: {
-    required: "Andika email yawe.",
-    sending: "Birimo koherezwa...",
+    required: "Andika username yawe.",
+    answerRequired: "Andika igisubizo cy'umutekano.",
+    sending: "Tegereza gato...",
     failed: "Ntibyashobotse. Ongera ugerageze.",
-    html: "Server yohereje HTML aho kohereza JSON. Hagomba kugenzurwa Flask route /forgot.",
-    invalid: "Igisubizo cya server ntabwo ari JSON yemewe.",
+    html: "Server yohereje page ya HTML aho kohereza JSON. Reba Flask API route n'amakosa ari muri server logs.",
+    invalid: "Server yohereje igisubizo cya JSON kitari cyo.",
     network: "Habaye ikibazo cy'ihuzanzira. Reba internet yawe.",
-    success: "Niba konti yawe yemerewe, amabwiriza yo guhindura password azoherezwa.",
+    noQuestion: "Nta kibazo cy'umutekano cyabonetse kuri iyi konti.",
+    answerWrong: "Igisubizo cy'umutekano nticyemejwe.",
+    passwordRequired: "Uzuza ahantu hose habiri ha password.",
+    passwordShort: "Password igomba kugira nibura inyuguti 8.",
+    passwordMismatch: "Password zombi ntizihuye.",
+    resetSuccess: "Password yahinduwe neza. Ushobora kwinjira ubu.",
     toggle: "Hindura hagati ya Light na Dark mode"
   },
   fr: {
-    required: "Veuillez saisir votre adresse e-mail.",
-    sending: "Envoi en cours...",
+    required: "Veuillez saisir votre nom d'utilisateur.",
+    answerRequired: "Veuillez saisir votre réponse de sécurité.",
+    sending: "Veuillez patienter...",
     failed: "Impossible de traiter la demande. Veuillez réessayer.",
-    html: "Le serveur a renvoyé du HTML au lieu du JSON. Vérifiez la route Flask /forgot.",
+    html: "Le serveur a renvoyé une page HTML au lieu du JSON. Vérifiez la route API Flask et les journaux du serveur.",
     invalid: "Le serveur a renvoyé une réponse JSON invalide.",
     network: "Erreur de connexion. Vérifiez votre connexion Internet.",
-    success: "Si votre compte est éligible, les instructions seront envoyées.",
+    noQuestion: "Aucune question de sécurité n'a été trouvée pour ce compte.",
+    answerWrong: "La réponse de sécurité n'a pas pu être vérifiée.",
+    passwordRequired: "Veuillez remplir les deux champs du mot de passe.",
+    passwordShort: "Le mot de passe doit contenir au moins 8 caractères.",
+    passwordMismatch: "Les mots de passe ne correspondent pas.",
+    resetSuccess: "Mot de passe réinitialisé. Vous pouvez maintenant vous connecter.",
     toggle: "Changer le thème clair ou sombre"
   }
 };
 
-function getLanguage() {
-  return messages[language.value] ? language.value : "en";
+function msg() {
+  return messages[language.value] || messages.en;
 }
 
 function setLanguage(value) {
   const selected = messages[value] ? value : "en";
-
   language.value = selected;
   document.documentElement.lang = selected;
 
@@ -301,9 +352,7 @@ function setLanguage(value) {
 
   try {
     localStorage.setItem("studentpredict-language", selected);
-  } catch (e) {
-    // The page can still work when localStorage is unavailable.
-  }
+  } catch (_) {}
 }
 
 function setTheme(value) {
@@ -313,9 +362,7 @@ function setTheme(value) {
 
   try {
     localStorage.setItem("studentpredict-theme", selected);
-  } catch (e) {
-    // Theme remains active for the current page.
-  }
+  } catch (_) {}
 }
 
 function showError(message) {
@@ -330,89 +377,201 @@ function showSuccess(message) {
   errorBox.style.display = "none";
 }
 
+function clearMessages() {
+  errorBox.style.display = "none";
+  successBox.style.display = "none";
+}
+
+async function postJSON(url, payload) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    credentials: "same-origin",
+    body: JSON.stringify(payload)
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const responseText = await response.text();
+
+  if (!contentType.toLowerCase().includes("application/json")) {
+    console.error("Expected JSON from", url, {
+      status: response.status,
+      contentType,
+      response: responseText.slice(0, 300)
+    });
+    throw new Error(msg().html);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(responseText);
+  } catch (_) {
+    throw new Error(msg().invalid);
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || data.error || msg().failed);
+  }
+
+  return data;
+}
+
+async function runButton(button, callback) {
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = msg().sending;
+
+  try {
+    await callback();
+  } catch (error) {
+    console.error("Forgot password request failed:", error);
+    showError(error.message || msg().network);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
+// Load saved language and theme.
 try {
   language.value = localStorage.getItem("studentpredict-language") || "en";
   setTheme(localStorage.getItem("studentpredict-theme") || "light");
-} catch (e) {
+} catch (_) {
   language.value = "en";
   setTheme("light");
 }
-
 setLanguage(language.value);
 
-language.addEventListener("change", () => {
-  setLanguage(language.value);
-});
+language.addEventListener("change", () => setLanguage(language.value));
 
 themeButton.addEventListener("click", () => {
   setTheme(document.body.classList.contains("dark") ? "light" : "dark");
 });
 
-form.addEventListener("submit", async event => {
+// STEP 1: Request the security question.
+usernameForm.addEventListener("submit", async event => {
   event.preventDefault();
+  clearMessages();
 
-  errorBox.style.display = "none";
-  successBox.style.display = "none";
+  const username = usernameInput.value.trim();
 
-  const email = emailInput.value.trim();
-  const msg = messages[getLanguage()];
-
-  if (!email) {
-    showError(msg.required);
-    emailInput.focus();
+  if (!username) {
+    showError(msg().required);
+    usernameInput.focus();
     return;
   }
 
-  submitButton.disabled = true;
-  const originalButtonText = submitButton.textContent;
-  submitButton.textContent = msg.sending;
+  answerForm.classList.add("hidden");
+  passwordForm.classList.add("hidden");
+  questionBox.style.display = "none";
+  verified = false;
 
-  try {
-    const response = await fetch(form.action, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      credentials: "same-origin",
-      body: JSON.stringify({ email })
+  await runButton($("findBtn"), async () => {
+    const data = await postJSON("/api/get-security-question", {
+      username
     });
 
-    const contentType = response.headers.get("content-type") || "";
-    const responseText = await response.text();
+    const question = data.question || data.security_question;
 
-    if (!contentType.toLowerCase().includes("application/json")) {
-      console.error("Forgot Password response details:", {
-        status: response.status,
-        contentType,
-        response: responseText.slice(0, 500)
-      });
-
-      throw new Error(msg.html);
+    if (!question) {
+      throw new Error(msg().noQuestion);
     }
 
-    let data;
+    questionText.textContent = question;
+    questionBox.style.display = "block";
+    answerForm.classList.remove("hidden");
+    answerInput.value = "";
+    answerInput.focus();
+  });
+});
 
-    try {
-      data = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Invalid JSON returned by /forgot:", parseError);
-      throw new Error(msg.invalid);
-    }
+// STEP 2: Verify the security answer.
+answerForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  clearMessages();
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.error || data.message || msg.failed);
-    }
+  const username = usernameInput.value.trim();
+  const answer = answerInput.value.trim();
 
-    showSuccess(data.message || msg.success);
-
-  } catch (error) {
-    console.error("Forgot Password error:", error);
-    showError(error.message || msg.network);
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = originalButtonText;
+  if (!answer) {
+    showError(msg().answerRequired);
+    answerInput.focus();
+    return;
   }
+
+  await runButton($("verifyBtn"), async () => {
+    await postJSON("/api/verify-security-answer", {
+      username,
+      answer
+    });
+
+    verified = true;
+    passwordForm.classList.remove("hidden");
+    newPasswordInput.focus();
+    showSuccess(
+      language.value === "rw"
+        ? "Igisubizo cyemejwe. Andika password nshya."
+        : language.value === "fr"
+          ? "Réponse vérifiée. Saisissez un nouveau mot de passe."
+          : "Answer verified. Enter your new password."
+    );
+  });
+});
+
+// STEP 3: Reset the password.
+passwordForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  clearMessages();
+
+  const username = usernameInput.value.trim();
+  const answer = answerInput.value.trim();
+  const new_password = newPasswordInput.value;
+  const confirm_password = confirmPasswordInput.value;
+
+  if (!verified) {
+    showError(msg().answerWrong);
+    passwordForm.classList.add("hidden");
+    return;
+  }
+
+  if (!new_password || !confirm_password) {
+    showError(msg().passwordRequired);
+    return;
+  }
+
+  if (new_password.length < 8) {
+    showError(msg().passwordShort);
+    newPasswordInput.focus();
+    return;
+  }
+
+  if (new_password !== confirm_password) {
+    showError(msg().passwordMismatch);
+    confirmPasswordInput.focus();
+    return;
+  }
+
+  await runButton($("resetBtn"), async () => {
+    const data = await postJSON("/api/reset-password", {
+      username,
+      answer,
+      new_password,
+      confirm_password
+    });
+
+    passwordForm.reset();
+    answerForm.reset();
+    passwordForm.classList.add("hidden");
+    answerForm.classList.add("hidden");
+    usernameForm.reset();
+    questionBox.style.display = "none";
+    verified = false;
+
+    showSuccess(data.message || msg().resetSuccess);
+  });
 });
 </script>
 </body>
