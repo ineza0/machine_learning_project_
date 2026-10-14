@@ -2083,7 +2083,7 @@ def headmaster_manage_invitations():
         # Include creator column only if this database schema has one.
         for possible in ("created_by", "created_by_user_id", "issued_by"):
             if possible in columns:
-                values[possible] = identity.get("id")
+                values[possible] = identity["user"]["id"]
                 break
 
         insert_cols = [name for name in values if name in columns]
