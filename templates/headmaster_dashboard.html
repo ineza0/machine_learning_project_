@@ -2,130 +2,960 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>StudentPredict | Platform Admin</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <script defer src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    <style>
-        .dashboard { max-width:1400px; margin:auto; padding:24px; }
-        .top { display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap; }
-        .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin:24px 0; }
-        .card { background:var(--panel,#fff); color:var(--text,#172033); padding:20px; border-radius:14px; border:1px solid var(--line,#e4eaf2); }
-        .value { font-size:30px; font-weight:800; margin-top:8px; }
-        .muted { color:var(--muted,#68758b); }
-        .section { margin-top:20px; }
-        .table-wrap { overflow-x:auto; }
-        table { width:100%; border-collapse:collapse; min-width:650px; }
-        th,td { text-align:left; padding:12px; border-bottom:1px solid var(--line,#e4eaf2); }
-        .btn { padding:9px 13px; border-radius:8px; cursor:pointer; }
-        .notice { padding:14px; border:1px dashed var(--line,#ddd); border-radius:10px; }
-        .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
-        @media(max-width:600px) { .dashboard { padding:12px; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Headmaster Dashboard | StudentPredict</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --bg:#f3f6fc;
+  --panel:#fff;
+  --text:#172033;
+  --muted:#66748a;
+  --line:#e1e7f0;
+  --primary:#315ee8;
+  --primary-hover:#2448bd;
+  --sidebar:#101a2c;
+  --sidebar-text:#e9eef8;
+  --green:#13834b;
+  --red:#c33232;
+  --orange:#c77716;
+  --shadow:0 8px 28px rgba(20,35,65,.06);
+}
+body.dark {
+  --bg:#0c1220;
+  --panel:#151f31;
+  --text:#f1f5fb;
+  --muted:#a7b3c7;
+  --line:#2c394f;
+  --primary:#7193ff;
+  --primary-hover:#8da7ff;
+  --sidebar:#080d17;
+  --sidebar-text:#e9eef8;
+  --green:#54d995;
+  --red:#ff8585;
+  --orange:#ffc16b;
+  --shadow:0 8px 28px rgba(0,0,0,.16);
+}
+* {box-sizing:border-box}
+html {scroll-behavior:smooth}
+body {
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,Arial,Helvetica,sans-serif;
+  transition:background .2s,color .2s;
+}
+button,input,select {font:inherit}
+button,a {transition:.15s}
+button {cursor:pointer}
+a {color:inherit}
+.app {display:flex;min-height:100vh}
+.sidebar {
+  width:250px;background:var(--sidebar);color:var(--sidebar-text);
+  padding:25px 16px;flex-shrink:0;
+}
+.brand {font-size:23px;font-weight:850;letter-spacing:-.6px}
+.brand span {color:#7ca2ff}
+.brand-note {font-size:12px;color:#a4b1c8;margin:7px 0 30px}
+.nav-title {
+  font-size:10px;color:#91a0b9;letter-spacing:1.4px;
+  text-transform:uppercase;margin:24px 10px 9px
+}
+.nav {
+  display:block;text-decoration:none;padding:12px 13px;
+  margin:4px 0;border-radius:10px;font-size:13px;color:var(--sidebar-text)
+}
+.nav:hover,.nav.active {background:#273751;color:#fff}
+.nav-icon {display:inline-block;width:25px}
+.main {flex:1;min-width:0}
+.topbar {
+  position:sticky;top:0;z-index:5;background:var(--panel);
+  border-bottom:1px solid var(--line);padding:16px 26px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:16px;flex-wrap:wrap
+}
+.topbar h1 {margin:0;font-size:22px}
+.welcome {font-size:13px;color:var(--muted);margin-top:6px}
+.actions {display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+select,input {
+  background:var(--panel);color:var(--text);
+  border:1px solid var(--line);border-radius:9px;padding:10px 11px;
+  max-width:100%
+}
+.btn {
+  border:1px solid var(--line);border-radius:9px;padding:10px 13px;
+  color:var(--text);background:var(--panel);font-size:12px;font-weight:700
+}
+.btn:hover {border-color:var(--primary)}
+.btn.primary {background:var(--primary);color:white;border-color:var(--primary)}
+.btn.primary:hover {background:var(--primary-hover)}
+.btn.danger {background:#a72727;color:#fff;border-color:#a72727}
+.content {max-width:1600px;margin:auto;padding:25px}
+.page-heading {margin:0 0 7px;font-size:21px}
+.description {color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 18px}
+.grid {display:grid;gap:16px}
+.metrics {grid-template-columns:repeat(4,minmax(0,1fr));margin:20px 0 28px}
+.card {
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:15px;padding:19px;box-shadow:var(--shadow);min-width:0
+}
+.metric-label {color:var(--muted);font-size:12px}
+.metric-value {font-size:30px;font-weight:850;margin:12px 0 7px}
+.metric-note {color:var(--muted);font-size:11px}
+.green {color:var(--green)}
+.red {color:var(--red)}
+.orange {color:var(--orange)}
+.section {margin:28px 0}
+.section-head {
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;flex-wrap:wrap;margin-bottom:14px
+}
+.section-head h2,.card h2 {font-size:17px;margin:0 0 7px}
+.two-col {grid-template-columns:repeat(2,minmax(0,1fr))}
+.three-col {grid-template-columns:repeat(3,minmax(0,1fr))}
+.chart-box {height:290px;position:relative;margin-top:15px}
+.table-wrap {
+  overflow-x:auto;border:1px solid var(--line);
+  border-radius:12px;background:var(--panel)
+}
+table {width:100%;border-collapse:collapse;min-width:700px}
+th,td {
+  text-align:left;padding:13px;border-bottom:1px solid var(--line);
+  font-size:12px;vertical-align:middle
+}
+th {background:var(--bg);color:var(--muted);font-weight:750}
+tr:last-child td {border-bottom:0}
+.pill {
+  display:inline-block;padding:5px 9px;border-radius:30px;
+  font-size:10px;font-weight:800;background:var(--bg)
+}
+.pill.pending {color:var(--orange)}
+.pill.approved {color:var(--green)}
+.pill.rejected {color:var(--red)}
+.notice {
+  border:1px dashed var(--line);border-radius:11px;padding:14px;
+  color:var(--muted);font-size:12px;line-height:1.6
+}
+.form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field {display:flex;flex-direction:column;gap:6px}
+.field label {font-size:12px;color:var(--muted);font-weight:700}
+.field input,.field select {width:100%}
+.form-actions {margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.message {font-size:12px;color:var(--muted);padding-top:12px;line-height:1.5}
+.message.error {color:var(--red)}
+.message.success {color:var(--green)}
+.analysis-list {display:grid;gap:10px;margin-top:12px}
+.analysis-item {
+  border:1px solid var(--line);border-radius:11px;padding:13px;
+  font-size:12px;line-height:1.6
+}
+.analysis-item strong {display:block;margin-bottom:5px}
+.footer {text-align:center;color:var(--muted);font-size:11px;padding:24px}
+.hidden {display:none!important}
+@media(max-width:1100px) {
+  .metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .three-col {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px) {
+  .app {display:block}
+  .sidebar {width:100%;padding:17px}
+  .brand-note {margin-bottom:15px}
+  .nav-title {margin-top:14px}
+  .nav-list {display:flex;overflow-x:auto;gap:5px}
+  .nav {white-space:nowrap;padding:10px}
+  .topbar {position:static;padding:16px}
+  .content {padding:14px}
+  .metrics,.two-col,.three-col,.form-grid {grid-template-columns:1fr}
+  .chart-box {height:250px}
+  .topbar h1 {font-size:19px}
+}
+</style>
 </head>
+
 <body>
-<div class="dashboard">
-    <header class="top">
-        <div>
-            <p class="muted">StudentPredict / Platform administration</p>
-            <h1>Platform Admin Dashboard</h1>
-            <p>Welcome, {{ session.get('full_name') or session.get('username', 'Administrator') }}</p>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Student<span>Predict</span></div>
+    <div class="brand-note" data-i18n="subtitle">School management portal</div>
+
+    <div class="nav-title" data-i18n="menu">MAIN MENU</div>
+    <nav class="nav-list">
+      <a class="nav active" href="#overview"><span class="nav-icon">▦</span><span data-i18n="overview">Overview</span></a>
+      <a class="nav" href="#performance"><span class="nav-icon">▥</span><span data-i18n="performance">Performance</span></a>
+      <a class="nav" href="#grades"><span class="nav-icon">✓</span><span data-i18n="grades">Grade approvals</span></a>
+      <a class="nav" href="#invitations"><span class="nav-icon">✉</span><span data-i18n="invitations">Invitation codes</span></a>
+      <a class="nav" href="#reports"><span class="nav-icon">⇩</span><span data-i18n="reports">Reports</span></a>
+    </nav>
+
+    <div class="nav-title" data-i18n="account">ACCOUNT</div>
+    <a class="nav" href="/logout"><span class="nav-icon">⇥</span><span data-i18n="logout">Log out</span></a>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 data-i18n="dashboardTitle">Headmaster Dashboard</h1>
+        <div class="welcome">
+          <span data-i18n="welcome">Welcome</span>,
+          <strong>{{ session.get('full_name') or session.get('username', 'Headmaster') }}</strong>
+          <span> · </span><span data-i18n="schoolScope">Your school only</span>
         </div>
-        <div>
-            <select id="language-select" aria-label="Language">
-                <option value="en">English</option>
-                <option value="rw">Kinyarwanda</option>
-                <option value="fr">Français</option>
-            </select>
-            <button class="btn" id="theme-toggle" type="button">Dark mode</button>
-            <button class="btn" type="button" data-logout>Log out</button>
-        </div>
+      </div>
+      <div class="actions">
+        <select id="language-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="rw">Kinyarwanda</option>
+          <option value="fr">Français</option>
+        </select>
+        <button class="btn" id="theme-toggle" type="button">🌙 <span data-i18n="darkMode">Dark mode</span></button>
+        <a class="btn danger" href="/logout" data-i18n="logout">Log out</a>
+      </div>
     </header>
 
-    <section class="cards">
-        <article class="card">
-            <div class="muted">Registered schools</div>
-            <div class="value" id="school-count">—</div>
-        </article>
-        <article class="card">
-            <div class="muted">Total users</div>
-            <div class="value" id="user-count">—</div>
-        </article>
-        <article class="card">
-            <div class="muted">Grade records</div>
-            <div class="value" id="grade-count">—</div>
-        </article>
-        <article class="card">
-            <div class="muted">System status</div>
-            <div class="value" style="font-size:22px" id="system-status">Not checked</div>
-        </article>
-    </section>
+    <div class="content">
+      <section id="overview">
+        <h2 class="page-heading" data-i18n="schoolOverview">School overview</h2>
+        <p class="description" data-i18n="overviewDesc">Review your school's students, teachers, classes and grade records.</p>
 
-    <section class="card section">
-        <div class="top">
-            <h2>Schools on StudentPredict</h2>
-            <div class="toolbar">
-                <input id="school-search" type="search" placeholder="Search schools...">
-                <button class="btn" id="refresh-schools" type="button">Refresh</button>
-            </div>
+        <div class="grid metrics">
+          <article class="card">
+            <div class="metric-label" data-i18n="students">Students</div>
+            <div class="metric-value" id="student-count">—</div>
+            <div class="metric-note" data-i18n="registeredStudents">Registered in your school</div>
+          </article>
+          <article class="card">
+            <div class="metric-label" data-i18n="teachers">Teachers</div>
+            <div class="metric-value" id="teacher-count">—</div>
+            <div class="metric-note" data-i18n="schoolTeachers">Teachers linked to your school</div>
+          </article>
+          <article class="card">
+            <div class="metric-label" data-i18n="classes">Classes</div>
+            <div class="metric-value" id="class-count">—</div>
+            <div class="metric-note" data-i18n="schoolClasses">Classes in your school</div>
+          </article>
+          <article class="card">
+            <div class="metric-label" data-i18n="gradeRecords">Grade records</div>
+            <div class="metric-value" id="grade-count">—</div>
+            <div class="metric-note"><span data-i18n="pending">Pending</span>: <strong id="pending-count">—</strong></div>
+          </article>
         </div>
-        <p class="muted">Platform-wide school overview.</p>
-        <div class="notice">
-            The school list is not connected yet. The platform-admin API must be restricted
-            on the server to authorized platform administrators.
+      </section>
+
+      <section id="performance" class="section">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="performance">School performance</h2>
+            <p class="description" data-i18n="performanceDesc">Charts are based on grade records returned by the server.</p>
+          </div>
+          <button class="btn primary" id="refresh-button" type="button" data-i18n="refresh">Refresh data</button>
         </div>
-        <div class="table-wrap">
+
+        <div class="grid two-col">
+          <article class="card">
+            <h2 data-i18n="gradeDistribution">Grade status distribution</h2>
+            <p class="description" data-i18n="gradeDistributionDesc">Approved, pending and rejected records.</p>
+            <div class="chart-box"><canvas id="gradeChart"></canvas></div>
+          </article>
+          <article class="card">
+            <h2 data-i18n="classPerformance">Class performance</h2>
+            <p class="description" data-i18n="classPerformanceDesc">Average score percentage for each class.</p>
+            <div class="chart-box"><canvas id="classChart"></canvas></div>
+          </article>
+          <article class="card">
+            <h2 data-i18n="subjectPerformance">Subject performance</h2>
+            <p class="description" data-i18n="subjectPerformanceDesc">Compare average marks across subjects.</p>
+            <div class="chart-box"><canvas id="subjectChart"></canvas></div>
+          </article>
+          <article class="card">
+            <h2 data-i18n="scoreDistribution">Score distribution</h2>
+            <p class="description" data-i18n="scoreDistributionDesc">Number of approved grades by score range.</p>
+            <div class="chart-box"><canvas id="scoreChart"></canvas></div>
+          </article>
+        </div>
+
+        <div class="card section">
+          <h2 data-i18n="classTable">Class performance details</h2>
+          <p class="description" data-i18n="classTableDesc">Use this table to identify classes that may need extra support.</p>
+          <div class="table-wrap">
             <table>
-                <thead>
-                    <tr>
-                        <th>School</th>
-                        <th>Education level</th>
-                        <th>Members</th>
-                        <th>Approval mode</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="schools-table">
-                    <tr>
-                        <td colspan="5">School records will appear after the admin API is connected.</td>
-                    </tr>
-                </tbody>
+              <thead><tr>
+                <th data-i18n="class">Class</th>
+                <th data-i18n="students">Students</th>
+                <th data-i18n="average">Average (%)</th>
+                <th data-i18n="passRate">Pass rate (%)</th>
+                <th data-i18n="recommendation">Recommendation</th>
+              </tr></thead>
+              <tbody id="class-table">
+                <tr><td colspan="5" data-i18n="loading">Loading data...</td></tr>
+              </tbody>
             </table>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <section class="cards">
-        <article class="card section">
-            <h2>User management</h2>
-            <p class="muted">Review user accounts, roles and school memberships.</p>
-            <p>Platform-admin accounts must never be created through public signup.</p>
-        </article>
-        <article class="card section">
-            <h2>Platform health</h2>
-            <p class="muted">Monitor the application and database through protected system checks.</p>
-            <span>Database: <strong>API required</strong></span>
-        </article>
-        <article class="card section">
-            <h2>Reports</h2>
-            <p class="muted">Platform-wide summaries and export tools.</p>
-            <span>Reporting: <strong>API required</strong></span>
-        </article>
-    </section>
+      <section class="section">
+        <div class="card">
+          <h2 data-i18n="aiAnalysis">AI-assisted performance analysis</h2>
+          <p class="description" data-i18n="aiDescription">Evidence-based suggestions from the school's available grade data.</p>
+          <div id="analysis-content" class="analysis-list">
+            <div class="notice" data-i18n="analysisWaiting">Waiting for school performance data.</div>
+          </div>
+          <p class="message" data-i18n="aiDisclaimer">Suggestions support teachers and school leaders; they do not replace professional judgement or official grading.</p>
+        </div>
+      </section>
+
+      <section id="grades" class="section">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="pendingGrades">Grades awaiting approval</h2>
+            <p class="description" data-i18n="approvalDesc">Review grades submitted by teachers in your school.</p>
+          </div>
+          <button class="btn" id="refresh-grades" type="button" data-i18n="refresh">Refresh data</button>
+        </div>
+        <div class="notice" id="approval-mode-notice" data-i18n="approvalModeNote">Only pending grades eligible for headmaster approval should appear here.</div>
+        <div class="table-wrap" style="margin-top:14px">
+          <table>
+            <thead><tr>
+              <th data-i18n="student">Student</th>
+              <th data-i18n="class">Class</th>
+              <th data-i18n="subject">Subject</th>
+              <th data-i18n="score">Score</th>
+              <th data-i18n="teacher">Teacher</th>
+              <th data-i18n="action">Action</th>
+            </tr></thead>
+            <tbody id="pending-grades-table">
+              <tr><td colspan="6" data-i18n="loading">Loading data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="message" id="grades-message" role="status"></div>
+      </section>
+
+      <section id="invitations" class="section">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="inviteTitle">Invite teachers and students</h2>
+            <p class="description" data-i18n="inviteDesc">Create a school invitation code. The server must enforce its expiry and single-use rules.</p>
+          </div>
+        </div>
+
+        <div class="grid two-col">
+          <div class="card">
+            <h2 data-i18n="createInvitation">Create invitation</h2>
+            <form id="invite-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="invite-role" data-i18n="inviteRole">Invite as</label>
+                  <select id="invite-role" required>
+                    <option value="TEACHER">Teacher</option>
+                    <option value="STUDENT">Student</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="invite-email" data-i18n="emailOptional">Email (optional)</label>
+                  <input id="invite-email" type="email" placeholder="person@example.com">
+                </div>
+                <div class="field" id="invite-class-field">
+                  <label for="invite-class" data-i18n="classOptional">Class (for student)</label>
+                  <select id="invite-class">
+                    <option value="" data-i18n="selectClass">Select class</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="invite-expiry" data-i18n="expiry">Expires in</label>
+                  <select id="invite-expiry">
+                    <option value="1">1 day</option>
+                    <option value="3">3 days</option>
+                    <option value="7" selected>7 days</option>
+                    <option value="14">14 days</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn primary" type="submit" data-i18n="generateCode">Generate invitation code</button>
+              </div>
+            </form>
+            <div id="invite-message" class="message" role="status"></div>
+            <div id="new-invite" class="notice hidden" style="margin-top:12px">
+              <strong data-i18n="newCode">New invitation code</strong>
+              <div id="new-code-value" style="font-size:23px;font-weight:850;margin:12px 0;overflow-wrap:anywhere"></div>
+              <div id="new-code-info" class="message"></div>
+              <button class="btn" id="copy-code" type="button" data-i18n="copyCode">Copy code</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 data-i18n="invitationRules">Invitation security</h2>
+            <div class="analysis-list">
+              <div class="analysis-item" data-i18n="rule1">Codes should belong only to your school.</div>
+              <div class="analysis-item" data-i18n="rule2">The server should reject expired or already-used codes.</div>
+              <div class="analysis-item" data-i18n="rule3">Students and teachers must not be able to invite themselves as headmasters or platform administrators.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card section">
+          <div class="section-head">
+            <h2 data-i18n="invitationHistory">Invitation history</h2>
+            <button class="btn" id="refresh-invitations" type="button" data-i18n="refresh">Refresh data</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i18n="inviteRole">Role</th>
+                <th data-i18n="invitationCode">Code</th>
+                <th data-i18n="email">Email</th>
+                <th data-i18n="expiryDate">Expires</th>
+                <th data-i18n="status">Status</th>
+              </tr></thead>
+              <tbody id="invitation-table">
+                <tr><td colspan="5" data-i18n="loading">Loading data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="invitations-message" class="message"></div>
+        </div>
+      </section>
+
+      <section id="reports" class="section">
+        <div class="card">
+          <h2 data-i18n="reportsTitle">School reports</h2>
+          <p class="description" data-i18n="reportsDesc">Download grade reports from your own school.</p>
+          <div class="actions">
+            <a class="btn primary" href="/api/headmaster/reports/pdf" data-i18n="downloadPdf">Download PDF</a>
+            <a class="btn" href="/api/headmaster/reports/excel" data-i18n="downloadExcel">Download Excel</a>
+          </div>
+          <p class="message" data-i18n="reportNote">These report links require protected server endpoints before downloads will work.</p>
+        </div>
+      </section>
+
+      <footer class="footer">StudentPredict · Learn · Create · Innovate</footer>
+    </div>
+  </main>
 </div>
 
 <script>
-document.getElementById('refresh-schools').addEventListener('click', function () {
-    alert('The platform-admin API must be implemented before school data can be loaded.');
+const I18N = {
+en:{
+subtitle:"School management portal",menu:"MAIN MENU",overview:"Overview",performance:"Performance",
+grades:"Grade approvals",invitations:"Invitation codes",reports:"Reports",account:"ACCOUNT",
+logout:"Log out",dashboardTitle:"Headmaster Dashboard",welcome:"Welcome",schoolScope:"Your school only",
+darkMode:"Dark mode",lightMode:"Light mode",schoolOverview:"School overview",
+overviewDesc:"Review your school's students, teachers, classes and grade records.",
+students:"Students",teachers:"Teachers",classes:"Classes",gradeRecords:"Grade records",
+registeredStudents:"Registered in your school",schoolTeachers:"Teachers linked to your school",
+schoolClasses:"Classes in your school",pending:"Pending",refresh:"Refresh data",
+performanceDesc:"Charts are based on grade records returned by the server.",
+gradeDistribution:"Grade status distribution",gradeDistributionDesc:"Approved, pending and rejected records.",
+classPerformance:"Class performance",classPerformanceDesc:"Average score percentage for each class.",
+subjectPerformance:"Subject performance",subjectPerformanceDesc:"Compare average marks across subjects.",
+scoreDistribution:"Score distribution",scoreDistributionDesc:"Number of approved grades by score range.",
+classTable:"Class performance details",classTableDesc:"Identify classes that may need extra support.",
+class:"Class",average:"Average (%)",passRate:"Pass rate (%)",recommendation:"Recommendation",
+loading:"Loading data...",aiAnalysis:"AI-assisted performance analysis",
+aiDescription:"Evidence-based suggestions from the school's available grade data.",
+analysisWaiting:"Waiting for school performance data.",
+aiDisclaimer:"Suggestions support teachers and school leaders; they do not replace professional judgement or official grading.",
+pendingGrades:"Grades awaiting approval",approvalDesc:"Review grades submitted by teachers in your school.",
+approvalModeNote:"Only pending grades eligible for headmaster approval should appear here.",
+student:"Student",subject:"Subject",score:"Score",teacher:"Teacher",action:"Action",
+approve:"Approve",reject:"Reject",inviteTitle:"Invite teachers and students",
+inviteDesc:"Create a school invitation code. The server must enforce its expiry and single-use rules.",
+createInvitation:"Create invitation",inviteRole:"Invite as",emailOptional:"Email (optional)",
+classOptional:"Class (for student)",selectClass:"Select class",expiry:"Expires in",
+generateCode:"Generate invitation code",newCode:"New invitation code",copyCode:"Copy code",
+invitationRules:"Invitation security",rule1:"Codes should belong only to your school.",
+rule2:"The server should reject expired or already-used codes.",
+rule3:"Students and teachers must not be able to invite themselves as headmasters or platform administrators.",
+invitationHistory:"Invitation history",invitationCode:"Code",email:"Email",expiryDate:"Expires",
+status:"Status",reportsTitle:"School reports",reportsDesc:"Download grade reports from your own school.",
+downloadPdf:"Download PDF",downloadExcel:"Download Excel",
+reportNote:"These report links require protected server endpoints before downloads will work.",
+noData:"No records available.",loadError:"Could not load data. Check the server API and your login.",
+noPending:"No pending grades found.",noInvitations:"No invitations found.",
+noClasses:"No class performance data found.",good:"Performing well",support:"Needs additional support",
+noAnalysis:"Not enough approved grades to provide useful analysis.",
+analysisPrefix:"Suggested action",generated:"Invitation created successfully.",
+copied:"Code copied.",copyFailed:"Copy failed; select and copy the code manually.",
+apiMissing:"This feature's server endpoint is not connected yet.",
+email:"Email",used:"Used",expired:"Expired",active:"Active",unknown:"Unknown",
+scoreRange:"Score range",gradeStatus:"Grade status",approved:"Approved",rejected:"Rejected"
+},
+rw:{
+subtitle:"Urubuga rwo gucunga ishuri",menu:"MENU NKURU",overview:"Incamake",performance:"Imitsindire",
+grades:"Kwemeza amanota",invitations:"Kode zo gutumira",reports:"Raporo",account:"KONTI",
+logout:"Sohoka",dashboardTitle:"Dashboard y'umuyobozi w'ishuri",welcome:"Murakaza neza",
+schoolScope:"Ishuri ryanyu gusa",darkMode:"Uburyo bwijimye",lightMode:"Uburyo bw'urumuri",
+schoolOverview:"Incamake y'ishuri",overviewDesc:"Reba abanyeshuri, abarimu, ibyiciro n'amanota by'ishuri.",
+students:"Abanyeshuri",teachers:"Abarimu",classes:"Amakilasi",gradeRecords:"Inyandiko z'amanota",
+registeredStudents:"Abanyeshuri biyandikishije",schoolTeachers:"Abarimu bo mu ishuri",
+schoolClasses:"Amakilasi yo mu ishuri",pending:"Ataremezwa",refresh:"Ongera uvugurure",
+performanceDesc:"Imbonerahamwe zishingiye ku manota yagaruwe na server.",
+gradeDistribution:"Imiterere y'amanota",gradeDistributionDesc:"Amanota yemejwe, ategereje n'ayanze.",
+classPerformance:"Imitsindire ya buri class",classPerformanceDesc:"Impuzandengo y'amanota kuri buri class.",
+subjectPerformance:"Imitsindire kuri buri somo",subjectPerformanceDesc:"Gereranya impuzandengo y'amanota y'amasomo.",
+scoreDistribution:"Ikwirakwira ry'amanota",scoreDistributionDesc:"Umubare w'amanota yemejwe muri buri cyiciro.",
+classTable:"Imitsindire ya buri class",classTableDesc:"Menya amakilasi akeneye ubufasha bw'inyongera.",
+class:"Class",average:"Impuzandengo (%)",passRate:"Ijanisha ry'abatsinze (%)",
+recommendation:"Inama",loading:"Turimo kuzana amakuru...",aiAnalysis:"Isesengura ry'imikorere rifashijwe na AI",
+aiDescription:"Inama zishingiye ku manota ari muri system y'ishuri.",
+analysisWaiting:"Tegereje amakuru y'imitsindire.",
+aiDisclaimer:"Inama zifasha abarimu n'abayobozi; ntizisimbura ubusesenguzi bw'umwarimu cyangwa amanota yemewe.",
+pendingGrades:"Amanota ategereje kwemezwa",approvalDesc:"Suzuma amanota abarimu bo mu ishuri bashyizemo.",
+approvalModeNote:"Hagaragazwe amanota ategereje kwemezwa n'umuyobozi gusa.",
+student:"Umunyeshuri",subject:"Isomo",score:"Amanota",teacher:"Umwarimu",action:"Igikorwa",
+approve:"Emeza",reject:"Anga",inviteTitle:"Tumira abarimu n'abanyeshuri",
+inviteDesc:"Kora kode y'ishuri yo gutumira. Server igomba kugenzura igihe izarangirira n'ikoreshwa rimwe.",
+createInvitation:"Kora ubutumire",inviteRole:"Ubutumire bwa",emailOptional:"Imeyili (si ngombwa)",
+classOptional:"Class (ku munyeshuri)",selectClass:"Hitamo class",expiry:"Igihe cyo kurangira",
+generateCode:"Kora kode y'ubutumire",newCode:"Kode nshya y'ubutumire",copyCode:"Koporora kode",
+invitationRules:"Umutekano w'ubutumire",rule1:"Kode igomba kuba iy'ishuri ryanyu gusa.",
+rule2:"Server igomba kwanga kode yarangiye cyangwa yakoreshejwe.",
+rule3:"Abanyeshuri n'abarimu ntibagomba kwihesha uburenganzira bwo kuba abayobozi cyangwa platform administrators.",
+invitationHistory:"Amateka y'ubutumire",invitationCode:"Kode",email:"Imeyili",expiryDate:"Irangira",
+status:"Imiterere",reportsTitle:"Raporo z'ishuri",reportsDesc:"Kuramo raporo z'amanota z'ishuri ryanyu.",
+downloadPdf:"Kuramo PDF",downloadExcel:"Kuramo Excel",
+reportNote:"Gukuramo raporo bizakora nyuma yo guhuza endpoints zirinzwe za server.",
+noData:"Nta makuru arahari.",loadError:"Ntibyashobotse kuzana amakuru. Reba API na login.",
+noPending:"Nta manota ategereje kwemezwa.",noInvitations:"Nta butumire buraboneka.",
+noClasses:"Nta makuru y'imitsindire ya class arahari.",good:"Imitsindire ni myiza",support:"Ikeneye ubufasha bw'inyongera",
+noAnalysis:"Nta manota yemejwe ahagije yo gukora isesengura.",
+analysisPrefix:"Igikorwa gisabwa",generated:"Ubutumire bwakozwe neza.",
+copied:"Kode yakoporowe.",copyFailed:"Koporora byanze; hitamo kode uyikoporore.",
+apiMissing:"Igice cya server cy'iyi serivisi ntikirahuzwa.",
+used:"Yakoreshejwe",expired:"Yararangiye",active:"Iracyakora",unknown:"Ntibizwi",
+scoreRange:"Icyiciro cy'amanota",gradeStatus:"Imiterere y'amanota",approved:"Yemejwe",rejected:"Yanzwe"
+},
+fr:{
+subtitle:"Portail de gestion scolaire",menu:"MENU PRINCIPAL",overview:"Vue d'ensemble",
+performance:"Résultats",grades:"Validation des notes",invitations:"Codes d'invitation",
+reports:"Rapports",account:"COMPTE",logout:"Déconnexion",dashboardTitle:"Tableau de bord du directeur",
+welcome:"Bienvenue",schoolScope:"Votre établissement uniquement",darkMode:"Mode sombre",
+lightMode:"Mode clair",schoolOverview:"Vue d'ensemble de l'établissement",
+overviewDesc:"Consultez les élèves, enseignants, classes et notes de votre établissement.",
+students:"Élèves",teachers:"Enseignants",classes:"Classes",gradeRecords:"Notes enregistrées",
+registeredStudents:"Élèves inscrits",schoolTeachers:"Enseignants de l'établissement",
+schoolClasses:"Classes de l'établissement",pending:"En attente",refresh:"Actualiser",
+performanceDesc:"Les graphiques utilisent les notes retournées par le serveur.",
+gradeDistribution:"État des notes",gradeDistributionDesc:"Notes approuvées, en attente et rejetées.",
+classPerformance:"Résultats par classe",classPerformanceDesc:"Moyenne en pourcentage de chaque classe.",
+subjectPerformance:"Résultats par matière",subjectPerformanceDesc:"Comparer les moyennes par matière.",
+scoreDistribution:"Répartition des notes",scoreDistributionDesc:"Nombre de notes approuvées par tranche.",
+classTable:"Détails par classe",classTableDesc:"Identifiez les classes nécessitant un soutien supplémentaire.",
+class:"Classe",average:"Moyenne (%)",passRate:"Taux de réussite (%)",
+recommendation:"Recommandation",loading:"Chargement...",aiAnalysis:"Analyse des résultats assistée par IA",
+aiDescription:"Suggestions fondées sur les notes disponibles de l'établissement.",
+analysisWaiting:"En attente des données de résultats.",
+aiDisclaimer:"Les suggestions soutiennent les enseignants et la direction sans remplacer leur jugement professionnel.",
+pendingGrades:"Notes en attente de validation",approvalDesc:"Vérifiez les notes saisies par les enseignants.",
+approvalModeNote:"Seules les notes pouvant être validées par la direction doivent apparaître ici.",
+student:"Élève",subject:"Matière",score:"Note",teacher:"Enseignant",action:"Action",
+approve:"Approuver",reject:"Rejeter",inviteTitle:"Inviter enseignants et élèves",
+inviteDesc:"Créez un code d'invitation scolaire avec expiration et usage unique vérifiés par le serveur.",
+createInvitation:"Créer une invitation",inviteRole:"Inviter comme",emailOptional:"E-mail (facultatif)",
+classOptional:"Classe (pour un élève)",selectClass:"Choisir une classe",expiry:"Expire dans",
+generateCode:"Créer le code",newCode:"Nouveau code d'invitation",copyCode:"Copier le code",
+invitationRules:"Sécurité des invitations",rule1:"Les codes doivent appartenir uniquement à votre établissement.",
+rule2:"Le serveur doit refuser les codes expirés ou déjà utilisés.",
+rule3:"Les élèves et enseignants ne peuvent pas s'attribuer des rôles de direction ou d'administration de plateforme.",
+invitationHistory:"Historique des invitations",invitationCode:"Code",email:"E-mail",expiryDate:"Expiration",
+status:"Statut",reportsTitle:"Rapports scolaires",reportsDesc:"Téléchargez les rapports de votre établissement.",
+downloadPdf:"Télécharger PDF",downloadExcel:"Télécharger Excel",
+reportNote:"Les téléchargements nécessitent des routes serveur protégées.",
+noData:"Aucune donnée disponible.",loadError:"Chargement impossible. Vérifiez l'API et votre connexion.",
+noPending:"Aucune note en attente.",noInvitations:"Aucune invitation.",noClasses:"Aucune donnée par classe.",
+good:"Bon résultat",support:"Soutien supplémentaire nécessaire",
+noAnalysis:"Pas assez de notes approuvées pour analyser les résultats.",
+analysisPrefix:"Action suggérée",generated:"Invitation créée.",
+copied:"Code copié.",copyFailed:"Copie impossible; copiez le code manuellement.",
+apiMissing:"Le point d'accès serveur n'est pas encore connecté.",
+used:"Utilisé",expired:"Expiré",active:"Actif",unknown:"Inconnu",
+scoreRange:"Tranche de notes",gradeStatus:"État des notes",approved:"Approuvées",rejected:"Rejetées"
+}
+};
+
+let lang = localStorage.getItem("sp_headmaster_lang") || "en";
+let dark = localStorage.getItem("sp_headmaster_dark") === "1";
+let charts = {};
+let schoolData = null;
+let pendingGrades = [];
+let invitations = [];
+let classesData = [];
+let latestCode = "";
+
+const $ = id => document.getElementById(id);
+const tr = key => (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key;
+const number = value => Number.isFinite(Number(value)) ? Number(value) : 0;
+const escapeText = value => String(value ?? "—");
+
+function element(tag, cls, value) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (value !== undefined) el.textContent = value;
+  return el;
+}
+function td(row, value) {
+  row.appendChild(element("td", "", escapeText(value)));
+}
+function setMessage(id, text, type="") {
+  $(id).textContent = text;
+  $(id).className = "message " + type;
+}
+function translatePage() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    if (I18N[lang][key]) el.textContent = tr(key);
+  });
+  $("language-select").value = lang;
+  updateThemeButton();
+  renderGrades();
+  renderInvitations();
+  renderPerformanceTables();
+  renderAnalysis();
+  renderCharts();
+}
+function updateThemeButton() {
+  document.body.classList.toggle("dark", dark);
+  $("theme-toggle").innerHTML = dark
+    ? "☀️ " + tr("lightMode")
+    : "🌙 " + tr("darkMode");
+}
+$("language-select").addEventListener("change", e => {
+  lang = e.target.value;
+  localStorage.setItem("sp_headmaster_lang", lang);
+  translatePage();
+});
+$("theme-toggle").addEventListener("click", () => {
+  dark = !dark;
+  localStorage.setItem("sp_headmaster_dark", dark ? "1" : "0");
+  updateThemeButton();
+  renderCharts();
 });
 
-document.getElementById('school-search').addEventListener('input', function () {
-    const query = this.value.toLowerCase();
-    document.querySelectorAll('#schools-table tr').forEach(function (row) {
-        row.hidden = !row.textContent.toLowerCase().includes(query);
-    });
+async function api(url, options={}) {
+  const response = await fetch(url, {
+    credentials:"same-origin",
+    ...options,
+    headers: {
+      "Content-Type":"application/json",
+      ...(options.headers || {})
+    }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || data.error || tr("apiMissing"));
+  }
+  if (data.success === false) throw new Error(data.message || tr("apiMissing"));
+  return data;
+}
+
+function normalizeList(data, possibleKeys=[]) {
+  if (Array.isArray(data)) return data;
+  for (const key of possibleKeys) {
+    if (Array.isArray(data[key])) return data[key];
+  }
+  return [];
+}
+
+async function loadSummary() {
+  const data = await api("/api/headmaster/summary");
+  schoolData = data;
+  $("student-count").textContent = number(data.students);
+  $("teacher-count").textContent = number(data.teachers);
+  $("class-count").textContent = number(data.classes);
+  $("grade-count").textContent = number(data.grade_records ?? data.total_grades);
+  $("pending-count").textContent = number(data.pending_grades);
+  classesData = normalizeList(data.classes_performance, ["classes_data"]);
+  populateClassSelect(normalizeList(data.classes_list, ["class_list"]));
+}
+
+async function loadPerformance() {
+  const data = await api("/api/headmaster/performance");
+  schoolData = {...(schoolData || {}), ...data};
+  classesData = normalizeList(data.classes, ["classes_performance"]);
+  renderPerformanceTables();
+  renderAnalysis();
+  renderCharts();
+  populateClassSelect(normalizeList(data.class_list, ["classes_list"]));
+}
+
+async function loadPendingGrades() {
+  const data = await api("/api/headmaster/grades/pending");
+  pendingGrades = normalizeList(data, ["grades", "items"]);
+  renderGrades();
+}
+
+async function loadInvitations() {
+  const data = await api("/api/headmaster/invitations");
+  invitations = normalizeList(data, ["invitations", "items"]);
+  renderInvitations();
+}
+
+function populateClassSelect(classes) {
+  const select = $("invite-class");
+  const selected = select.value;
+  select.replaceChildren();
+  const first = element("option", "", tr("selectClass"));
+  first.value = "";
+  select.appendChild(first);
+  classes.forEach(item => {
+    const option = element("option", "", item.class_name || item.name || item.class);
+    option.value = item.id ?? item.class_id;
+    select.appendChild(option);
+  });
+  if (selected) select.value = selected;
+}
+$("invite-role").addEventListener("change", () => {
+  $("invite-class-field").classList.toggle("hidden", $("invite-role").value !== "STUDENT");
 });
+
+function renderPerformanceTables() {
+  const body = $("class-table");
+  body.replaceChildren();
+  if (!classesData.length) {
+    const row = document.createElement("tr");
+    const cell = element("td", "", tr("noClasses"));
+    cell.colSpan = 5;
+    row.appendChild(cell); body.appendChild(row); return;
+  }
+  classesData.forEach(item => {
+    const row = document.createElement("tr");
+    const avg = number(item.average ?? item.average_score ?? item.average_percentage);
+    const pass = number(item.pass_rate);
+    td(row, item.class_name || item.name || item.class);
+    td(row, item.students ?? item.student_count ?? "—");
+    td(row, avg.toFixed(1));
+    td(row, pass.toFixed(1));
+    const recommendation = avg < 50 ? tr("support") : tr("good");
+    const cell = element("td");
+    cell.appendChild(element("span", "pill " + (avg < 50 ? "pending" : "approved"), recommendation));
+    row.appendChild(cell);
+    body.appendChild(row);
+  });
+}
+
+function renderGrades() {
+  const body = $("pending-grades-table");
+  if (!body) return;
+  body.replaceChildren();
+  if (!pendingGrades.length) {
+    const row = document.createElement("tr");
+    const cell = element("td", "", tr("noPending"));
+    cell.colSpan = 6; row.appendChild(cell); body.appendChild(row); return;
+  }
+  pendingGrades.forEach(grade => {
+    const row = document.createElement("tr");
+    td(row, grade.student_name || grade.student);
+    td(row, grade.class_name || grade.class);
+    td(row, grade.subject_name || grade.subject);
+    td(row, `${grade.score ?? "—"} / ${grade.max_score ?? "—"}`);
+    td(row, grade.teacher_name || grade.teacher || "—");
+    const cell = element("td");
+    const approve = element("button", "btn primary", tr("approve"));
+    approve.type = "button";
+    approve.addEventListener("click", () => decideGrade(grade.id, "APPROVED"));
+    const reject = element("button", "btn", tr("reject"));
+    reject.type = "button";
+    reject.style.marginLeft = "5px";
+    reject.addEventListener("click", () => decideGrade(grade.id, "REJECTED"));
+    cell.append(approve, reject); row.appendChild(cell);
+    body.appendChild(row);
+  });
+}
+async function decideGrade(id, decision) {
+  const comment = decision === "REJECTED"
+    ? prompt(lang === "rw" ? "Andika impamvu yo kwanga iri nota:" :
+      lang === "fr" ? "Motif du rejet :" : "Reason for rejecting this grade:")
+    : "";
+  if (decision === "REJECTED" && comment === null) return;
+  try {
+    await api(`/api/headmaster/grades/${encodeURIComponent(id)}/decision`, {
+      method:"POST", body:JSON.stringify({decision, comment:comment || ""})
+    });
+    setMessage("grades-message", lang === "rw" ? "Icyemezo cyabitswe." :
+      lang === "fr" ? "Décision enregistrée." : "Decision saved.", "success");
+    await Promise.all([loadPendingGrades(), loadSummary(), loadPerformance()]);
+  } catch (error) {
+    setMessage("grades-message", error.message, "error");
+  }
+}
+
+function renderInvitations() {
+  const body = $("invitation-table");
+  body.replaceChildren();
+  if (!invitations.length) {
+    const row = document.createElement("tr");
+    const cell = element("td", "", tr("noInvitations"));
+    cell.colSpan = 5; row.appendChild(cell); body.appendChild(row); return;
+  }
+  invitations.forEach(inv => {
+    const row = document.createElement("tr");
+    td(row, inv.invited_role || inv.role);
+    td(row, inv.invitation_code || inv.code);
+    td(row, inv.email || "—");
+    td(row, inv.expires_at || inv.expiry || "—");
+    let state = inv.used_by ? tr("used") :
+      (inv.expired ? tr("expired") : tr("active"));
+    const cell = element("td");
+    cell.appendChild(element("span", "pill " + (inv.used_by ? "approved" : "pending"), state));
+    row.appendChild(cell); body.appendChild(row);
+  });
+}
+
+$("invite-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const role = $("invite-role").value;
+  const classId = $("invite-class").value;
+  if (role === "STUDENT" && !classId) {
+    setMessage("invite-message", lang === "rw" ? "Hitamo class y'umunyeshuri." :
+      lang === "fr" ? "Choisissez la classe de l'élève." : "Select the student's class.", "error");
+    return;
+  }
+  const payload = {
+    invited_role: role,
+    email: $("invite-email").value.trim() || null,
+    class_id: role === "STUDENT" ? Number(classId) : null,
+    expires_in_days: Number($("invite-expiry").value)
+  };
+  try {
+    const data = await api("/api/headmaster/invitations", {
+      method:"POST", body:JSON.stringify(payload)
+    });
+    latestCode = data.invitation_code || data.code || "";
+    if (!latestCode) throw new Error(tr("apiMissing"));
+    $("new-code-value").textContent = latestCode;
+    $("new-code-info").textContent = `${role} · ${data.expires_at || ""}`;
+    $("new-invite").classList.remove("hidden");
+    setMessage("invite-message", tr("generated"), "success");
+    await loadInvitations();
+  } catch (error) {
+    setMessage("invite-message", error.message, "error");
+  }
+});
+$("copy-code").addEventListener("click", async () => {
+  if (!latestCode) return;
+  try {
+    await navigator.clipboard.writeText(latestCode);
+    setMessage("invite-message", tr("copied"), "success");
+  } catch {
+    setMessage("invite-message", tr("copyFailed"), "error");
+  }
+});
+
+function renderAnalysis() {
+  const box = $("analysis-content");
+  box.replaceChildren();
+  if (!classesData.length) {
+    box.appendChild(element("div", "notice", tr("noAnalysis")));
+    return;
+  }
+  const sorted = [...classesData].sort((a,b) =>
+    number(a.average ?? a.average_score ?? a.average_percentage) -
+    number(b.average ?? b.average_score ?? b.average_percentage));
+  const low = sorted.filter(item =>
+    number(item.average ?? item.average_score ?? item.average_percentage) < 50);
+  const high = [...sorted].reverse().filter(item =>
+    number(item.average ?? item.average_score ?? item.average_percentage) >= 70);
+  if (!low.length && !high.length) {
+    box.appendChild(element("div", "notice", tr("noAnalysis")));
+    return;
+  }
+  low.slice(0,3).forEach(item => {
+    const name = item.class_name || item.name || item.class || tr("class");
+    const avg = number(item.average ?? item.average_score ?? item.average_percentage);
+    const card = element("div", "analysis-item");
+    card.appendChild(element("strong", "red", `${tr("support")}: ${name}`));
+    card.appendChild(element("div", "", `${tr("average")}: ${avg.toFixed(1)}%. ${tr("analysisPrefix")}: review assessment results, identify difficult topics, and arrange targeted teacher support.`));
+    box.appendChild(card);
+  });
+  high.slice(0,3).forEach(item => {
+    const name = item.class_name || item.name || item.class || tr("class");
+    const avg = number(item.average ?? item.average_score ?? item.average_percentage);
+    const card = element("div", "analysis-item");
+    card.appendChild(element("strong", "green", `${tr("good")}: ${name}`));
+    card.appendChild(element("div", "", `${tr("average")}: ${avg.toFixed(1)}%. Consider sharing effective teaching practices with other classes.`));
+    box.appendChild(card);
+  });
+}
+
+function chart(id, type, labels, datasets, extra={}) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = $(id);
+  if (!ctx) return;
+  const darkMode = document.body.classList.contains("dark");
+  charts[id] = new Chart(ctx, {
+    type,
+    data:{labels, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:darkMode ? "#e6edf7" : "#475569"}}},
+      scales: type === "doughnut" || type === "pie" ? {} : {
+        x:{ticks:{color:darkMode ? "#c3cddd" : "#64748b"},grid:{color:darkMode ? "#2c394f" : "#e6ebf2"}},
+        y:{beginAtZero:true,ticks:{color:darkMode ? "#c3cddd" : "#64748b"},grid:{color:darkMode ? "#2c394f" : "#e6ebf2"}}
+      },
+      ...extra
+    }
+  });
+}
+function renderCharts() {
+  const data = schoolData || {};
+  const status = data.grade_status || data.grade_distribution || {};
+  chart("gradeChart","doughnut",
+    [tr("approved"),tr("pending"),tr("rejected")],
+    [{data:[
+      number(status.approved ?? data.approved_grades),
+      number(status.pending ?? data.pending_grades),
+      number(status.rejected ?? data.rejected_grades)
+    ]}]);
+  chart("classChart","bar",
+    classesData.map(x => x.class_name || x.name || x.class || "—"),
+    [{label:tr("average"),data:classesData.map(x =>
+      number(x.average ?? x.average_score ?? x.average_percentage))}]);
+  const subjects = normalizeList(data.subjects_performance, ["subject_performance","subjects"]);
+  chart("subjectChart","bar",
+    subjects.map(x => x.subject_name || x.subject || "—"),
+    [{label:tr("average"),data:subjects.map(x =>
+      number(x.average ?? x.average_score ?? x.average_percentage))}]);
+  const ranges = data.score_distribution || {};
+  chart("scoreChart","bar",
+    ["0–39","40–49","50–59","60–69","70–100"],
+    [{label:tr("gradeRecords"),data:[
+      number(ranges["0-39"] ?? ranges["0–39"]),
+      number(ranges["40-49"] ?? ranges["40–49"]),
+      number(ranges["50-59"] ?? ranges["50–59"]),
+      number(ranges["60-69"] ?? ranges["60–69"]),
+      number(ranges["70-100"] ?? ranges["70–100"])
+    ]}]);
+}
+
+async function refreshAll() {
+  setMessage("grades-message", "");
+  setMessage("invitations-message", "");
+  try {
+    await Promise.all([loadSummary(), loadPerformance(), loadPendingGrades(), loadInvitations()]);
+    setMessage("grades-message", "");
+    setMessage("invitations-message", "");
+  } catch (error) {
+    console.error("Headmaster dashboard:", error);
+    setMessage("grades-message", tr("loadError") + " " + error.message, "error");
+    $("analysis-content").replaceChildren(element("div", "notice", tr("loadError")));
+  }
+}
+$("refresh-button").addEventListener("click", refreshAll);
+$("refresh-grades").addEventListener("click", async () => {
+  try { await loadPendingGrades(); }
+  catch (e) { setMessage("grades-message", e.message, "error"); }
+});
+$("refresh-invitations").addEventListener("click", async () => {
+  try { await loadInvitations(); }
+  catch (e) { setMessage("invitations-message", e.message, "error"); }
+});
+
+updateThemeButton();
+translatePage();
+refreshAll();
 </script>
 </body>
 </html>
-
