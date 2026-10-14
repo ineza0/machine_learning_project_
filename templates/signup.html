@@ -9,313 +9,171 @@
 
     <style>
         :root {
-            --bg: #f3f6fc;
-            --card: #ffffff;
-            --text: #172b4d;
-            --muted: #667085;
-            --border: #dce3ef;
-            --primary: #155eef;
-            --primary-hover: #104bc5;
-            --input: #ffffff;
-            --shadow: 0 16px 45px rgba(20, 50, 100, .10);
+            --bg:#f3f6fc; --card:#fff; --text:#172b4d;
+            --muted:#667085; --border:#dce3ef; --primary:#155eef;
+            --hover:#104bc5; --input:#fff;
+            --shadow:0 16px 45px rgba(20,50,100,.10);
         }
 
         body.dark {
-            --bg: #0b1220;
-            --card: #131e30;
-            --text: #eef4ff;
-            --muted: #a7b4c9;
-            --border: #2d3b52;
-            --primary: #6798ff;
-            --primary-hover: #83aaff;
-            --input: #0c1728;
-            --shadow: 0 16px 45px rgba(0, 0, 0, .25);
+            --bg:#0b1220; --card:#131e30; --text:#eef4ff;
+            --muted:#a7b4c9; --border:#2d3b52; --primary:#6798ff;
+            --hover:#83aaff; --input:#0c1728;
+            --shadow:0 16px 45px rgba(0,0,0,.25);
         }
 
-        * { box-sizing: border-box; }
-
+        * { box-sizing:border-box; }
         body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            transition: background .25s, color .25s;
+            margin:0; min-height:100vh; font-family:Arial,Helvetica,sans-serif;
+            background:var(--bg); color:var(--text);
+            transition:background .25s,color .25s;
         }
-
-        button, input, select { font: inherit; }
+        button,input,select { font:inherit; }
 
         .topbar {
-            min-height: 72px;
-            padding: 14px 5%;
-            background: linear-gradient(110deg, #1148b8, #2878f0);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
+            min-height:72px; padding:14px 5%;
+            background:linear-gradient(110deg,#1148b8,#2878f0);
+            color:#fff; display:flex; justify-content:space-between;
+            align-items:center; gap:16px; flex-wrap:wrap;
         }
-
-        .brand {
-            font-size: 23px;
-            font-weight: 800;
-            letter-spacing: -.5px;
+        .brand { font-size:23px; font-weight:800; letter-spacing:-.5px; }
+        .brand span { color:#bcd6ff; }
+        .top-controls { display:flex; align-items:center; gap:10px; }
+        .top-controls select,.theme-button {
+            border:1px solid rgba(255,255,255,.45); color:white;
+            background:rgba(255,255,255,.12); padding:9px 11px;
+            border-radius:9px; cursor:pointer;
         }
-
-        .brand span { color: #bcd6ff; }
-
-        .top-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .top-controls select, .theme-button {
-            border: 1px solid rgba(255,255,255,.45);
-            color: white;
-            background: rgba(255,255,255,.12);
-            padding: 9px 11px;
-            border-radius: 9px;
-            cursor: pointer;
-        }
-
-        .top-controls select option {
-            color: #172b4d;
-            background: white;
-        }
+        .top-controls select option { color:#172b4d; background:white; }
 
         .layout {
-            width: min(1150px, 92%);
-            margin: 36px auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 34px;
-            align-items: center;
+            width:min(1150px,92%); margin:36px auto;
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:34px; align-items:center;
         }
-
-        .intro { padding: 20px 10px; }
-
+        .intro { padding:20px 10px; }
         .eyebrow {
-            display: inline-block;
-            color: var(--primary);
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 1.3px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
+            display:inline-block; color:var(--primary); font-size:12px;
+            font-weight:800; letter-spacing:1.3px; text-transform:uppercase;
+            margin-bottom:12px;
         }
-
         .intro h1 {
-            font-size: clamp(32px, 4vw, 49px);
-            line-height: 1.12;
-            margin: 0 0 18px;
-            letter-spacing: -1.5px;
+            font-size:clamp(32px,4vw,49px); line-height:1.12;
+            margin:0 0 18px; letter-spacing:-1.5px;
         }
-
-        .intro > p {
-            color: var(--muted);
-            font-size: 16px;
-            line-height: 1.8;
-            max-width: 510px;
+        .intro>p {
+            color:var(--muted); font-size:16px; line-height:1.8;
+            max-width:510px;
         }
-
         .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 13px;
-            margin-top: 27px;
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:13px; margin-top:27px;
         }
-
         .feature {
-            border: 1px solid var(--border);
-            background: var(--card);
-            padding: 15px;
-            border-radius: 13px;
+            border:1px solid var(--border); background:var(--card);
+            padding:15px; border-radius:13px;
         }
-
-        .feature-icon { font-size: 23px; margin-bottom: 9px; }
-
-        .feature strong {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
+        .feature-icon { font-size:23px; margin-bottom:9px; }
+        .feature strong { display:block; font-size:14px; margin-bottom:5px; }
         .feature p {
-            font-size: 12px;
-            line-height: 1.6;
-            color: var(--muted);
-            margin: 0;
+            font-size:12px; line-height:1.6; color:var(--muted); margin:0;
         }
-
         .ai-note {
-            margin-top: 20px;
-            padding: 16px;
-            background: rgba(21,94,239,.08);
-            border: 1px solid rgba(21,94,239,.2);
-            border-radius: 13px;
-            font-size: 13px;
-            line-height: 1.7;
+            margin-top:20px; padding:16px;
+            background:rgba(21,94,239,.08);
+            border:1px solid rgba(21,94,239,.2);
+            border-radius:13px; font-size:13px; line-height:1.7;
         }
 
         .card {
-            background: var(--card);
-            padding: 32px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
+            background:var(--card); padding:32px;
+            border:1px solid var(--border); border-radius:20px;
+            box-shadow:var(--shadow);
         }
-
-        .card h2 { font-size: 28px; margin: 0 0 8px; }
-
+        .card h2 { font-size:28px; margin:0 0 8px; }
         .subtitle {
-            color: var(--muted);
-            font-size: 14px;
-            line-height: 1.6;
-            margin: 0 0 24px;
+            color:var(--muted); font-size:14px; line-height:1.6;
+            margin:0 0 24px;
         }
-
-        .form-group { margin-bottom: 16px; }
-
+        .form-group { margin-bottom:16px; }
         .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 7px;
+            display:block; font-size:13px; font-weight:700; margin-bottom:7px;
         }
-
-        .form-group input, .form-group select {
-            display: block;
-            width: 100%;
-            min-height: 45px;
-            padding: 11px 12px;
-            color: var(--text);
-            background: var(--input);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            outline: none;
+        .form-group input,.form-group select {
+            display:block; width:100%; min-height:45px; padding:11px 12px;
+            color:var(--text); background:var(--input);
+            border:1px solid var(--border); border-radius:9px; outline:none;
         }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(21,94,239,.12);
+        .form-group input:focus,.form-group select:focus {
+            border-color:var(--primary);
+            box-shadow:0 0 0 3px rgba(21,94,239,.12);
         }
-
         .form-help {
-            margin: 7px 0 0;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.6;
+            margin:7px 0 0; color:var(--muted);
+            font-size:12px; line-height:1.6;
         }
-
         .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            display:grid; grid-template-columns:1fr 1fr; gap:12px;
         }
-
         .checkbox-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 9px;
-            font-size: 12px;
-            line-height: 1.6;
-            color: var(--muted);
-            margin: 5px 0 17px;
+            display:flex; align-items:flex-start; gap:9px;
+            font-size:12px; line-height:1.6; color:var(--muted);
+            margin:5px 0 17px;
         }
-
-        .checkbox-row input { margin-top: 3px; }
-
-        .checkbox-row a, .card a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 700;
+        .checkbox-row input { margin-top:3px; }
+        .checkbox-row a,.card a {
+            color:var(--primary); text-decoration:none; font-weight:700;
         }
-
-        .checkbox-row a:hover, .card a:hover { text-decoration: underline; }
-
+        .checkbox-row a:hover,.card a:hover { text-decoration:underline; }
         .submit-button {
-            width: 100%;
-            min-height: 48px;
-            border: none;
-            border-radius: 10px;
-            background: var(--primary);
-            color: white;
-            font-weight: 800;
-            cursor: pointer;
-            transition: .2s;
+            width:100%; min-height:48px; border:none; border-radius:10px;
+            background:var(--primary); color:white; font-weight:800;
+            cursor:pointer; transition:.2s;
         }
-
-        .submit-button:hover { background: var(--primary-hover); }
-
-        .submit-button:disabled { opacity: .65; cursor: wait; }
-
+        .submit-button:hover { background:var(--hover); }
+        .submit-button:disabled { opacity:.65; cursor:wait; }
         .message {
-            display: none;
-            padding: 12px;
-            margin-bottom: 16px;
-            border-radius: 9px;
-            font-size: 13px;
-            line-height: 1.6;
+            display:none; padding:12px; margin-bottom:16px;
+            border-radius:9px; font-size:13px; line-height:1.6;
         }
-
         .message.error {
-            display: block;
-            color: #b42318;
-            background: #fef3f2;
-            border: 1px solid #fecdca;
+            display:block; color:#b42318; background:#fef3f2;
+            border:1px solid #fecdca;
         }
-
         .message.success {
-            display: block;
-            color: #067647;
-            background: #ecfdf3;
-            border: 1px solid #abefc6;
+            display:block; color:#067647; background:#ecfdf3;
+            border:1px solid #abefc6;
         }
-
         .signin {
-            text-align: center;
-            color: var(--muted);
-            font-size: 13px;
-            margin: 19px 0 0;
+            text-align:center; color:var(--muted);
+            font-size:13px; margin:19px 0 0;
         }
-
         .footer {
-            padding: 22px 15px 28px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.9;
+            padding:22px 15px 28px; text-align:center;
+            color:var(--muted); font-size:12px; line-height:1.9;
         }
+        .footer a { color:var(--primary); text-decoration:none; }
+        .footer a:hover { text-decoration:underline; }
+        [hidden] { display:none !important; }
 
-        .footer a { color: var(--primary); text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
-
-        @media (max-width: 850px) {
+        @media(max-width:850px) {
             .layout {
-                grid-template-columns: 1fr;
-                max-width: 570px;
-                margin-top: 20px;
-                gap: 15px;
+                grid-template-columns:1fr; max-width:570px;
+                margin-top:20px; gap:15px;
             }
-            .intro { padding: 12px 2px; }
-            .intro h1 { font-size: 36px; }
-            .card { padding: 25px; }
+            .intro { padding:12px 2px; }
+            .intro h1 { font-size:36px; }
+            .card { padding:25px; }
         }
-
-        @media (max-width: 480px) {
-            .topbar { padding: 14px 4%; }
-            .brand { font-size: 20px; }
-            .top-controls { gap: 6px; }
-            .top-controls select, .theme-button {
-                padding: 8px;
-                font-size: 12px;
-            }
-            .two-columns { grid-template-columns: 1fr; gap: 0; }
-            .features { gap: 9px; }
-            .feature { padding: 12px; }
-            .card { padding: 21px 17px; }
+        @media(max-width:480px) {
+            .topbar { padding:14px 4%; }
+            .brand { font-size:20px; }
+            .top-controls { gap:6px; }
+            .top-controls select,.theme-button { padding:8px; font-size:12px; }
+            .two-columns { grid-template-columns:1fr; gap:0; }
+            .features { gap:9px; }
+            .feature { padding:12px; }
+            .card { padding:21px 17px; }
         }
     </style>
 </head>
@@ -329,9 +187,7 @@
             <option value="rw">Kinyarwanda</option>
             <option value="fr">Français</option>
         </select>
-        <button type="button" class="theme-button" id="themeToggle">
-            🌙 Dark
-        </button>
+        <button type="button" class="theme-button" id="themeToggle">🌙 Dark</button>
     </div>
 </header>
 
@@ -416,12 +272,53 @@
                 </p>
             </div>
 
-            <div class="form-group">
+            <!-- Headmaster-only school setup fields -->
+            <div id="headmasterFields" hidden>
+                <div class="form-group">
+                    <label for="school_name" data-i18n="schoolName">School name</label>
+                    <input type="text" id="school_name" name="school_name"
+                           maxlength="200">
+                </div>
+
+                <div class="form-group">
+                    <label for="education_level" data-i18n="educationLevel">
+                        Education level
+                    </label>
+                    <select id="education_level" name="education_level">
+                        <option value="" data-i18n="chooseLevel">Choose education level</option>
+                        <option value="PRIMARY" data-i18n="primary">Primary</option>
+                        <option value="O_LEVEL" data-i18n="oLevel">O-Level</option>
+                        <option value="A_LEVEL" data-i18n="aLevel">A-Level</option>
+                        <option value="UNIVERSITY" data-i18n="university">University</option>
+                        <option value="MIXED" data-i18n="mixed">Mixed levels</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="approval_mode" data-i18n="approvalMode">
+                        Grade approval method
+                    </label>
+                    <select id="approval_mode" name="approval_mode">
+                        <option value="HEADMASTER" data-i18n="headmasterApproval">
+                            Headmaster approves grades
+                        </option>
+                        <option value="TEACHER" data-i18n="teacherApproval">
+                            Teacher approves grades
+                        </option>
+                    </select>
+                    <p class="form-help" data-i18n="approvalHelp">
+                        Choose who approves grades in your school.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Student/Teacher invitation field -->
+            <div class="form-group" id="invitationFields">
                 <label for="invitation_code" data-i18n="invitationCode">
                     School invitation code
                 </label>
                 <input type="text" id="invitation_code" name="invitation_code"
-                       autocomplete="off" maxlength="128" required>
+                       autocomplete="off" maxlength="128">
                 <p class="form-help" data-i18n="invitationHelp">
                     Get an invitation code from your authorized school administrator.
                 </p>
@@ -480,127 +377,164 @@
 
     const translations = {
         en: {
-            eyebrow: "SMART SCHOOL PLATFORM",
-            heroTitle: "Build your future with StudentPredict.",
-            heroText: "Create your account to connect with your school, manage academic performance and access intelligent student analysis.",
-            feature1Title: "Student Management",
-            feature1Text: "Manage student information and academic progress.",
-            feature2Title: "AI Analysis",
-            feature2Text: "Understand performance through prediction tools.",
-            feature3Title: "Teacher Tools",
-            feature3Text: "Work with assigned classes, subjects and grades.",
-            feature4Title: "School Management",
-            feature4Text: "Support school administration and grade approvals.",
-            aiNote: "AI predictions support learning decisions. They do not replace teachers or official academic results.",
-            formTitle: "Create your account",
-            formSubtitle: "Enter your details to get started.",
-            fullName: "Full name", username: "Username", email: "Email address",
-            role: "Register as", chooseRole: "Choose your role",
-            student: "Student", teacher: "Teacher", headmaster: "Headmaster",
-            roleHelp: "Choose your role in the school.",
-            roleStudent: "Student: access your grades and AI predictions.",
-            roleTeacher: "Teacher: access assigned classes, subjects and grade entry.",
-            roleHeadmaster: "Headmaster: manage school activities and grade approvals. Authorization is required.",
-            invitationCode: "School invitation code",
-            invitationHelp: "Get an invitation code from your authorized school administrator.",
-            password: "Password", confirmPassword: "Confirm password",
-            termsText: "I confirm that the information is correct and agree to the school's applicable account rules.",
-            createAccount: "Create Account", alreadyAccount: "Already have an account?",
-            login: "Log in", forgotPassword: "Forgot password?", needHelp: "Need help?",
-            dark: "🌙 Dark", light: "☀️ Light",
-            fillFields: "Please complete all required fields.",
-            passwordMismatch: "The passwords do not match.",
-            passwordShort: "Your password must contain at least 8 characters.",
-            genericError: "Unable to create your account. Please try again.",
-            invalidResponse: "The server returned an unexpected response. Check the Flask signup route.",
-            registering: "Creating account...",
-            networkError: "Unable to contact the server. Check your connection and try again."
+            eyebrow:"SMART SCHOOL PLATFORM",
+            heroTitle:"Build your future with StudentPredict.",
+            heroText:"Create your account to connect with your school, manage academic performance and access intelligent student analysis.",
+            feature1Title:"Student Management",
+            feature1Text:"Manage student information and academic progress.",
+            feature2Title:"AI Analysis",
+            feature2Text:"Understand performance through prediction tools.",
+            feature3Title:"Teacher Tools",
+            feature3Text:"Work with assigned classes, subjects and grades.",
+            feature4Title:"School Management",
+            feature4Text:"Support school administration and grade approvals.",
+            aiNote:"AI predictions support learning decisions. They do not replace teachers or official academic results.",
+            formTitle:"Create your account",
+            formSubtitle:"Enter your details to get started.",
+            fullName:"Full name",username:"Username",email:"Email address",
+            role:"Register as",chooseRole:"Choose your role",
+            student:"Student",teacher:"Teacher",headmaster:"Headmaster",
+            roleHelp:"Choose your role in the school.",
+            roleStudent:"Student: access your grades and AI predictions.",
+            roleTeacher:"Teacher: access assigned classes, subjects and grade entry.",
+            roleHeadmaster:"Headmaster: create and manage your school and grade approval settings.",
+            schoolName:"School name",educationLevel:"Education level",
+            chooseLevel:"Choose education level",primary:"Primary",
+            oLevel:"O-Level",aLevel:"A-Level",university:"University",
+            mixed:"Mixed levels",approvalMode:"Grade approval method",
+            headmasterApproval:"Headmaster approves grades",
+            teacherApproval:"Teacher approves grades",
+            approvalHelp:"Choose who approves grades in your school.",
+            invitationCode:"School invitation code",
+            invitationHelp:"Get an invitation code from your authorized school administrator.",
+            password:"Password",confirmPassword:"Confirm password",
+            termsText:"I confirm that the information is correct and agree to the school's applicable account rules.",
+            createAccount:"Create Account",alreadyAccount:"Already have an account?",
+            login:"Log in",forgotPassword:"Forgot password?",needHelp:"Need help?",
+            dark:"🌙 Dark",light:"☀️ Light",
+            fillFields:"Please complete all required fields.",
+            passwordMismatch:"The passwords do not match.",
+            passwordShort:"Your password must contain at least 8 characters.",
+            schoolRequired:"Enter your school name and education level.",
+            invitationRequired:"Enter your school invitation code.",
+            genericError:"Unable to create your account. Please try again.",
+            invalidResponse:"The server returned an unexpected response. Check the Flask signup route.",
+            registering:"Creating account...",
+            networkError:"Unable to contact the server. Check your connection and try again."
         },
         rw: {
-            eyebrow: "URUBUGA RW'ISHURI RIGEZE KURE",
-            heroTitle: "Itegure ejo hazaza hamwe na StudentPredict.",
-            heroText: "Fungura konti kugira ngo uhuze n'ishuri ryawe, ukurikirane amanota kandi ukoreshe isesengura ry'abanyeshuri rikoresha AI.",
-            feature1Title: "Imicungire y'abanyeshuri",
-            feature1Text: "Kurikirana amakuru n'iterambere ry'abanyeshuri.",
-            feature2Title: "Isesengura rya AI",
-            feature2Text: "Sobanukirwa n'uko abanyeshuri bitwara mu masomo.",
-            feature3Title: "Ibikoresho by'abarimu",
-            feature3Text: "Koresha ibyiciro, amasomo n'amanota ushinzwe.",
-            feature4Title: "Imicungire y'ishuri",
-            feature4Text: "Fasha ubuyobozi bw'ishuri no kwemeza amanota.",
-            aiNote: "Ibyo AI ihanura bifasha gufata ibyemezo mu myigire. Ntibisimbura abarimu cyangwa amanota yemewe.",
-            formTitle: "Fungura konti yawe",
-            formSubtitle: "Andika amakuru yawe kugira ngo ukomeze.",
-            fullName: "Amazina yose", username: "Izina ukoresha", email: "Imeyili",
-            role: "Iyandikishe nka", chooseRole: "Hitamo inshingano zawe",
-            student: "Umunyeshuri", teacher: "Umwarimu",
-            headmaster: "Umuyobozi w'ishuri",
-            roleHelp: "Hitamo inshingano ufite mu ishuri.",
-            roleStudent: "Umunyeshuri: reba amanota yawe n'ibisubizo bya AI.",
-            roleTeacher: "Umwarimu: reba amasomo n'ibyiciro ushinzwe, wandike amanota.",
-            roleHeadmaster: "Umuyobozi: genzura ibikorwa by'ishuri kandi wemeze amanota. Hakenewe uburenganzira.",
-            invitationCode: "Kode y'ubutumire y'ishuri",
-            invitationHelp: "Saba kode y'ubutumire umuyobozi w'ishuri wemerewe kuyitanga.",
-            password: "Ijambo ry'ibanga", confirmPassword: "Emeza ijambo ry'ibanga",
-            termsText: "Nemeje ko amakuru ntanze ari yo kandi nemeye amabwiriza agenga konti.",
-            createAccount: "Fungura konti", alreadyAccount: "Usanzwe ufite konti?",
-            login: "Injira", forgotPassword: "Wibagiwe ijambo ry'ibanga?",
-            needHelp: "Ukeneye ubufasha?", dark: "🌙 Ijoro", light: "☀️ Ku manywa",
-            fillFields: "Uzuza imyanya yose isabwa.",
-            passwordMismatch: "Amagambo y'ibanga ntahura.",
-            passwordShort: "Ijambo ry'ibanga rigomba kugira inyuguti nibura 8.",
-            genericError: "Konti ntishoboye gukorwa. Ongera ugerageze.",
-            invalidResponse: "Server yagaruye igisubizo kititezwe. Reba Flask signup route.",
-            registering: "Konti iri gukorwa...",
-            networkError: "Ntibishobotse kugera kuri server. Reba internet wongere ugerageze."
+            eyebrow:"URUBUGA RW'ISHURI RIGEZE KURE",
+            heroTitle:"Itegure ejo hazaza hamwe na StudentPredict.",
+            heroText:"Fungura konti kugira ngo uhuze n'ishuri ryawe, ukurikirane amanota kandi ukoreshe isesengura ry'abanyeshuri rikoresha AI.",
+            feature1Title:"Imicungire y'abanyeshuri",
+            feature1Text:"Kurikirana amakuru n'iterambere ry'abanyeshuri.",
+            feature2Title:"Isesengura rya AI",
+            feature2Text:"Sobanukirwa n'uko abanyeshuri bitwara mu masomo.",
+            feature3Title:"Ibikoresho by'abarimu",
+            feature3Text:"Koresha ibyiciro, amasomo n'amanota ushinzwe.",
+            feature4Title:"Imicungire y'ishuri",
+            feature4Text:"Fasha ubuyobozi bw'ishuri no kwemeza amanota.",
+            aiNote:"Ibyo AI ihanura bifasha gufata ibyemezo mu myigire. Ntibisimbura abarimu cyangwa amanota yemewe.",
+            formTitle:"Fungura konti yawe",
+            formSubtitle:"Andika amakuru yawe kugira ngo ukomeze.",
+            fullName:"Amazina yose",username:"Izina ukoresha",email:"Imeyili",
+            role:"Iyandikishe nka",chooseRole:"Hitamo inshingano zawe",
+            student:"Umunyeshuri",teacher:"Umwarimu",
+            headmaster:"Umuyobozi w'ishuri",
+            roleHelp:"Hitamo inshingano ufite mu ishuri.",
+            roleStudent:"Umunyeshuri: reba amanota yawe n'ibisubizo bya AI.",
+            roleTeacher:"Umwarimu: reba amasomo n'ibyiciro ushinzwe, wandike amanota.",
+            roleHeadmaster:"Umuyobozi: fungura kandi ucunge ishuri ryawe n'uburyo bwo kwemeza amanota.",
+            schoolName:"Izina ry'ishuri",educationLevel:"Urwego rw'ishuri",
+            chooseLevel:"Hitamo urwego rw'ishuri",primary:"Amashuri abanza",
+            oLevel:"O-Level",aLevel:"A-Level",university:"Kaminuza",
+            mixed:"Inzego zitandukanye",approvalMode:"Uburyo bwo kwemeza amanota",
+            headmasterApproval:"Umuyobozi w'ishuri yemeza amanota",
+            teacherApproval:"Umwarimu yemeza amanota",
+            approvalHelp:"Hitamo uzajya yemeza amanota mu ishuri ryawe.",
+            invitationCode:"Kode y'ubutumire y'ishuri",
+            invitationHelp:"Saba kode y'ubutumire umuyobozi w'ishuri wemerewe kuyitanga.",
+            password:"Ijambo ry'ibanga",confirmPassword:"Emeza ijambo ry'ibanga",
+            termsText:"Nemeje ko amakuru ntanze ari yo kandi nemeye amabwiriza agenga konti.",
+            createAccount:"Fungura konti",alreadyAccount:"Usanzwe ufite konti?",
+            login:"Injira",forgotPassword:"Wibagiwe ijambo ry'ibanga?",
+            needHelp:"Ukeneye ubufasha?",dark:"🌙 Ijoro",light:"☀️ Ku manywa",
+            fillFields:"Uzuza imyanya yose isabwa.",
+            passwordMismatch:"Amagambo y'ibanga ntahura.",
+            passwordShort:"Ijambo ry'ibanga rigomba kugira inyuguti nibura 8.",
+            schoolRequired:"Andika izina ry'ishuri kandi uhitemo urwego.",
+            invitationRequired:"Andika kode y'ubutumire bw'ishuri.",
+            genericError:"Konti ntishoboye gukorwa. Ongera ugerageze.",
+            invalidResponse:"Server yagaruye igisubizo kititezwe. Reba Flask signup route.",
+            registering:"Konti iri gukorwa...",
+            networkError:"Ntibishobotse kugera kuri server. Reba internet wongere ugerageze."
         },
         fr: {
-            eyebrow: "PLATEFORME SCOLAIRE INTELLIGENTE",
-            heroTitle: "Construisez votre avenir avec StudentPredict.",
-            heroText: "Créez votre compte pour rejoindre votre école, suivre les résultats scolaires et accéder à l'analyse intelligente des élèves.",
-            feature1Title: "Gestion des élèves",
-            feature1Text: "Gérez les informations et les progrès scolaires.",
-            feature2Title: "Analyse IA",
-            feature2Text: "Comprenez les performances grâce aux prédictions.",
-            feature3Title: "Outils des enseignants",
-            feature3Text: "Gérez les classes, matières et notes attribuées.",
-            feature4Title: "Gestion de l'école",
-            feature4Text: "Aidez l'administration et validez les notes.",
-            aiNote: "Les prédictions de l'IA aident à la prise de décision. Elles ne remplacent pas les enseignants ni les résultats officiels.",
-            formTitle: "Créer votre compte",
-            formSubtitle: "Saisissez vos informations pour commencer.",
-            fullName: "Nom complet", username: "Nom d'utilisateur",
-            email: "Adresse e-mail", role: "S'inscrire en tant que",
-            chooseRole: "Choisissez votre rôle", student: "Élève",
-            teacher: "Enseignant", headmaster: "Directeur d'école",
-            roleHelp: "Choisissez votre rôle dans l'école.",
-            roleStudent: "Élève : consultez vos notes et les prédictions de l'IA.",
-            roleTeacher: "Enseignant : accédez aux classes, matières et notes attribuées.",
-            roleHeadmaster: "Directeur : gérez l'école et approuvez les notes. Une autorisation est nécessaire.",
-            invitationCode: "Code d'invitation de l'école",
-            invitationHelp: "Obtenez un code auprès d'un administrateur scolaire autorisé.",
-            password: "Mot de passe", confirmPassword: "Confirmer le mot de passe",
-            termsText: "Je confirme l'exactitude des informations et j'accepte les règles applicables au compte.",
-            createAccount: "Créer le compte", alreadyAccount: "Vous avez déjà un compte ?",
-            login: "Se connecter", forgotPassword: "Mot de passe oublié ?",
-            needHelp: "Besoin d'aide ?", dark: "🌙 Sombre", light: "☀️ Clair",
-            fillFields: "Veuillez remplir tous les champs obligatoires.",
-            passwordMismatch: "Les mots de passe ne correspondent pas.",
-            passwordShort: "Le mot de passe doit contenir au moins 8 caractères.",
-            genericError: "Impossible de créer le compte. Veuillez réessayer.",
-            invalidResponse: "Le serveur a renvoyé une réponse inattendue. Vérifiez la route Flask.",
-            registering: "Création du compte...",
-            networkError: "Impossible de contacter le serveur. Vérifiez votre connexion."
+            eyebrow:"PLATEFORME SCOLAIRE INTELLIGENTE",
+            heroTitle:"Construisez votre avenir avec StudentPredict.",
+            heroText:"Créez votre compte pour rejoindre votre école, suivre les résultats scolaires et accéder à l'analyse intelligente des élèves.",
+            feature1Title:"Gestion des élèves",
+            feature1Text:"Gérez les informations et les progrès scolaires.",
+            feature2Title:"Analyse IA",
+            feature2Text:"Comprenez les performances grâce aux prédictions.",
+            feature3Title:"Outils des enseignants",
+            feature3Text:"Gérez les classes, matières et notes attribuées.",
+            feature4Title:"Gestion de l'école",
+            feature4Text:"Aidez l'administration et validez les notes.",
+            aiNote:"Les prédictions de l'IA aident à la prise de décision. Elles ne remplacent pas les enseignants ni les résultats officiels.",
+            formTitle:"Créer votre compte",
+            formSubtitle:"Saisissez vos informations pour commencer.",
+            fullName:"Nom complet",username:"Nom d'utilisateur",
+            email:"Adresse e-mail",role:"S'inscrire en tant que",
+            chooseRole:"Choisissez votre rôle",student:"Élève",
+            teacher:"Enseignant",headmaster:"Directeur d'école",
+            roleHelp:"Choisissez votre rôle dans l'école.",
+            roleStudent:"Élève : consultez vos notes et les prédictions de l'IA.",
+            roleTeacher:"Enseignant : accédez aux classes, matières et notes attribuées.",
+            roleHeadmaster:"Directeur : créez et gérez votre école et les règles de validation des notes.",
+            schoolName:"Nom de l'école",educationLevel:"Niveau d'enseignement",
+            chooseLevel:"Choisissez le niveau",primary:"Primaire",
+            oLevel:"O-Level",aLevel:"A-Level",university:"Université",
+            mixed:"Niveaux mixtes",approvalMode:"Méthode de validation des notes",
+            headmasterApproval:"Le directeur valide les notes",
+            teacherApproval:"L'enseignant valide les notes",
+            approvalHelp:"Choisissez qui valide les notes dans votre école.",
+            invitationCode:"Code d'invitation de l'école",
+            invitationHelp:"Obtenez un code auprès d'un administrateur scolaire autorisé.",
+            password:"Mot de passe",confirmPassword:"Confirmer le mot de passe",
+            termsText:"Je confirme l'exactitude des informations et j'accepte les règles applicables au compte.",
+            createAccount:"Créer le compte",alreadyAccount:"Vous avez déjà un compte ?",
+            login:"Se connecter",forgotPassword:"Mot de passe oublié ?",
+            needHelp:"Besoin d'aide ?",dark:"🌙 Sombre",light:"☀️ Clair",
+            fillFields:"Veuillez remplir tous les champs obligatoires.",
+            passwordMismatch:"Les mots de passe ne correspondent pas.",
+            passwordShort:"Le mot de passe doit contenir au moins 8 caractères.",
+            schoolRequired:"Saisissez le nom et le niveau de l'école.",
+            invitationRequired:"Saisissez le code d'invitation de l'école.",
+            genericError:"Impossible de créer le compte. Veuillez réessayer.",
+            invalidResponse:"Le serveur a renvoyé une réponse inattendue. Vérifiez la route Flask.",
+            registering:"Création du compte...",
+            networkError:"Impossible de contacter le serveur. Vérifiez votre connexion."
         }
     };
 
-    const languageSelect = document.getElementById("language");
-    const themeToggle = document.getElementById("themeToggle");
-    const roleSelect = document.getElementById("role");
-    const roleHelp = document.getElementById("role-help");
-    const form = document.getElementById("signupForm");
-    const message = document.getElementById("message");
-    const submitButton = document.getElementById("submitButton");
+    const $ = id => document.getElementById(id);
+
+    const languageSelect = $("language");
+    const themeToggle = $("themeToggle");
+    const roleSelect = $("role");
+    const roleHelp = $("role-help");
+    const form = $("signupForm");
+    const message = $("message");
+    const submitButton = $("submitButton");
+
+    const headmasterFields = $("headmasterFields");
+    const invitationFields = $("invitationFields");
+    const schoolNameInput = $("school_name");
+    const educationLevelInput = $("education_level");
+    const approvalModeInput = $("approval_mode");
+    const invitationCodeInput = $("invitation_code");
+
     let currentLanguage = "en";
 
     function t(key) {
@@ -608,12 +542,37 @@
     }
 
     function updateRoleHelp() {
+        const role = roleSelect.value;
+
         const key = {
-            student: "roleStudent",
-            teacher: "roleTeacher",
-            headmaster: "roleHeadmaster"
-        }[roleSelect.value];
+            student:"roleStudent",
+            teacher:"roleTeacher",
+            headmaster:"roleHeadmaster"
+        }[role];
+
         roleHelp.textContent = key ? t(key) : t("roleHelp");
+
+        const isHeadmaster = role === "headmaster";
+
+        headmasterFields.hidden = !isHeadmaster;
+        invitationFields.hidden = isHeadmaster;
+
+        schoolNameInput.required = isHeadmaster;
+        educationLevelInput.required = isHeadmaster;
+        approvalModeInput.required = isHeadmaster;
+        invitationCodeInput.required = !isHeadmaster;
+
+        schoolNameInput.disabled = !isHeadmaster;
+        educationLevelInput.disabled = !isHeadmaster;
+        approvalModeInput.disabled = !isHeadmaster;
+        invitationCodeInput.disabled = isHeadmaster;
+
+        if (isHeadmaster) {
+            invitationCodeInput.value = "";
+        } else {
+            schoolNameInput.value = "";
+            educationLevelInput.value = "";
+        }
     }
 
     function updateThemeButton() {
@@ -661,8 +620,12 @@
         updateThemeButton();
     });
 
-    roleSelect.addEventListener("change", updateRoleHelp);
-    document.getElementById("year").textContent = new Date().getFullYear();
+    roleSelect.addEventListener("change", () => {
+        clearMessage();
+        updateRoleHelp();
+    });
+
+    $("year").textContent = new Date().getFullYear();
 
     try {
         const savedLanguage = localStorage.getItem("studentpredict_language");
@@ -677,13 +640,15 @@
     } catch (_) {}
 
     updateLanguage(languageSelect.value);
+    updateRoleHelp();
 
     form.addEventListener("submit", async event => {
         event.preventDefault();
         clearMessage();
 
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirm_password").value;
+        const password = $("password").value;
+        const confirmPassword = $("confirm_password").value;
+        const role = roleSelect.value;
 
         if (!form.checkValidity()) {
             form.reportValidity();
@@ -701,6 +666,17 @@
             return;
         }
 
+        if (role === "headmaster" &&
+            (!schoolNameInput.value.trim() || !educationLevelInput.value)) {
+            showMessage(t("schoolRequired"), "error");
+            return;
+        }
+
+        if (role !== "headmaster" && !invitationCodeInput.value.trim()) {
+            showMessage(t("invitationRequired"), "error");
+            return;
+        }
+
         submitButton.disabled = true;
         submitButton.textContent = t("registering");
 
@@ -710,27 +686,37 @@
 
             delete payload.terms;
             delete payload.confirm_password;
+            payload.terms = $("terms").checked;
 
-            // Role selected in the browser is only a request.
-            // The Flask backend MUST determine the real role from the invitation.
-            payload.terms = document.getElementById("terms").checked;
+            // Headmasters create a school; they do not use an invitation code.
+            // Teachers and students must use a valid invitation code.
+            if (role === "headmaster") {
+                delete payload.invitation_code;
+            } else {
+                delete payload.school_name;
+                delete payload.education_level;
+                delete payload.approval_mode;
+            }
 
             const response = await fetch("/api/signup", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    "Accept":"application/json"
                 },
-                credentials: "same-origin",
-                body: JSON.stringify(payload)
+                credentials:"same-origin",
+                body:JSON.stringify(payload)
             });
 
             const contentType = response.headers.get("content-type") || "";
             const responseText = await response.text();
 
             if (!contentType.includes("application/json")) {
-                console.error("Signup endpoint returned non-JSON:",
-                    response.status, responseText.slice(0, 1000));
+                console.error(
+                    "Signup endpoint returned non-JSON:",
+                    response.status,
+                    responseText.slice(0, 1000)
+                );
                 showMessage(t("invalidResponse"), "error");
                 return;
             }
