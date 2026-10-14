@@ -256,30 +256,34 @@ def dashboard():
             session.clear()
             return redirect(url_for("login_page"))
 
-        role = str(user.get("role") or "USER").strip().upper()
+        # The global platform role stored in users.role takes priority.
+        # A school membership must never downgrade PLATFORM_ADMIN.
+        account_role = str(user.get("role") or "USER").strip().upper()
+        platform_roles = {"PLATFORM_ADMIN", "SUPER_ADMIN", "ADMIN"}
 
-        # Verify school membership for school-based roles.
-        cur.execute(
-            """
-            SELECT member_role
-            FROM school_members
-            WHERE user_id = %s
-            ORDER BY id DESC
-            LIMIT 1
-            """,
-            (user["id"],)
-        )
-
-        membership = cur.fetchone()
-
-        if membership and membership.get("member_role"):
+        role = account_role
+        if account_role not in platform_roles:
+            cur.execute(
+                """
+                SELECT member_role
+                FROM school_members
+                WHERE user_id = %s
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (user["id"],)
+            )
+            membership = cur.fetchone()
             member_role = str(
-                membership["member_role"]
+                (membership or {}).get("member_role") or ""
             ).strip().upper()
 
-            # Use the school membership role for school dashboards.
-            if member_role in ("STUDENT", "TEACHER", "HEADMASTER"):
+            if member_role in {"STUDENT", "TEACHER", "HEADMASTER"}:
                 role = member_role
+
+        # Normalize legacy global admin role to the intended dashboard role.
+        if role in {"SUPER_ADMIN", "ADMIN"}:
+            role = "PLATFORM_ADMIN"
 
         session["user_id"] = user["id"]
         session["role"] = role
@@ -1322,8 +1326,33 @@ def get_student_grades():
                 "message": "No student profile is linked to this account."
             })
 
+        subject_columns = _table_columns(cur, "subjects")
+        assignment_columns = _table_columns(cur, "teacher_assignments")
+        class_columns = _table_columns(cur, "classes")
+        subject_label_col = next(
+            (c for c in ("subject_name", "name", "title") if c in subject_columns),
+            None
+        )
+        class_label_col = "class_name" if "class_name" in class_columns else None
+
+        subject_select = (
+            f"sub.`{subject_label_col}` AS subject_name"
+            if subject_label_col and "subject_id" in assignment_columns
+            else "'Unknown subject' AS subject_name"
+        )
+        class_select = (
+            "cl.`class_name` AS class_name"
+            if class_label_col and "class_id" in assignment_columns
+            else "'—' AS class_name"
+        )
+        joins = " LEFT JOIN teacher_assignments ta ON ta.id = sg.assignment_id "
+        if subject_label_col and "subject_id" in assignment_columns:
+            joins += " LEFT JOIN subjects sub ON sub.id = ta.subject_id "
+        if class_label_col and "class_id" in assignment_columns:
+            joins += " LEFT JOIN classes cl ON cl.id = ta.class_id "
+
         cur.execute(
-            """
+            f"""
             SELECT
                 sg.id AS grade_id,
                 sg.score,
@@ -1332,15 +1361,10 @@ def get_student_grades():
                 sg.academic_year,
                 sg.status,
                 sg.created_at,
-                sub.subject_name,
-                c.class_name
+                {subject_select},
+                {class_select}
             FROM student_grades AS sg
-            LEFT JOIN teacher_assignments AS ta
-                ON ta.id = sg.assignment_id
-            LEFT JOIN subjects AS sub
-                ON sub.id = ta.subject_id
-            LEFT JOIN classes AS c
-                ON c.id = ta.class_id
+            {joins}
             WHERE sg.student_id = %s
             ORDER BY sg.created_at DESC, sg.id DESC
             """,
@@ -1441,6 +1465,348 @@ def report_excel():
     except Exception:
         app.logger.exception("Excel report generation failed")
         return "Could not generate Excel report.", 500
+
+
+
+# =========================================================
+# ROLE-BASED API HELPERS AND DASHBOARDS
+# =========================================================
+def _table_columns(cur, table_name):
+    """Return column names for a table in the configured TiDB database."""
+    cur.execute(
+        """
+        SELECT COLUMN_NAME
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s
+        """,
+        (table_name,)
+    )
+    return {row["COLUMN_NAME"] for row in cur.fetchall()}
+
+
+def _load_session_user(cur):
+    if not session.get("username"):
+        return None
+    cur.execute(
+        "SELECT id, username, full_name, role FROM users WHERE username=%s LIMIT 1",
+        (session["username"],)
+    )
+    user = cur.fetchone()
+    if not user:
+        session.clear()
+        return None
+
+    account_role = str(user.get("role") or "USER").strip().upper()
+    if account_role in {"PLATFORM_ADMIN", "SUPER_ADMIN", "ADMIN"}:
+        role = "PLATFORM_ADMIN"
+        membership = None
+    else:
+        cur.execute(
+            """
+            SELECT id, school_id, user_id, member_role
+            FROM school_members
+            WHERE user_id=%s
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (user["id"],)
+        )
+        membership = cur.fetchone()
+        member_role = str((membership or {}).get("member_role") or "").upper()
+        role = member_role if member_role in {
+            "STUDENT", "TEACHER", "HEADMASTER"
+        } else account_role
+
+    session["user_id"] = user["id"]
+    session["role"] = role
+    if membership:
+        session["school_id"] = membership.get("school_id")
+        session["membership_id"] = membership.get("id")
+    return {"user": user, "role": role, "membership": membership}
+
+
+def _role_error(required_roles):
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    role = str(session.get("role") or "").upper()
+    if role not in set(required_roles):
+        return jsonify({"success": False, "message": "Permission denied."}), 403
+    return None
+
+
+@app.route("/api/me", methods=["GET"])
+def api_me():
+    """Return the signed-in user's effective role for frontend navigation."""
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        data = _load_session_user(cur)
+        if not data:
+            return jsonify({"success": False, "message": "Account not found."}), 401
+        user = data["user"]
+        membership = data["membership"] or {}
+        return jsonify({
+            "success": True,
+            "username": user["username"],
+            "full_name": user.get("full_name") or user["username"],
+            "role": data["role"],
+            "school_id": membership.get("school_id")
+        })
+    except Exception as e:
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/platform-admin/overview", methods=["GET"])
+def platform_admin_overview():
+    """Platform-wide counts only; intentionally does not return student grades."""
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity = _load_session_user(cur)
+        if not identity or identity["role"] != "PLATFORM_ADMIN":
+            return jsonify({"success": False, "message": "Platform admin only."}), 403
+
+        result = {}
+        for key, table in (
+            ("users", "users"), ("schools", "schools"),
+            ("students", "students"), ("predictions", "predictions")
+        ):
+            cur.execute(f"SELECT COUNT(*) AS total FROM `{table}`")
+            result[key] = int((cur.fetchone() or {}).get("total") or 0)
+
+        cur.execute(
+            """
+            SELECT s.id, s.school_name, s.education_level, s.approval_mode,
+                   COUNT(DISTINCT sm.id) AS members
+            FROM schools s
+            LEFT JOIN school_members sm ON sm.school_id=s.id
+            GROUP BY s.id, s.school_name, s.education_level, s.approval_mode
+            ORDER BY s.school_name
+            """
+        )
+        result["school_list"] = cur.fetchall()
+        result["success"] = True
+        return jsonify(result)
+    except Exception as e:
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/headmaster/overview", methods=["GET"])
+def headmaster_overview():
+    """Statistics and pending grade count restricted to the headmaster's own school."""
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity = _load_session_user(cur)
+        if not identity or identity["role"] != "HEADMASTER":
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        membership = identity["membership"] or {}
+        school_id = membership.get("school_id")
+        if not school_id:
+            return jsonify({"success": False, "message": "No school linked to account."}), 400
+
+        cur.execute("SELECT school_name, education_level, approval_mode FROM schools WHERE id=%s", (school_id,))
+        school = cur.fetchone()
+        cur.execute("SELECT COUNT(*) AS total FROM school_members WHERE school_id=%s", (school_id,))
+        members = int((cur.fetchone() or {}).get("total") or 0)
+        cur.execute("SELECT COUNT(*) AS total FROM students WHERE school_id=%s", (school_id,))
+        students = int((cur.fetchone() or {}).get("total") or 0)
+        cur.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM student_grades sg
+            JOIN students st ON st.id=sg.student_id
+            WHERE st.school_id=%s AND sg.status='PENDING'
+            """,
+            (school_id,)
+        )
+        pending = int((cur.fetchone() or {}).get("total") or 0)
+        return jsonify({
+            "success": True, "school": school or {}, "members": members,
+            "students": students, "pending_grades": pending
+        })
+    except Exception as e:
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/headmaster/pending-grades", methods=["GET"])
+def headmaster_pending_grades():
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity = _load_session_user(cur)
+        if not identity or identity["role"] != "HEADMASTER":
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        membership = identity["membership"] or {}
+        school_id = membership.get("school_id")
+        cur.execute("SELECT approval_mode FROM schools WHERE id=%s", (school_id,))
+        school = cur.fetchone()
+        if not school or str(school.get("approval_mode") or "").upper() != "HEADMASTER":
+            return jsonify({"success": True, "grades": [], "message": "This school does not use headmaster approval."})
+        cur.execute(
+            """
+            SELECT sg.id AS grade_id, sg.student_id, st.student_name,
+                   sg.assignment_id, sg.score, sg.max_score, sg.term,
+                   sg.academic_year, sg.entered_by, sg.created_at
+            FROM student_grades sg
+            JOIN students st ON st.id=sg.student_id
+            WHERE st.school_id=%s AND sg.status='PENDING'
+            ORDER BY sg.created_at DESC, sg.id DESC
+            LIMIT 500
+            """,
+            (school_id,)
+        )
+        grades = cur.fetchall()
+        for row in grades:
+            if row.get("created_at"):
+                row["created_at"] = row["created_at"].strftime("%Y-%m-%d %H:%M:%S")
+            for field in ("score", "max_score"):
+                if row.get(field) is not None:
+                    row[field] = float(row[field])
+        return jsonify({"success": True, "grades": grades})
+    except Exception as e:
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/headmaster/grades/<int:grade_id>/decision", methods=["POST"])
+def headmaster_grade_decision(grade_id):
+    """Approve/reject a pending grade only inside the headmaster's school."""
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    data = request.get_json(silent=True) or {}
+    decision = str(data.get("decision") or "").strip().upper()
+    note = str(data.get("note") or "").strip()
+    if decision not in {"APPROVED", "REJECTED"}:
+        return jsonify({"success": False, "message": "Decision must be APPROVED or REJECTED."}), 400
+
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        conn.start_transaction()
+        identity = _load_session_user(cur)
+        if not identity or identity["role"] != "HEADMASTER":
+            conn.rollback()
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        membership = identity["membership"] or {}
+        school_id = membership.get("school_id")
+        cur.execute("SELECT approval_mode FROM schools WHERE id=%s", (school_id,))
+        school = cur.fetchone()
+        if not school or str(school.get("approval_mode") or "").upper() != "HEADMASTER":
+            conn.rollback()
+            return jsonify({"success": False, "message": "Headmaster approval is not enabled for this school."}), 403
+
+        cur.execute(
+            """
+            SELECT sg.id, sg.status
+            FROM student_grades sg
+            JOIN students st ON st.id=sg.student_id
+            WHERE sg.id=%s AND st.school_id=%s
+            FOR UPDATE
+            """,
+            (grade_id, school_id)
+        )
+        grade = cur.fetchone()
+        if not grade or str(grade.get("status") or "").upper() != "PENDING":
+            conn.rollback()
+            return jsonify({"success": False, "message": "Pending grade not found in your school."}), 404
+
+        cur.execute("UPDATE student_grades SET status=%s WHERE id=%s AND status='PENDING'", (decision, grade_id))
+        if cur.rowcount != 1:
+            conn.rollback()
+            return jsonify({"success": False, "message": "Grade has already been processed."}), 409
+
+        # Record approval only for columns confirmed to exist in the database.
+        approval_columns = _table_columns(cur, "grade_approvals")
+        insert_values = {}
+        if "grade_id" in approval_columns: insert_values["grade_id"] = grade_id
+        if "approver_member_id" in approval_columns and membership.get("id") is not None:
+            insert_values["approver_member_id"] = membership["id"]
+        if "decision" in approval_columns: insert_values["decision"] = decision
+        elif "status" in approval_columns: insert_values["status"] = decision
+        if "note" in approval_columns: insert_values["note"] = note[:1000]
+        elif "comments" in approval_columns: insert_values["comments"] = note[:1000]
+        if "created_at" in approval_columns:
+            insert_values["created_at"] = None  # use DB default if supported below
+            insert_values.pop("created_at", None)
+        if insert_values.get("grade_id") is not None and insert_values.get("approver_member_id") is not None:
+            columns = list(insert_values)
+            placeholders = ", ".join(["%s"] * len(columns))
+            cur.execute(
+                "INSERT INTO grade_approvals (" + ", ".join(f"`{c}`" for c in columns) +
+                ") VALUES (" + placeholders + ")",
+                tuple(insert_values[c] for c in columns)
+            )
+        conn.commit()
+        return jsonify({"success": True, "message": f"Grade {decision.lower()}."})
+    except Exception as e:
+        if conn:
+            try: conn.rollback()
+            except Exception: pass
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/teacher/assignments", methods=["GET"])
+def teacher_assignments_api():
+    """List only assignments belonging to the logged-in teacher, adapting to common schema variants."""
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity = _load_session_user(cur)
+        if not identity or identity["role"] != "TEACHER":
+            return jsonify({"success": False, "message": "Teacher only."}), 403
+        membership = identity["membership"] or {}
+        cols = _table_columns(cur, "teacher_assignments")
+        teacher_col = next((c for c in ("teacher_member_id", "teacher_id", "member_id", "teacher_user_id", "user_id") if c in cols), None)
+        if not teacher_col:
+            return jsonify({"success": False, "message": "teacher_assignments needs a teacher/member ID column."}), 409
+
+        owner_id = membership.get("id") if teacher_col in {"teacher_member_id", "member_id"} else identity["user"]["id"]
+        cur.execute(
+            f"SELECT * FROM teacher_assignments WHERE `{teacher_col}`=%s ORDER BY id DESC LIMIT 500",
+            (owner_id,)
+        )
+        assignments = cur.fetchall()
+        for row in assignments:
+            for key, value in list(row.items()):
+                if hasattr(value, "strftime"):
+                    row[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+        return jsonify({"success": True, "assignments": assignments})
+    except Exception as e:
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
 
 
 # =========================================================
