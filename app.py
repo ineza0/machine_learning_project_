@@ -30,7 +30,7 @@ app.config.update(
 
 
 # ---------------------------------------------------------
-# Google Search Console verification
+# GOOGLE SEARCH CONSOLE VERIFICATION
 # ---------------------------------------------------------
 GOOGLE_VERIFICATION_FILENAME = os.getenv(
     "GOOGLE_VERIFICATION_FILENAME", ""
@@ -61,7 +61,7 @@ if (
 
 
 # ---------------------------------------------------------
-# Load machine-learning model
+# LOAD MACHINE LEARNING MODEL
 # ---------------------------------------------------------
 try:
     model = joblib.load("student_model.pkl")
@@ -72,7 +72,7 @@ except Exception as e:
 
 
 # ---------------------------------------------------------
-# Google Sign-In
+# GOOGLE SIGN-IN
 # ---------------------------------------------------------
 GOOGLE_ON = bool(
     os.getenv("GOOGLE_CLIENT_ID")
@@ -178,6 +178,8 @@ def google_callback():
             return redirect("/login?error=google_unverified")
 
         name = info.get("name") or email.split("@")[0]
+
+        session.clear()
         session["username"] = google_get_or_create_user(email, name)
 
         return redirect(url_for("dashboard"))
@@ -188,13 +190,14 @@ def google_callback():
 
 
 # ---------------------------------------------------------
-# Pages
+# PAGES
 # ---------------------------------------------------------
 @app.route("/")
 def home():
-    return redirect(
-        url_for("dashboard" if "username" in session else "login_page")
-    )
+    if "username" in session:
+        return redirect(url_for("dashboard"))
+
+    return redirect(url_for("login_page"))
 
 
 @app.route("/login")
@@ -218,22 +221,86 @@ def logout():
     return redirect(url_for("login_page"))
 
 
+# ---------------------------------------------------------
+# ROLE-BASED DASHBOARD ROUTING
+# ---------------------------------------------------------
 @app.route("/dashboard")
 def dashboard():
     if "username" not in session:
         return redirect(url_for("login_page"))
 
-    return render_template(
-        "index.html",
-        username=session["username"]
-    )
+    conn = None
+    cur = None
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+
+        cur.execute(
+            """
+            SELECT id, username, full_name, role
+            FROM users
+            WHERE username = %s
+            LIMIT 1
+            """,
+            (session["username"],)
+        )
+
+        user = cur.fetchone()
+
+        if not user:
+            session.clear()
+            return redirect(url_for("login_page"))
+
+        role = str(user.get("role") or "").strip().upper()
+
+        session["user_id"] = user["id"]
+        session["role"] = role
+
+        templates = {
+            "STUDENT": "student_dashboard.html",
+            "TEACHER": "teacher_dashboard.html",
+            "HEADMASTER": "headmaster_dashboard.html",
+            "PLATFORM_ADMIN": "platform_admin_dashboard.html",
+            "SUPER_ADMIN": "platform_admin_dashboard.html",
+        }
+
+        template = templates.get(role, "index.html")
+
+        template_path = os.path.join(
+            app.root_path,
+            "templates",
+            template
+        )
+
+        # Keep the existing dashboard until the new template exists.
+        if not os.path.isfile(template_path):
+            template = "index.html"
+
+        return render_template(
+            template,
+            username=user["username"],
+            full_name=user.get("full_name") or user["username"],
+            role=role
+        )
+
+    except Exception:
+        traceback.print_exc()
+        return "Could not load your dashboard. Please try again.", 500
+
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 # ---------------------------------------------------------
-# Error response helper
+# ERROR RESPONSE HELPER
 # ---------------------------------------------------------
 def server_error(e):
     traceback.print_exc()
+
     return jsonify({
         "success": False,
         "message": "Server error. Please try again."
@@ -241,7 +308,7 @@ def server_error(e):
 
 
 # ---------------------------------------------------------
-# Login API
+# LOGIN API
 # ---------------------------------------------------------
 @app.route("/api/login", methods=["POST"])
 def api_login():
@@ -273,7 +340,7 @@ def api_login():
 
 
 # ---------------------------------------------------------
-# School code generator
+# GENERATE UNIQUE SCHOOL CODE
 # ---------------------------------------------------------
 def generate_unique_school_code(cur):
     alphabet = string.ascii_uppercase + string.digits
@@ -295,14 +362,9 @@ def generate_unique_school_code(cur):
 
 
 # ---------------------------------------------------------
-# Signup API
-#
-# HEADMASTER:
-#   Create user + school + membership in one transaction.
-#
-# TEACHER / STUDENT:
-#   Validate invitation, create user + membership, and consume
-#   invitation in one transaction.
+# SIGNUP API
+# HEADMASTER creates a school.
+# TEACHER / STUDENT join with an invitation.
 # ---------------------------------------------------------
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
@@ -365,13 +427,21 @@ def api_signup():
                 "message": "Choose a valid account role."
             }), 400
 
-        if terms not in (True, 1, "true", "on"):
+        terms_accepted = (
+            terms is True
+            or terms == 1
+            or (
+                isinstance(terms, str)
+                and terms.strip().lower() in ("true", "on", "1")
+            )
+        )
+
+        if not terms_accepted:
             return jsonify({
                 "success": False,
                 "message": "Please confirm the account information."
             }), 400
 
-        # Headmaster creates a school instead of using an invitation.
         if requested_role == "HEADMASTER":
             valid_levels = {
                 "PRIMARY", "O_LEVEL", "A_LEVEL",
@@ -410,10 +480,8 @@ def api_signup():
 
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
-
         conn.start_transaction()
 
-        # Check username.
         cur.execute(
             "SELECT id FROM users WHERE username=%s LIMIT 1",
             (username,)
@@ -426,7 +494,6 @@ def api_signup():
                 "message": "Username already exists."
             }), 409
 
-        # Check email.
         cur.execute(
             "SELECT id FROM users WHERE email=%s LIMIT 1",
             (email,)
@@ -444,7 +511,6 @@ def api_signup():
         invitation_id = None
         invited_role = requested_role
 
-        # Validate Student / Teacher invitation.
         if requested_role in ("STUDENT", "TEACHER"):
             cur.execute(
                 """
@@ -535,7 +601,6 @@ def api_signup():
                     "message": "The school for this invitation was not found."
                 }), 400
 
-        # Create the user.
         password_hash = generate_password_hash(password)
 
         cur.execute(
@@ -555,7 +620,6 @@ def api_signup():
 
         user_id = cur.lastrowid
 
-        # HEADMASTER: create school and membership.
         if invited_role == "HEADMASTER":
             school_code = generate_unique_school_code(cur)
 
@@ -587,7 +651,6 @@ def api_signup():
                 (school_id, user_id)
             )
 
-        # TEACHER / STUDENT: join the invited school.
         else:
             cur.execute(
                 """
@@ -608,7 +671,6 @@ def api_signup():
                     (full_name, user_id, school_id, class_id)
                 )
 
-            # Consume the invitation in the same transaction.
             cur.execute(
                 """
                 UPDATE school_invitations
@@ -673,7 +735,7 @@ def api_signup():
 
 
 # ---------------------------------------------------------
-# Forgot password: get security question
+# FORGOT PASSWORD: GET SECURITY QUESTION
 # ---------------------------------------------------------
 @app.route("/api/get-security-question", methods=["POST"])
 def get_question():
@@ -705,7 +767,7 @@ def get_question():
 
 
 # ---------------------------------------------------------
-# Forgot password: verify security answer
+# FORGOT PASSWORD: VERIFY SECURITY ANSWER
 # ---------------------------------------------------------
 @app.route("/api/verify-security-answer", methods=["POST"])
 def verify_ans():
@@ -736,7 +798,7 @@ def verify_ans():
 
 
 # ---------------------------------------------------------
-# Forgot password: securely reset password
+# FORGOT PASSWORD: RESET PASSWORD
 # ---------------------------------------------------------
 @app.route("/api/reset-password", methods=["POST"])
 def reset_pwd():
@@ -778,8 +840,7 @@ def reset_pwd():
                 "message": "The passwords do not match."
             }), 400
 
-        # Important: verify the security answer again on the server.
-        # Frontend verification alone is not sufficient.
+        # Verify the answer again on the server.
         if not verify_security_answer(username, answer):
             return jsonify({
                 "success": False,
@@ -798,7 +859,7 @@ def reset_pwd():
 
 
 # ---------------------------------------------------------
-# System status
+# SYSTEM STATUS
 # ---------------------------------------------------------
 @app.route("/api/system-status")
 def system_status():
@@ -836,7 +897,7 @@ def system_status():
 
 
 # ---------------------------------------------------------
-# Machine-learning prediction
+# MACHINE LEARNING PREDICTION
 # ---------------------------------------------------------
 @app.route("/api/predict", methods=["POST"])
 def predict():
@@ -967,7 +1028,7 @@ def predict():
 
 
 # ---------------------------------------------------------
-# Prediction history
+# PREDICTION HISTORY
 # ---------------------------------------------------------
 @app.route("/api/history")
 def history():
@@ -1026,7 +1087,7 @@ def history():
 
 
 # ---------------------------------------------------------
-# Statistics and data visualization
+# STATISTICS AND DATA VISUALIZATION
 # ---------------------------------------------------------
 @app.route("/api/stats")
 def stats():
@@ -1056,7 +1117,6 @@ def stats():
         cur = conn.cursor(dictionary=True)
         username = session["username"]
 
-        # 1. Overall summary
         cur.execute(
             """
             SELECT
@@ -1079,7 +1139,6 @@ def stats():
             (passed / total) * 100, 2
         ) if total else 0
 
-        # 2. Subject-by-subject data for bar charts
         cur.execute(
             """
             SELECT
@@ -1112,8 +1171,6 @@ def stats():
                 ) if subject_total else 0
             })
 
-        # 3. Latest 12 months, ordered chronologically.
-        # The inner query selects the latest months first.
         cur.execute(
             """
             SELECT month, total, passed, failed
@@ -1144,7 +1201,6 @@ def stats():
                 "failed": int(row["failed"] or 0)
             })
 
-        # 4. Pie / doughnut chart data
         result_chart = [
             {"name": "Passed", "value": passed},
             {"name": "Failed", "value": failed}
@@ -1172,7 +1228,7 @@ def stats():
 
 
 # ---------------------------------------------------------
-# PDF report
+# PDF REPORT
 # ---------------------------------------------------------
 @app.route("/report/pdf")
 def report_pdf():
@@ -1198,7 +1254,7 @@ def report_pdf():
 
 
 # ---------------------------------------------------------
-# Excel report
+# EXCEL REPORT
 # ---------------------------------------------------------
 @app.route("/report/excel")
 def report_excel():
@@ -1227,7 +1283,7 @@ def report_excel():
 
 
 # ---------------------------------------------------------
-# Start application
+# START APPLICATION
 # ---------------------------------------------------------
 if __name__ == "__main__":
     app.run(debug=False)
