@@ -5,92 +5,227 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Forgot Password | StudentPredict</title>
+
 <style>
 :root {
-  --blue:#075cf5; --bg:#f1f6ff; --card:#fff; --ink:#102344;
-  --muted:#64748b; --line:#d5e2ff; --field:#fff;
+  --blue:#075cf5;
+  --bg:#f1f6ff;
+  --card:#fff;
+  --ink:#102344;
+  --muted:#64748b;
+  --line:#d5e2ff;
+  --field:#fff;
 }
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:flex;flex-direction:column;
-font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
-a{color:var(--blue);text-decoration:none}
-header{background:linear-gradient(110deg,#0876ff,#0746b8);color:white;
-padding:18px 5%;display:flex;justify-content:space-between;
-align-items:center;gap:12px;flex-wrap:wrap}
-.brand{font-size:24px;font-weight:800;color:white}
-.tools{display:flex;gap:10px}
-select,.theme{padding:9px;border:0;border-radius:8px;cursor:pointer}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:35px 16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;
-padding:35px;width:100%;max-width:480px;
-box-shadow:0 15px 45px #0a347d12}
-.logo{text-align:center;font-size:48px}
-h1{text-align:center;font-size:29px;margin:12px 0}
-p{color:var(--muted);line-height:1.6;text-align:center}
-label{display:block;font-weight:700;margin:22px 0 9px;font-size:14px}
-input{width:100%;padding:14px;border:1px solid var(--line);
-border-radius:9px;background:var(--field);color:var(--ink);font-size:15px}
-input:focus{outline:2px solid #8ab8ff}
-button{width:100%;padding:14px;margin-top:18px;border:0;border-radius:9px;
-background:var(--blue);color:white;font-weight:750;font-size:16px;cursor:pointer}
-button:disabled{opacity:.6}
-.msg{display:none;padding:12px;border-radius:8px;margin-top:15px;
-font-size:14px;line-height:1.5}
-.error{background:#fff0f1;color:#a21d32}
-.success{background:#eafaf0;color:#08753a}
-.back{text-align:center;margin-top:22px;font-size:14px}
-footer{background:#08275a;color:#e0eaff;text-align:center;padding:18px;
-font-size:13px;line-height:1.9}
-footer a{color:white}
-.dark{--bg:#0b1220;--card:#121e32;--ink:#eef4ff;
---muted:#b2c1de;--line:#293d5e;--field:#101a2c}
-@media(max-width:500px){.card{padding:24px}.brand{font-size:20px}}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  transition:background .2s,color .2s;
+}
+
+a { color:var(--blue); text-decoration:none; }
+
+header {
+  background:linear-gradient(110deg,#0876ff,#0746b8);
+  color:white;
+  padding:18px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.brand { font-size:24px; font-weight:800; color:white; }
+
+.tools { display:flex; gap:10px; align-items:center; }
+
+select,.theme {
+  padding:9px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+main {
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:35px 16px;
+}
+
+.card {
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:35px;
+  width:100%;
+  max-width:480px;
+  box-shadow:0 15px 45px #0a347d12;
+}
+
+.logo { text-align:center; font-size:48px; }
+
+h1 { text-align:center; font-size:29px; margin:12px 0; }
+
+p { color:var(--muted); line-height:1.6; text-align:center; }
+
+label {
+  display:block;
+  font-weight:700;
+  margin:22px 0 9px;
+  font-size:14px;
+}
+
+input {
+  width:100%;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--field);
+  color:var(--ink);
+  font-size:15px;
+}
+
+input:focus { outline:2px solid #8ab8ff; }
+
+.submit {
+  width:100%;
+  padding:14px;
+  margin-top:18px;
+  border:0;
+  border-radius:9px;
+  background:var(--blue);
+  color:white;
+  font-weight:750;
+  font-size:16px;
+  cursor:pointer;
+}
+
+button:disabled { opacity:.6; cursor:wait; }
+
+.msg {
+  display:none;
+  padding:12px;
+  border-radius:8px;
+  margin-top:15px;
+  font-size:14px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+.error { background:#fff0f1; color:#a21d32; }
+.success { background:#eafaf0; color:#08753a; }
+
+.back { text-align:center; margin-top:22px; font-size:14px; }
+
+footer {
+  background:#08275a;
+  color:#e0eaff;
+  text-align:center;
+  padding:18px;
+  font-size:13px;
+  line-height:1.9;
+}
+
+footer a { color:white; }
+
+body.dark {
+  --bg:#0b1220;
+  --card:#121e32;
+  --ink:#eef4ff;
+  --muted:#b2c1de;
+  --line:#293d5e;
+  --field:#101a2c;
+}
+
+body.dark .error { background:#451c2a; color:#ffc6d0; }
+body.dark .success { background:#123b2b; color:#b6f3ce; }
+
+@media(max-width:500px) {
+  .card { padding:24px; }
+  .brand { font-size:20px; }
+}
 </style>
 </head>
+
 <body>
 <header>
   <a class="brand" href="/login">🎓 StudentPredict</a>
+
   <div class="tools">
     <select id="language" aria-label="Language">
       <option value="en">English</option>
       <option value="rw">Kinyarwanda</option>
       <option value="fr">Français</option>
     </select>
+
     <button class="theme" id="theme" type="button"
-    style="width:auto;margin:0;padding:9px">☀️ / 🌙</button>
+      aria-label="Toggle theme"
+      style="width:auto;margin:0;padding:9px">
+      ☀️ / 🌙
+    </button>
   </div>
 </header>
 
 <main>
 <section class="card">
   <div class="logo">🔐</div>
-  <h1 data-en="Forgot password?" data-rw="Wibagiwe ijambo ry'ibanga?"
-  data-fr="Mot de passe oublié ?">Forgot password?</h1>
+
+  <h1 data-en="Forgot password?"
+      data-rw="Wibagiwe ijambo ry'ibanga?"
+      data-fr="Mot de passe oublié ?">
+    Forgot password?
+  </h1>
+
   <p data-en="Enter the email associated with your account. If the account is eligible, you will receive instructions to reset your password."
-  data-rw="Andika email ukoresha muri konti yawe. Niba konti yemerewe, urahabwa amabwiriza yo guhindura ijambo ry'ibanga."
-  data-fr="Saisissez l'adresse e-mail associée à votre compte. Si le compte est éligible, vous recevrez les instructions de réinitialisation.">
-  Enter the email associated with your account. If the account is eligible, you will receive instructions to reset your password.
+     data-rw="Andika email ukoresha muri konti yawe. Niba konti yemerewe, urahabwa amabwiriza yo guhindura ijambo ry'ibanga."
+     data-fr="Saisissez l'adresse e-mail associée à votre compte. Si le compte est éligible, vous recevrez les instructions de réinitialisation.">
+    Enter the email associated with your account. If the account is eligible, you will receive instructions to reset your password.
   </p>
 
-  <div class="msg error" id="error" role="alert"></div>
-  <div class="msg success" id="success" role="status"></div>
+  <div class="msg error" id="error" role="alert" aria-live="assertive"></div>
+  <div class="msg success" id="success" role="status" aria-live="polite"></div>
 
   <form id="forgotForm" method="post" action="/forgot">
-    <label for="email" data-en="Email address" data-rw="Email yawe"
-    data-fr="Adresse e-mail">Email address</label>
-    <input type="email" id="email" name="email" autocomplete="email"
-    placeholder="you@example.com" required>
+    <label for="email"
+      data-en="Email address"
+      data-rw="Email yawe"
+      data-fr="Adresse e-mail">
+      Email address
+    </label>
 
-    <button id="submitBtn" type="submit"
-    data-en="Send reset instructions"
-    data-rw="Ohereza amabwiriza yo guhindura password"
-    data-fr="Envoyer les instructions">Send reset instructions</button>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      autocomplete="email"
+      placeholder="you@example.com"
+      required>
+
+    <button class="submit" id="submitBtn" type="submit"
+      data-en="Send reset instructions"
+      data-rw="Ohereza amabwiriza yo guhindura password"
+      data-fr="Envoyer les instructions">
+      Send reset instructions
+    </button>
   </form>
 
   <div class="back">
-    <a href="/login" data-en="← Back to Login"
-    data-rw="← Subira kuri Login" data-fr="← Retour à la connexion">
-    ← Back to Login</a>
+    <a href="/login"
+      data-en="← Back to Login"
+      data-rw="← Subira kuri Login"
+      data-fr="← Retour à la connexion">
+      ← Back to Login
+    </a>
   </div>
 </section>
 </main>
@@ -103,72 +238,180 @@ footer a{color:white}
 </footer>
 
 <script>
+"use strict";
+
 const language = document.getElementById("language");
+const themeButton = document.getElementById("theme");
+const form = document.getElementById("forgotForm");
+const emailInput = document.getElementById("email");
+const submitButton = document.getElementById("submitBtn");
+const errorBox = document.getElementById("error");
+const successBox = document.getElementById("success");
+
+const messages = {
+  en: {
+    required: "Please enter your email address.",
+    sending: "Sending...",
+    failed: "Unable to process your request. Please try again.",
+    html: "The server returned HTML instead of JSON. The Flask /forgot route needs to be checked.",
+    invalid: "The server returned an invalid JSON response.",
+    network: "A connection error occurred. Please check your internet connection.",
+    success: "If your account is eligible, reset instructions will be sent.",
+    toggle: "Toggle light or dark mode"
+  },
+  rw: {
+    required: "Andika email yawe.",
+    sending: "Birimo koherezwa...",
+    failed: "Ntibyashobotse. Ongera ugerageze.",
+    html: "Server yohereje HTML aho kohereza JSON. Hagomba kugenzurwa Flask route /forgot.",
+    invalid: "Igisubizo cya server ntabwo ari JSON yemewe.",
+    network: "Habaye ikibazo cy'ihuzanzira. Reba internet yawe.",
+    success: "Niba konti yawe yemerewe, amabwiriza yo guhindura password azoherezwa.",
+    toggle: "Hindura hagati ya Light na Dark mode"
+  },
+  fr: {
+    required: "Veuillez saisir votre adresse e-mail.",
+    sending: "Envoi en cours...",
+    failed: "Impossible de traiter la demande. Veuillez réessayer.",
+    html: "Le serveur a renvoyé du HTML au lieu du JSON. Vérifiez la route Flask /forgot.",
+    invalid: "Le serveur a renvoyé une réponse JSON invalide.",
+    network: "Erreur de connexion. Vérifiez votre connexion Internet.",
+    success: "Si votre compte est éligible, les instructions seront envoyées.",
+    toggle: "Changer le thème clair ou sombre"
+  }
+};
+
+function getLanguage() {
+  return messages[language.value] ? language.value : "en";
+}
 
 function setLanguage(value) {
-  document.documentElement.lang = value;
-  document.querySelectorAll("[data-en]").forEach(el => {
-    el.textContent = el.dataset[value] || el.dataset.en;
+  const selected = messages[value] ? value : "en";
+
+  language.value = selected;
+  document.documentElement.lang = selected;
+
+  document.querySelectorAll("[data-en]").forEach(element => {
+    element.textContent =
+      element.getAttribute("data-" + selected) ||
+      element.getAttribute("data-en");
   });
-  try { localStorage.setItem("studentpredict-language", value); } catch(e) {}
+
+  themeButton.setAttribute("aria-label", messages[selected].toggle);
+
+  try {
+    localStorage.setItem("studentpredict-language", selected);
+  } catch (e) {
+    // The page can still work when localStorage is unavailable.
+  }
+}
+
+function setTheme(value) {
+  const selected = value === "dark" ? "dark" : "light";
+  document.body.classList.toggle("dark", selected === "dark");
+  document.documentElement.dataset.theme = selected;
+
+  try {
+    localStorage.setItem("studentpredict-theme", selected);
+  } catch (e) {
+    // Theme remains active for the current page.
+  }
+}
+
+function showError(message) {
+  errorBox.textContent = message;
+  errorBox.style.display = "block";
+  successBox.style.display = "none";
+}
+
+function showSuccess(message) {
+  successBox.textContent = message;
+  successBox.style.display = "block";
+  errorBox.style.display = "none";
 }
 
 try {
   language.value = localStorage.getItem("studentpredict-language") || "en";
-} catch(e) {}
-setLanguage(language.value);
-language.addEventListener("change", () => setLanguage(language.value));
-
-function setTheme(value) {
-  document.body.classList.toggle("dark", value === "dark");
-  try { localStorage.setItem("studentpredict-theme", value); } catch(e) {}
-}
-try {
   setTheme(localStorage.getItem("studentpredict-theme") || "light");
-} catch(e) { setTheme("light"); }
+} catch (e) {
+  language.value = "en";
+  setTheme("light");
+}
 
-document.getElementById("theme").addEventListener("click", () => {
+setLanguage(language.value);
+
+language.addEventListener("change", () => {
+  setLanguage(language.value);
+});
+
+themeButton.addEventListener("click", () => {
   setTheme(document.body.classList.contains("dark") ? "light" : "dark");
 });
 
-document.getElementById("forgotForm").addEventListener("submit", async e => {
-  e.preventDefault();
+form.addEventListener("submit", async event => {
+  event.preventDefault();
 
-  const error = document.getElementById("error");
-  const success = document.getElementById("success");
-  const btn = document.getElementById("submitBtn");
-  error.style.display = "none";
-  success.style.display = "none";
-  btn.disabled = true;
+  errorBox.style.display = "none";
+  successBox.style.display = "none";
+
+  const email = emailInput.value.trim();
+  const msg = messages[getLanguage()];
+
+  if (!email) {
+    showError(msg.required);
+    emailInput.focus();
+    return;
+  }
+
+  submitButton.disabled = true;
+  const originalButtonText = submitButton.textContent;
+  submitButton.textContent = msg.sending;
 
   try {
-    const response = await fetch("/forgot", {
+    const response = await fetch(form.action, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json"
       },
-      body: JSON.stringify({
-        email: document.getElementById("email").value.trim()
-      })
+      credentials: "same-origin",
+      body: JSON.stringify({ email })
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type") || "";
+    const responseText = await response.text();
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.error || data.message ||
-        "Unable to process the request. Please try again.");
+    if (!contentType.toLowerCase().includes("application/json")) {
+      console.error("Forgot Password response details:", {
+        status: response.status,
+        contentType,
+        response: responseText.slice(0, 500)
+      });
+
+      throw new Error(msg.html);
     }
 
-    success.textContent = data.message ||
-      "If your account is eligible, reset instructions will be sent.";
-    success.style.display = "block";
-  } catch (err) {
-    error.textContent = err.message ||
-      "A connection error occurred. Please try again.";
-    error.style.display = "block";
+    let data;
+
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("Invalid JSON returned by /forgot:", parseError);
+      throw new Error(msg.invalid);
+    }
+
+    if (!response.ok || data.success === false) {
+      throw new Error(data.error || data.message || msg.failed);
+    }
+
+    showSuccess(data.message || msg.success);
+
+  } catch (error) {
+    console.error("Forgot Password error:", error);
+    showError(error.message || msg.network);
   } finally {
-    btn.disabled = false;
+    submitButton.disabled = false;
+    submitButton.textContent = originalButtonText;
   }
 });
 </script>
