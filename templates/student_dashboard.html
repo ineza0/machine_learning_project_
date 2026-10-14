@@ -1,1 +1,1039 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | StudentPredict</title>
+
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --text: #172033;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --sidebar: #111827;
+            --sidebar-text: #e5e7eb;
+            --green: #15803d;
+            --red: #b91c1c;
+            --shadow: 0 5px 20px rgba(15, 23, 42, .05);
+        }
+
+        body.dark {
+            --bg: #0b1120;
+            --card: #151e30;
+            --text: #f1f5f9;
+            --muted: #a1aec2;
+            --border: #2b374b;
+            --primary: #60a5fa;
+            --primary-hover: #93c5fd;
+            --sidebar: #070b14;
+            --sidebar-text: #e5e7eb;
+            --green: #4ade80;
+            --red: #f87171;
+            --shadow: 0 5px 20px rgba(0, 0, 0, .12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background .2s, color .2s;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 245px;
+            background: var(--sidebar);
+            color: var(--sidebar-text);
+            padding: 24px 16px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0 0 8px;
+        }
+
+        .brand span {
+            color: #60a5fa;
+        }
+
+        .brand-subtitle {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 32px;
+        }
+
+        .nav-label {
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 24px 10px 10px;
+        }
+
+        .nav-link {
+            display: block;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 9px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #25334b;
+            color: #ffffff;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 20px 28px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .welcome {
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        select,
+        button,
+        .button {
+            font: inherit;
+        }
+
+        select {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 9px;
+            border-radius: 8px;
+        }
+
+        button,
+        .button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .danger {
+            background: #991b1b;
+            color: white;
+        }
+
+        .content {
+            padding: 26px 28px;
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .section-heading {
+            margin: 0 0 7px;
+            font-size: 19px;
+        }
+
+        .section-description {
+            color: var(--muted);
+            margin: 0 0 20px;
+            font-size: 13px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .metric-value {
+            font-size: 29px;
+            font-weight: 800;
+            margin: 12px 0 7px;
+        }
+
+        .metric-note {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .green {
+            color: var(--green);
+        }
+
+        .red {
+            color: var(--red);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th,
+        td {
+            padding: 13px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 700;
+            background: var(--bg);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-pass {
+            color: var(--green);
+            background: rgba(34, 197, 94, .12);
+        }
+
+        .status-fail {
+            color: var(--red);
+            background: rgba(239, 68, 68, .12);
+        }
+
+        .empty,
+        .message {
+            padding: 22px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .message.error {
+            color: var(--red);
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .subject-name {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            width: 0;
+        }
+
+        .subject-meta {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .notice {
+            border: 1px solid var(--border);
+            background: var(--card);
+            border-radius: 12px;
+            padding: 18px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+            padding: 20px;
+        }
+
+        @media (max-width: 1100px) {
+            .cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .subject-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            .layout {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .brand-subtitle {
+                margin-bottom: 15px;
+            }
+
+            .nav-label {
+                margin-top: 15px;
+            }
+
+            .topbar,
+            .content {
+                padding: 18px 14px;
+            }
+
+            .cards,
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-actions {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">Student<span>Predict</span></div>
+        <div class="brand-subtitle">Student Learning Portal</div>
+
+        <div class="nav-label" data-i18n="mainMenu">Main menu</div>
+
+        <a href="#overview" class="nav-link active" data-i18n="overview">
+            ◫ Overview
+        </a>
+
+        <a href="#subjects" class="nav-link" data-i18n="subjects">
+            ▤ My subjects
+        </a>
+
+        <a href="#history" class="nav-link" data-i18n="history">
+            ◷ Prediction history
+        </a>
+
+        <a href="#reports" class="nav-link" data-i18n="reports">
+            ▧ Reports
+        </a>
+
+        <div class="nav-label" data-i18n="account">Account</div>
+
+        <a href="/logout" class="nav-link" data-i18n="logout">
+            ⇥ Log out
+        </a>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div>
+                <h1 data-i18n="dashboardTitle">Student Dashboard</h1>
+                <div class="welcome">
+                    <span data-i18n="welcome">Welcome</span>,
+                    <strong>{{ full_name or username }}</strong>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <select id="languageSelect" aria-label="Language">
+                    <option value="en">English</option>
+                    <option value="rw">Kinyarwanda</option>
+                    <option value="fr">Français</option>
+                </select>
+
+                <button type="button" class="secondary" id="themeButton">
+                    ☾ <span data-i18n="theme">Dark mode</span>
+                </button>
+
+                <a class="button danger" href="/logout" data-i18n="logout">
+                    Log out
+                </a>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <section id="overview" class="section">
+                <h2 class="section-heading" data-i18n="overviewTitle">
+                    Your learning overview
+                </h2>
+
+                <p class="section-description" data-i18n="overviewDescription">
+                    Review your saved ML predictions and performance summary.
+                </p>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="metric-label" data-i18n="totalPredictions">
+                            Total predictions
+                        </div>
+                        <div class="metric-value" id="totalCount">—</div>
+                        <div class="metric-note" data-i18n="totalNote">
+                            Predictions saved to your account
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="metric-label" data-i18n="passed">
+                            Passed predictions
+                        </div>
+                        <div class="metric-value green" id="passedCount">—</div>
+                        <div class="metric-note" data-i18n="passedNote">
+                            Predicted PASS results
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="metric-label" data-i18n="failed">
+                            Failed predictions
+                        </div>
+                        <div class="metric-value red" id="failedCount">—</div>
+                        <div class="metric-note" data-i18n="failedNote">
+                            Predicted FAIL results
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="metric-label" data-i18n="passRate">
+                            Prediction pass rate
+                        </div>
+                        <div class="metric-value" id="passRate">—</div>
+                        <div class="metric-note" data-i18n="passRateNote">
+                            Percentage of predicted PASS results
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="subjects" class="section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-heading" data-i18n="subjectPerformance">
+                            Subject performance
+                        </h2>
+                        <p class="section-description" data-i18n="subjectDescription">
+                            Summary based on your saved predictions.
+                        </p>
+                    </div>
+
+                    <button type="button" class="secondary" id="refreshButton"
+                            data-i18n="refresh">
+                        Refresh data
+                    </button>
+                </div>
+
+                <div class="subject-grid" id="subjectGrid">
+                    <div class="card empty" data-i18n="loading">
+                        Loading data...
+                    </div>
+                </div>
+            </section>
+
+            <section id="history" class="section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-heading" data-i18n="recentHistory">
+                            Prediction history
+                        </h2>
+                        <p class="section-description" data-i18n="historyDescription">
+                            Your latest saved prediction records.
+                        </p>
+                    </div>
+
+                    <button type="button" class="secondary" id="historyRefresh"
+                            data-i18n="refresh">
+                        Refresh data
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th data-i18n="date">Date</th>
+                            <th data-i18n="student">Student</th>
+                            <th data-i18n="subject">Subject</th>
+                            <th data-i18n="studyHours">Study hours</th>
+                            <th data-i18n="attendance">Attendance</th>
+                            <th data-i18n="result">Result</th>
+                            <th data-i18n="confidence">Confidence</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="historyBody">
+                        <tr>
+                            <td colspan="7" class="empty" data-i18n="loading">
+                                Loading data...
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="historyMessage" class="message" role="status"></div>
+            </section>
+
+            <section id="reports" class="section">
+                <h2 class="section-heading" data-i18n="reportsTitle">
+                    Download your reports
+                </h2>
+
+                <p class="section-description" data-i18n="reportsDescription">
+                    Export your saved prediction history.
+                </p>
+
+                <div class="card">
+                    <div class="top-actions">
+                        <a href="/report/pdf" class="button primary" data-i18n="downloadPdf">
+                            Download PDF
+                        </a>
+
+                        <a href="/report/excel" class="button secondary" data-i18n="downloadExcel">
+                            Download Excel
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2 class="section-heading" data-i18n="officialGrades">
+                    Official grades
+                </h2>
+
+                <div class="notice" data-i18n="officialGradesNotice">
+                    Official grades entered by your teacher and approved by your
+                    school will appear here after the grade-management feature
+                    has been connected. ML predictions shown above are estimates,
+                    not official school grades.
+                </div>
+            </section>
+
+        </div>
+
+        <footer class="footer">
+            StudentPredict · Learn · Create · Innovate
+        </footer>
+    </main>
+</div>
+
+<script>
+    const translations = {
+        en: {
+            mainMenu: "Main menu",
+            overview: "◫ Overview",
+            subjects: "▤ My subjects",
+            history: "◷ Prediction history",
+            reports: "▧ Reports",
+            account: "Account",
+            logout: "⇥ Log out",
+            dashboardTitle: "Student Dashboard",
+            welcome: "Welcome",
+            theme: "Dark mode",
+            lightMode: "Light mode",
+            overviewTitle: "Your learning overview",
+            overviewDescription: "Review your saved ML predictions and performance summary.",
+            totalPredictions: "Total predictions",
+            totalNote: "Predictions saved to your account",
+            passed: "Passed predictions",
+            passedNote: "Predicted PASS results",
+            failed: "Failed predictions",
+            failedNote: "Predicted FAIL results",
+            passRate: "Prediction pass rate",
+            passRateNote: "Percentage of predicted PASS results",
+            subjectPerformance: "Subject performance",
+            subjectDescription: "Summary based on your saved predictions.",
+            refresh: "Refresh data",
+            loading: "Loading data...",
+            noSubjects: "No subject predictions found yet.",
+            recentHistory: "Prediction history",
+            historyDescription: "Your latest saved prediction records.",
+            date: "Date",
+            student: "Student",
+            subject: "Subject",
+            studyHours: "Study hours",
+            attendance: "Attendance",
+            result: "Result",
+            confidence: "Confidence",
+            noHistory: "No prediction history found.",
+            historyError: "Could not load history. Please log in again and retry.",
+            statsError: "Could not load statistics.",
+            reportsTitle: "Download your reports",
+            reportsDescription: "Export your saved prediction history.",
+            downloadPdf: "Download PDF",
+            downloadExcel: "Download Excel",
+            officialGrades: "Official grades",
+            officialGradesNotice: "Official grades entered by your teacher and approved by your school will appear here after the grade-management feature has been connected. ML predictions shown above are estimates, not official school grades.",
+            predictedPass: "PASS",
+            predictedFail: "FAIL",
+            predictions: "predictions",
+            passedShort: "Passed",
+            failedShort: "Failed",
+            passRateShort: "Pass rate"
+        },
+        rw: {
+            mainMenu: "Ibikubiye muri menu",
+            overview: "◫ Incamake",
+            subjects: "▤ Amasomo yanjye",
+            history: "◷ Amateka ya predictions",
+            reports: "▧ Raporo",
+            account: "Konti",
+            logout: "⇥ Sohoka",
+            dashboardTitle: "Dashboard y'umunyeshuri",
+            welcome: "Murakaza neza",
+            theme: "Uburyo bwijimye",
+            lightMode: "Uburyo bw'urumuri",
+            overviewTitle: "Incamake y'amasomo yawe",
+            overviewDescription: "Reba predictions za ML zibitswe na raporo y'imikorere yawe.",
+            totalPredictions: "Predictions zose",
+            totalNote: "Predictions zibitswe kuri konti yawe",
+            passed: "Ibyagaragaje gutsinda",
+            passedNote: "Ibyahanuwe ko watsinda",
+            failed: "Ibyagaragaje gutsindwa",
+            failedNote: "Ibyahanuwe ko watsindwa",
+            passRate: "Ijanisha ry'ibyahanuwe gutsinda",
+            passRateNote: "Ijanisha rya predictions za PASS",
+            subjectPerformance: "Imikorere kuri buri somo",
+            subjectDescription: "Incamake ishingiye kuri predictions wabikije.",
+            refresh: "Ongera urebe amakuru",
+            loading: "Turimo kuzana amakuru...",
+            noSubjects: "Nta predictions z'amasomo ziraboneka.",
+            recentHistory: "Amateka ya predictions",
+            historyDescription: "Predictions ziheruka kubikwa.",
+            date: "Itariki",
+            student: "Umunyeshuri",
+            subject: "Isomo",
+            studyHours: "Amasaha yo kwiga",
+            attendance: "Kwitabira amasomo",
+            result: "Icyavuye muri prediction",
+            confidence: "Icyizere cya model",
+            noHistory: "Nta mateka ya predictions araboneka.",
+            historyError: "Amateka ntiyashoboye gufunguka. Ongera winjire ugerageze.",
+            statsError: "Imibare ntiyashoboye kuzana.",
+            reportsTitle: "Kuramo raporo zawe",
+            reportsDescription: "Bika amateka ya predictions muri dosiye.",
+            downloadPdf: "Kuramo PDF",
+            downloadExcel: "Kuramo Excel",
+            officialGrades: "Amanota yemewe",
+            officialGradesNotice: "Amanota umwarimu yanditse kandi ishuri ryemeje azagaragara hano igihe igice cyo gucunga amanota kizaba cyahujwe. Predictions za ML ni ibigereranyo, si amanota yemewe y'ishuri.",
+            predictedPass: "YAHISE",
+            predictedFail: "YAGIYE HASI",
+            predictions: "predictions",
+            passedShort: "Yatsinze",
+            failedShort: "Yatsinzwe",
+            passRateShort: "Ijanisha ryo gutsinda"
+        },
+        fr: {
+            mainMenu: "Menu principal",
+            overview: "◫ Vue d'ensemble",
+            subjects: "▤ Mes matières",
+            history: "◷ Historique des prédictions",
+            reports: "▧ Rapports",
+            account: "Compte",
+            logout: "⇥ Déconnexion",
+            dashboardTitle: "Tableau de bord étudiant",
+            welcome: "Bienvenue",
+            theme: "Mode sombre",
+            lightMode: "Mode clair",
+            overviewTitle: "Vue d'ensemble de vos études",
+            overviewDescription: "Consultez vos prédictions ML enregistrées et vos statistiques.",
+            totalPredictions: "Nombre total de prédictions",
+            totalNote: "Prédictions enregistrées dans votre compte",
+            passed: "Prédictions de réussite",
+            passedNote: "Résultats prédits PASS",
+            failed: "Prédictions d'échec",
+            failedNote: "Résultats prédits FAIL",
+            passRate: "Taux de réussite prédit",
+            passRateNote: "Pourcentage de résultats PASS prédits",
+            subjectPerformance: "Résultats par matière",
+            subjectDescription: "Résumé basé sur vos prédictions enregistrées.",
+            refresh: "Actualiser",
+            loading: "Chargement des données...",
+            noSubjects: "Aucune prédiction par matière pour le moment.",
+            recentHistory: "Historique des prédictions",
+            historyDescription: "Vos dernières prédictions enregistrées.",
+            date: "Date",
+            student: "Étudiant",
+            subject: "Matière",
+            studyHours: "Heures d'étude",
+            attendance: "Présence",
+            result: "Résultat",
+            confidence: "Confiance",
+            noHistory: "Aucun historique trouvé.",
+            historyError: "Impossible de charger l'historique. Reconnectez-vous et réessayez.",
+            statsError: "Impossible de charger les statistiques.",
+            reportsTitle: "Télécharger vos rapports",
+            reportsDescription: "Exporter votre historique de prédictions.",
+            downloadPdf: "Télécharger PDF",
+            downloadExcel: "Télécharger Excel",
+            officialGrades: "Notes officielles",
+            officialGradesNotice: "Les notes saisies par votre enseignant et approuvées par l'école apparaîtront ici une fois la fonction de gestion des notes connectée. Les prédictions ML sont des estimations, pas des notes scolaires officielles.",
+            predictedPass: "RÉUSSITE",
+            predictedFail: "ÉCHEC",
+            predictions: "prédictions",
+            passedShort: "Réussites",
+            failedShort: "Échecs",
+            passRateShort: "Taux de réussite"
+        }
+    };
+
+    let currentStats = null;
+    let currentHistory = [];
+
+    function getLanguage() {
+        return document.getElementById("languageSelect").value;
+    }
+
+    function t(key) {
+        const lang = getLanguage();
+        return (translations[lang] && translations[lang][key])
+            || translations.en[key]
+            || key;
+    }
+
+    function applyTranslations() {
+        document.querySelectorAll("[data-i18n]").forEach(element => {
+            const key = element.getAttribute("data-i18n");
+            if (translations[getLanguage()][key]) {
+                element.textContent = t(key);
+            }
+        });
+
+        updateThemeButton();
+        renderStats();
+        renderHistory();
+    }
+
+    function safeNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : 0;
+    }
+
+    function createElement(tag, className, text) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+    }
+
+    async function fetchStats() {
+        const response = await fetch("/api/stats", {
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            throw new Error("Statistics request failed");
+        }
+
+        const data = await response.json();
+
+        if (data.success === false) {
+            throw new Error("Statistics unavailable");
+        }
+
+        currentStats = data;
+        renderStats();
+    }
+
+    async function fetchHistory() {
+        const response = await fetch("/api/history", {
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            throw new Error("History request failed");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            throw new Error("Unexpected history response");
+        }
+
+        currentHistory = data;
+        renderHistory();
+    }
+
+    function renderStats() {
+        if (!currentStats) return;
+
+        document.getElementById("totalCount").textContent =
+            safeNumber(currentStats.total);
+
+        document.getElementById("passedCount").textContent =
+            safeNumber(currentStats.passed);
+
+        document.getElementById("failedCount").textContent =
+            safeNumber(currentStats.failed);
+
+        document.getElementById("passRate").textContent =
+            safeNumber(currentStats.pass_rate).toFixed(1) + "%";
+
+        const grid = document.getElementById("subjectGrid");
+        grid.replaceChildren();
+
+        const subjects = Array.isArray(currentStats.subjects)
+            ? currentStats.subjects
+            : [];
+
+        if (!subjects.length) {
+            grid.appendChild(
+                createElement("div", "card empty", t("noSubjects"))
+            );
+            return;
+        }
+
+        subjects.forEach(item => {
+            const card = createElement("div", "card");
+            const name = createElement(
+                "div", "subject-name", item.subject || "Unknown"
+            );
+            const rate = safeNumber(item.pass_rate);
+            const progress = createElement("div", "progress");
+            const fill = createElement("div", "progress-fill");
+            fill.style.width = Math.max(0, Math.min(100, rate)) + "%";
+            progress.appendChild(fill);
+
+            const meta = createElement(
+                "div",
+                "subject-meta",
+                `${t("passedShort")}: ${safeNumber(item.passed)} · ` +
+                `${t("failedShort")}: ${safeNumber(item.failed)}`
+            );
+
+            const total = createElement(
+                "div",
+                "subject-meta",
+                `${safeNumber(item.total)} ${t("predictions")} · ` +
+                `${t("passRateShort")}: ${rate.toFixed(1)}%`
+            );
+
+            card.append(name, progress, meta, total);
+            grid.appendChild(card);
+        });
+    }
+
+    function renderHistory() {
+        const body = document.getElementById("historyBody");
+        const message = document.getElementById("historyMessage");
+
+        body.replaceChildren();
+        message.textContent = "";
+
+        if (!currentHistory.length) {
+            const row = document.createElement("tr");
+            const cell = createElement("td", "empty", t("noHistory"));
+            cell.colSpan = 7;
+            row.appendChild(cell);
+            body.appendChild(row);
+            return;
+        }
+
+        currentHistory.forEach(item => {
+            const row = document.createElement("tr");
+
+            const values = [
+                item.timestamp || "—",
+                item.student_name || "—",
+                item.subject || "—",
+                item.study_hours ?? "—",
+                item.attendance == null ? "—" : `${item.attendance}%`
+            ];
+
+            values.forEach(value => {
+                row.appendChild(createElement("td", "", String(value)));
+            });
+
+            const resultCell = document.createElement("td");
+            const result = String(item.prediction || "").toUpperCase();
+            const isPass = result === "PASS";
+
+            resultCell.appendChild(
+                createElement(
+                    "span",
+                    "status " + (isPass ? "status-pass" : "status-fail"),
+                    isPass ? t("predictedPass") : t("predictedFail")
+                )
+            );
+
+            row.appendChild(resultCell);
+
+            const confidence = safeNumber(item.confidence);
+            row.appendChild(
+                createElement(
+                    "td",
+                    "",
+                    Number.isFinite(confidence)
+                        ? confidence.toFixed(1) + "%"
+                        : "—"
+                )
+            );
+
+            body.appendChild(row);
+        });
+    }
+
+    function updateThemeButton() {
+        const dark = document.body.classList.contains("dark");
+        document.getElementById("themeButton").textContent =
+            "☾ " + (dark ? t("lightMode") : t("theme"));
+    }
+
+    document.getElementById("themeButton").addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        updateThemeButton();
+    });
+
+    document.getElementById("languageSelect").addEventListener(
+        "change", applyTranslations
+    );
+
+    async function refreshDashboard() {
+        const message = document.getElementById("historyMessage");
+        message.textContent = "";
+
+        try {
+            await Promise.all([fetchStats(), fetchHistory()]);
+        } catch (error) {
+            console.error(error);
+            message.textContent = t("historyError");
+            message.className = "message error";
+
+            if (!currentStats) {
+                document.getElementById("subjectGrid").replaceChildren(
+                    createElement("div", "card empty", t("statsError"))
+                );
+            }
+        }
+    }
+
+    document.getElementById("refreshButton").addEventListener(
+        "click", refreshDashboard
+    );
+
+    document.getElementById("historyRefresh").addEventListener(
+        "click", refreshDashboard
+    );
+
+    applyTranslations();
+    refreshDashboard();
+</script>
+</body>
+</html>
