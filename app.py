@@ -18,10 +18,14 @@ from db_config import get_db_connection
 from report import generate_pdf_report, generate_excel_report
 
 
+# =========================================================
+# APPLICATION CONFIGURATION
+# =========================================================
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 app.secret_key = os.getenv("SECRET_KEY", "change-this-secret-key")
+
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
@@ -29,9 +33,9 @@ app.config.update(
 )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # GOOGLE SEARCH CONSOLE VERIFICATION
-# ---------------------------------------------------------
+# =========================================================
 GOOGLE_VERIFICATION_FILENAME = os.getenv(
     "GOOGLE_VERIFICATION_FILENAME", ""
 ).strip().lstrip("/")
@@ -60,9 +64,9 @@ if (
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # LOAD MACHINE LEARNING MODEL
-# ---------------------------------------------------------
+# =========================================================
 try:
     model = joblib.load("student_model.pkl")
     print("ML model loaded")
@@ -71,9 +75,9 @@ except Exception as e:
     model = None
 
 
-# ---------------------------------------------------------
+# =========================================================
 # GOOGLE SIGN-IN
-# ---------------------------------------------------------
+# =========================================================
 GOOGLE_ON = bool(
     os.getenv("GOOGLE_CLIENT_ID")
     and os.getenv("GOOGLE_CLIENT_SECRET")
@@ -185,13 +189,13 @@ def google_callback():
         return redirect(url_for("dashboard"))
 
     except Exception:
-        traceback.print_exc()
+        app.logger.exception("Google sign-in failed")
         return redirect("/login?error=google_failed")
 
 
-# ---------------------------------------------------------
-# PAGES
-# ---------------------------------------------------------
+# =========================================================
+# COMMON PAGE ROUTES
+# =========================================================
 @app.route("/")
 def home():
     if "username" in session:
@@ -221,9 +225,9 @@ def logout():
     return redirect(url_for("login_page"))
 
 
-# ---------------------------------------------------------
-# ROLE-BASED DASHBOARD ROUTING
-# ---------------------------------------------------------
+# =========================================================
+# ROLE-BASED DASHBOARD
+# =========================================================
 @app.route("/dashboard")
 def dashboard():
     if "username" not in session:
@@ -252,7 +256,30 @@ def dashboard():
             session.clear()
             return redirect(url_for("login_page"))
 
-        role = str(user.get("role") or "").strip().upper()
+        role = str(user.get("role") or "USER").strip().upper()
+
+        # Verify school membership for school-based roles.
+        cur.execute(
+            """
+            SELECT member_role
+            FROM school_members
+            WHERE user_id = %s
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (user["id"],)
+        )
+
+        membership = cur.fetchone()
+
+        if membership and membership.get("member_role"):
+            member_role = str(
+                membership["member_role"]
+            ).strip().upper()
+
+            # Use the school membership role for school dashboards.
+            if member_role in ("STUDENT", "TEACHER", "HEADMASTER"):
+                role = member_role
 
         session["user_id"] = user["id"]
         session["role"] = role
@@ -263,6 +290,7 @@ def dashboard():
             "HEADMASTER": "headmaster_dashboard.html",
             "PLATFORM_ADMIN": "platform_admin_dashboard.html",
             "SUPER_ADMIN": "platform_admin_dashboard.html",
+            "ADMIN": "platform_admin_dashboard.html"
         }
 
         template = templates.get(role, "index.html")
@@ -273,7 +301,7 @@ def dashboard():
             template
         )
 
-        # Keep the existing dashboard until the new template exists.
+        # Use the existing ML dashboard until a role template exists.
         if not os.path.isfile(template_path):
             template = "index.html"
 
@@ -285,7 +313,7 @@ def dashboard():
         )
 
     except Exception:
-        traceback.print_exc()
+        app.logger.exception("Could not load dashboard")
         return "Could not load your dashboard. Please try again.", 500
 
     finally:
@@ -295,11 +323,11 @@ def dashboard():
             conn.close()
 
 
-# ---------------------------------------------------------
-# ERROR RESPONSE HELPER
-# ---------------------------------------------------------
+# =========================================================
+# ERROR HELPER
+# =========================================================
 def server_error(e):
-    traceback.print_exc()
+    app.logger.exception("Server error: %s", e)
 
     return jsonify({
         "success": False,
@@ -307,9 +335,9 @@ def server_error(e):
     }), 500
 
 
-# ---------------------------------------------------------
+# =========================================================
 # LOGIN API
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/api/login", methods=["POST"])
 def api_login():
     try:
@@ -317,6 +345,12 @@ def api_login():
 
         username = str(data.get("username", "")).strip()
         password = data.get("password", "")
+
+        if not username or not isinstance(password, str) or not password:
+            return jsonify({
+                "success": False,
+                "message": "Enter your username and password."
+            }), 400
 
         ok, msg = login_user(username, password)
 
@@ -339,9 +373,9 @@ def api_login():
         return server_error(e)
 
 
-# ---------------------------------------------------------
-# GENERATE UNIQUE SCHOOL CODE
-# ---------------------------------------------------------
+# =========================================================
+# UNIQUE SCHOOL CODE
+# =========================================================
 def generate_unique_school_code(cur):
     alphabet = string.ascii_uppercase + string.digits
 
@@ -361,11 +395,11 @@ def generate_unique_school_code(cur):
     raise RuntimeError("Could not generate a unique school code.")
 
 
-# ---------------------------------------------------------
+# =========================================================
 # SIGNUP API
-# HEADMASTER creates a school.
-# TEACHER / STUDENT join with an invitation.
-# ---------------------------------------------------------
+# HEADMASTER CREATES A SCHOOL.
+# TEACHER/STUDENT JOIN USING AN INVITATION.
+# =========================================================
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
     conn = None
@@ -378,7 +412,10 @@ def api_signup():
         username = str(data.get("username", "")).strip()
         email = str(data.get("email", "")).strip().lower()
         password = data.get("password", "")
-        requested_role = str(data.get("role", "")).strip().upper()
+        requested_role = str(
+            data.get("role", "")
+        ).strip().upper()
+
         terms = data.get("terms", False)
 
         invitation_code = str(
@@ -448,16 +485,10 @@ def api_signup():
                 "UNIVERSITY", "MIXED"
             }
 
-            if not school_name:
+            if not school_name or len(school_name) > 200:
                 return jsonify({
                     "success": False,
-                    "message": "School name is required."
-                }), 400
-
-            if len(school_name) > 200:
-                return jsonify({
-                    "success": False,
-                    "message": "School name is too long."
+                    "message": "Enter a valid school name."
                 }), 400
 
             if education_level not in valid_levels:
@@ -509,7 +540,6 @@ def api_signup():
         school_id = None
         class_id = None
         invitation_id = None
-        invited_role = requested_role
 
         if requested_role in ("STUDENT", "TEACHER"):
             cur.execute(
@@ -567,9 +597,7 @@ def api_signup():
                 conn.rollback()
                 return jsonify({
                     "success": False,
-                    "message": (
-                        "Your selected role does not match the invitation."
-                    )
+                    "message": "Your role does not match the invitation."
                 }), 403
 
             invited_email = (
@@ -581,7 +609,7 @@ def api_signup():
                 return jsonify({
                     "success": False,
                     "message": (
-                        "This invitation is assigned to another email address."
+                        "This invitation is assigned to another email."
                     )
                 }), 403
 
@@ -598,9 +626,10 @@ def api_signup():
                 conn.rollback()
                 return jsonify({
                     "success": False,
-                    "message": "The school for this invitation was not found."
+                    "message": "The school was not found."
                 }), 400
 
+        invited_role = requested_role
         password_hash = generate_password_hash(password)
 
         cur.execute(
@@ -688,18 +717,14 @@ def api_signup():
 
             if cur.rowcount != 1:
                 raise RuntimeError(
-                    "The invitation was already used or has expired."
+                    "Invitation was already used or has expired."
                 )
 
         conn.commit()
 
         return jsonify({
             "success": True,
-            "message": (
-                "Account and school created successfully. You can now log in."
-                if invited_role == "HEADMASTER"
-                else "Account created successfully. You can now log in."
-            ),
+            "message": "Account created successfully. You can now log in.",
             "redirect": url_for("login_page")
         }), 201
 
@@ -710,7 +735,7 @@ def api_signup():
             except Exception:
                 pass
 
-        traceback.print_exc()
+        app.logger.exception("Signup failed")
 
         return jsonify({
             "success": False,
@@ -734,9 +759,9 @@ def api_signup():
                 pass
 
 
-# ---------------------------------------------------------
+# =========================================================
 # FORGOT PASSWORD: GET SECURITY QUESTION
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/api/get-security-question", methods=["POST"])
 def get_question():
     try:
@@ -766,9 +791,9 @@ def get_question():
         return server_error(e)
 
 
-# ---------------------------------------------------------
-# FORGOT PASSWORD: VERIFY SECURITY ANSWER
-# ---------------------------------------------------------
+# =========================================================
+# FORGOT PASSWORD: VERIFY ANSWER
+# =========================================================
 @app.route("/api/verify-security-answer", methods=["POST"])
 def verify_ans():
     try:
@@ -797,9 +822,9 @@ def verify_ans():
         return server_error(e)
 
 
-# ---------------------------------------------------------
+# =========================================================
 # FORGOT PASSWORD: RESET PASSWORD
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/api/reset-password", methods=["POST"])
 def reset_pwd():
     try:
@@ -840,7 +865,7 @@ def reset_pwd():
                 "message": "The passwords do not match."
             }), 400
 
-        # Verify the answer again on the server.
+        # Always verify the answer again before resetting.
         if not verify_security_answer(username, answer):
             return jsonify({
                 "success": False,
@@ -858,9 +883,9 @@ def reset_pwd():
         return server_error(e)
 
 
-# ---------------------------------------------------------
+# =========================================================
 # SYSTEM STATUS
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/api/system-status")
 def system_status():
     conn = None
@@ -871,22 +896,24 @@ def system_status():
         cur = conn.cursor()
 
         cur.execute("SELECT COUNT(*) FROM users")
-        users = cur.fetchone()[0]
+        users_count = cur.fetchone()[0]
 
         cur.execute("SELECT COUNT(*) FROM predictions")
-        predictions = cur.fetchone()[0]
+        predictions_count = cur.fetchone()[0]
 
         return jsonify({
             "success": True,
             "authentication": "Online",
-            "ml_predictor": "Ready" if model is not None else "Model missing",
+            "ml_predictor": (
+                "Ready" if model is not None else "Model missing"
+            ),
             "database_name": "TiDB Cloud",
-            "users": int(users),
-            "predictions": int(predictions)
+            "users": int(users_count),
+            "predictions": int(predictions_count)
         })
 
     except Exception:
-        traceback.print_exc()
+        app.logger.exception("System status failed")
         return jsonify({"success": False}), 500
 
     finally:
@@ -896,9 +923,9 @@ def system_status():
             conn.close()
 
 
-# ---------------------------------------------------------
+# =========================================================
 # MACHINE LEARNING PREDICTION
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/api/predict", methods=["POST"])
 def predict():
     if "username" not in session:
@@ -926,17 +953,23 @@ def predict():
                 "error": "Student name and subject are required."
             }), 400
 
-        hours = float(request.form["study_hours"])
-        attendance = float(request.form["attendance"])
-        assignment = float(request.form["assignment_score"])
-        cat = float(request.form["cat_score"])
-        practical = float(request.form["practical_score"])
+        try:
+            hours = float(request.form["study_hours"])
+            attendance = float(request.form["attendance"])
+            assignment = float(request.form["assignment_score"])
+            cat = float(request.form["cat_score"])
+            practical = float(request.form["practical_score"])
+        except (KeyError, TypeError, ValueError):
+            return jsonify({
+                "success": False,
+                "error": "Fill in every field using valid numbers."
+            }), 400
+
+        values = (attendance, assignment, cat, practical)
 
         if not (
             0 <= hours <= 20
-            and all(0 <= value <= 100 for value in (
-                attendance, assignment, cat, practical
-            ))
+            and all(0 <= value <= 100 for value in values)
         ):
             return jsonify({
                 "success": False,
@@ -957,9 +990,11 @@ def predict():
         conn = get_db_connection()
         cur = conn.cursor()
 
+        # Find a matching student record.
         cur.execute(
             """
-            SELECT id FROM students
+            SELECT id
+            FROM students
             WHERE student_name=%s
             LIMIT 1
             """,
@@ -971,6 +1006,8 @@ def predict():
         if row:
             student_id = row[0]
         else:
+            # Legacy predictor support.
+            # This does not link the new record to a school or account.
             cur.execute(
                 "INSERT INTO students (student_name) VALUES (%s)",
                 (student_name,)
@@ -1011,13 +1048,12 @@ def predict():
             "confidence": round(probability, 2)
         })
 
-    except (KeyError, ValueError):
-        return jsonify({
-            "success": False,
-            "error": "Fill in every field using valid numbers."
-        }), 400
-
     except Exception as e:
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         return server_error(e)
 
     finally:
@@ -1027,9 +1063,9 @@ def predict():
             conn.close()
 
 
-# ---------------------------------------------------------
+# =========================================================
 # PREDICTION HISTORY
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/api/history")
 def history():
     if "username" not in session:
@@ -1047,13 +1083,17 @@ def history():
             SELECT
                 p.created_at AS timestamp,
                 COALESCE(s.student_name, 'Unknown') AS student_name,
-                p.subject, p.study_hours, p.attendance,
-                p.assignment, p.cat, p.practical,
+                p.subject,
+                p.study_hours,
+                p.attendance,
+                p.assignment,
+                p.cat,
+                p.practical,
                 p.prediction,
                 ROUND(p.probability * 100, 2) AS confidence
             FROM predictions p
-            LEFT JOIN students s ON p.student_id=s.id
-            WHERE p.username=%s
+            LEFT JOIN students s ON p.student_id = s.id
+            WHERE p.username = %s
             ORDER BY p.id DESC
             """,
             (session["username"],)
@@ -1086,9 +1126,9 @@ def history():
             conn.close()
 
 
-# ---------------------------------------------------------
-# STATISTICS AND DATA VISUALIZATION
-# ---------------------------------------------------------
+# =========================================================
+# STATISTICS
+# =========================================================
 @app.route("/api/stats")
 def stats():
     empty = {
@@ -1136,7 +1176,7 @@ def stats():
         failed = int(summary.get("failed") or 0)
 
         pass_rate = round(
-            (passed / total) * 100, 2
+            passed / total * 100, 2
         ) if total else 0
 
         cur.execute(
@@ -1201,11 +1241,6 @@ def stats():
                 "failed": int(row["failed"] or 0)
             })
 
-        result_chart = [
-            {"name": "Passed", "value": passed},
-            {"name": "Failed", "value": failed}
-        ]
-
         return jsonify({
             "success": True,
             "total": total,
@@ -1214,7 +1249,10 @@ def stats():
             "pass_rate": pass_rate,
             "subjects": subjects,
             "trend": trend,
-            "result_chart": result_chart
+            "result_chart": [
+                {"name": "Passed", "value": passed},
+                {"name": "Failed", "value": failed}
+            ]
         })
 
     except Exception as e:
@@ -1227,9 +1265,132 @@ def stats():
             conn.close()
 
 
-# ---------------------------------------------------------
+# =========================================================
+# STUDENT OFFICIAL GRADES API
+# =========================================================
+@app.route("/api/student/grades", methods=["GET"])
+def get_student_grades():
+    if "username" not in session:
+        return jsonify({
+            "success": False,
+            "message": "Login required."
+        }), 401
+
+    conn = None
+    cur = None
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+
+        cur.execute(
+            """
+            SELECT id, username, role
+            FROM users
+            WHERE username = %s
+            LIMIT 1
+            """,
+            (session["username"],)
+        )
+
+        user = cur.fetchone()
+
+        if not user:
+            session.clear()
+            return jsonify({
+                "success": False,
+                "message": "User account not found."
+            }), 401
+
+        # Do not expose grades to non-student accounts.
+        cur.execute(
+            """
+            SELECT id, school_id, class_id
+            FROM students
+            WHERE user_id = %s
+            LIMIT 1
+            """,
+            (user["id"],)
+        )
+
+        student = cur.fetchone()
+
+        if not student:
+            return jsonify({
+                "success": True,
+                "grades": [],
+                "message": "No student profile is linked to this account."
+            })
+
+        cur.execute(
+            """
+            SELECT
+                sg.id AS grade_id,
+                sg.score,
+                sg.max_score,
+                sg.term,
+                sg.academic_year,
+                sg.status,
+                sg.created_at,
+                sub.subject_name,
+                c.class_name
+            FROM student_grades AS sg
+            LEFT JOIN teacher_assignments AS ta
+                ON ta.id = sg.assignment_id
+            LEFT JOIN subjects AS sub
+                ON sub.id = ta.subject_id
+            LEFT JOIN classes AS c
+                ON c.id = ta.class_id
+            WHERE sg.student_id = %s
+            ORDER BY sg.created_at DESC, sg.id DESC
+            """,
+            (student["id"],)
+        )
+
+        grades = []
+
+        for row in cur.fetchall():
+            score = float(row["score"])
+            max_score = float(row["max_score"])
+            status = str(row["status"] or "PENDING").upper()
+
+            grades.append({
+                "grade_id": row["grade_id"],
+                "subject": row["subject_name"] or "Unknown subject",
+                "class_name": row["class_name"] or "—",
+                "score": score,
+                "max_score": max_score,
+                "percentage": round(
+                    score / max_score * 100, 2
+                ) if max_score > 0 else 0,
+                "term": row["term"] or "—",
+                "academic_year": row["academic_year"] or "—",
+                "status": status,
+                "official": status == "APPROVED",
+                "created_at": (
+                    row["created_at"].strftime("%Y-%m-%d %H:%M")
+                    if row["created_at"] else None
+                )
+            })
+
+        return jsonify({
+            "success": True,
+            "grades": grades
+        })
+
+    except Exception as e:
+        return server_error(e)
+
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+
+# =========================================================
 # PDF REPORT
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/report/pdf")
 def report_pdf():
     if "username" not in session:
@@ -1249,13 +1410,13 @@ def report_pdf():
         )
 
     except Exception:
-        traceback.print_exc()
+        app.logger.exception("PDF report generation failed")
         return "Could not generate PDF report.", 500
 
 
-# ---------------------------------------------------------
+# =========================================================
 # EXCEL REPORT
-# ---------------------------------------------------------
+# =========================================================
 @app.route("/report/excel")
 def report_excel():
     if "username" not in session:
@@ -1278,12 +1439,12 @@ def report_excel():
         )
 
     except Exception:
-        traceback.print_exc()
+        app.logger.exception("Excel report generation failed")
         return "Could not generate Excel report.", 500
 
 
-# ---------------------------------------------------------
+# =========================================================
 # START APPLICATION
-# ---------------------------------------------------------
+# =========================================================
 if __name__ == "__main__":
     app.run(debug=False)
