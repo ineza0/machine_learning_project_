@@ -2080,10 +2080,23 @@ def headmaster_manage_invitations():
             "expires_at": expires_at,
             "used_by": None,
         }
-        # Include creator column only if this database schema has one.
+        # Match the creator value to the column's actual foreign-key target.
+        # In this TiDB schema, school_invitations.created_by references
+        # school_members.id, not users.id.
+        membership = identity.get("membership") or {}
         for possible in ("created_by", "created_by_user_id", "issued_by"):
             if possible in columns:
-                values[possible] = identity["user"]["id"]
+                if possible == "created_by":
+                    creator_id = membership.get("id")
+                else:
+                    creator_id = (identity.get("user") or {}).get("id")
+                if creator_id is None:
+                    conn.rollback()
+                    return jsonify({
+                        "success": False,
+                        "message": "Your Headmaster school membership could not be verified. Please ask the platform administrator to check your school_members record."
+                    }), 400
+                values[possible] = creator_id
                 break
 
         insert_cols = [name for name in values if name in columns]
