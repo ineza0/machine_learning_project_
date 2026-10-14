@@ -1812,6 +1812,205 @@ def teacher_assignments_api():
 # =========================================================
 # START APPLICATION
 # =========================================================
+
+
+
+
+# =========================================================
+# HEADMASTER INVITATIONS + SCHOOL/CLASS SELECTORS
+# Add this block after _load_session_user() and before app.run().
+# =========================================================
+from datetime import datetime, timedelta
+import secrets
+
+
+def _headmaster_identity(cur):
+    identity = _load_session_user(cur)
+    if not identity or identity.get("role") != "HEADMASTER":
+        return None, None
+    school_id = (identity.get("membership") or {}).get("school_id")
+    return identity, school_id
+
+
+@app.route("/api/headmaster/schools", methods=["GET"])
+def headmaster_invitation_schools():
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity, school_id = _headmaster_identity(cur)
+        if not identity:
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        if not school_id:
+            return jsonify({"success": False, "message": "No school linked to this account."}), 400
+        cur.execute(
+            "SELECT id, school_name, education_level FROM schools WHERE id=%s",
+            (school_id,)
+        )
+        school = cur.fetchone()
+        return jsonify({"success": True, "schools": [school] if school else []})
+    except Exception as exc:
+        return server_error(exc)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/headmaster/classes", methods=["GET"])
+def headmaster_invitation_classes():
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity, own_school_id = _headmaster_identity(cur)
+        if not identity:
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        requested_school_id = request.args.get("school_id", type=int)
+        if not own_school_id or requested_school_id != int(own_school_id):
+            return jsonify({"success": False, "message": "You can only select classes from your own school."}), 403
+
+        columns = _table_columns(cur, "classes")
+        if not {"id", "school_id", "class_name"}.issubset(columns):
+            return jsonify({
+                "success": False,
+                "message": "The classes table must contain id, school_id and class_name."
+            }), 500
+        cur.execute(
+            "SELECT id, class_name FROM classes WHERE school_id=%s ORDER BY class_name",
+            (own_school_id,)
+        )
+        return jsonify({"success": True, "classes": cur.fetchall()})
+    except Exception as exc:
+        return server_error(exc)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/headmaster/invitations", methods=["GET", "POST"])
+def headmaster_manage_invitations():
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity, own_school_id = _headmaster_identity(cur)
+        if not identity:
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        if not own_school_id:
+            return jsonify({"success": False, "message": "No school linked to this account."}), 400
+
+        columns = _table_columns(cur, "school_invitations")
+        required = {"id", "school_id", "invited_role", "invitation_code",
+                    "expires_at", "used_by", "class_id", "email"}
+        if not required.issubset(columns):
+            return jsonify({
+                "success": False,
+                "message": "school_invitations table is missing required columns."
+            }), 500
+
+        if request.method == "GET":
+            cur.execute(
+                """
+                SELECT id, invited_role, invitation_code, email, class_id,
+                       expires_at, used_by,
+                       (expires_at <= CURRENT_TIMESTAMP) AS expired
+                FROM school_invitations
+                WHERE school_id=%s
+                ORDER BY id DESC LIMIT 100
+                """,
+                (own_school_id,)
+            )
+            rows = cur.fetchall()
+            for row in rows:
+                if row.get("expires_at"):
+                    row["expires_at"] = row["expires_at"].strftime("%Y-%m-%d %H:%M:%S")
+                row["expired"] = bool(row.get("expired"))
+            return jsonify({"success": True, "invitations": rows})
+
+        data = request.get_json(silent=True) or {}
+        invited_role = str(data.get("invited_role") or "").strip().upper()
+        if invited_role not in {"TEACHER", "STUDENT"}:
+            return jsonify({"success": False, "message": "Only Teacher or Student invitations are allowed."}), 400
+
+        # The Headmaster types the school name, but the server still verifies
+        # it against the school linked to their account (never trust typed IDs).
+        school_name = str(data.get("school_name") or "").strip()
+        cur.execute("SELECT school_name FROM schools WHERE id=%s LIMIT 1", (own_school_id,))
+        own_school = cur.fetchone()
+        if not own_school:
+            return jsonify({"success": False, "message": "Your account is not linked to a valid school."}), 400
+        actual_school_name = str(own_school.get("school_name") or "").strip()
+        if not school_name or school_name.casefold() != actual_school_name.casefold():
+            return jsonify({"success": False, "message": "The school name must match the school linked to your Headmaster account."}), 400
+
+        class_name = str(data.get("class_name") or "").strip()
+        class_id = None
+        if invited_role == "STUDENT":
+            if not class_name:
+                return jsonify({"success": False, "message": "Type the student's class name."}), 400
+            cur.execute(
+                "SELECT id FROM classes WHERE school_id=%s AND LOWER(TRIM(class_name))=LOWER(TRIM(%s)) LIMIT 1",
+                (own_school_id, class_name)
+            )
+            class_row = cur.fetchone()
+            if not class_row:
+                return jsonify({"success": False, "message": "That class was not found in your school. Check the spelling or create the class first."}), 400
+            class_id = class_row["id"]
+
+        try:
+            days = int(data.get("expires_in_days", 7))
+        except (TypeError, ValueError):
+            days = 7
+        if days not in {1, 3, 7, 14}:
+            return jsonify({"success": False, "message": "Expiry must be 1, 3, 7 or 14 days."}), 400
+
+        email = str(data.get("email") or "").strip().lower() or None
+        invitation_code = secrets.token_urlsafe(9).replace("-", "").replace("_", "").upper()
+        expires_at = datetime.utcnow() + timedelta(days=days)
+
+        values = {
+            "school_id": own_school_id,
+            "invited_role": invited_role,
+            "invitation_code": invitation_code,
+            "email": email,
+            "class_id": class_id,
+            "expires_at": expires_at,
+            "used_by": None,
+        }
+        # Include creator column only if this database schema has one.
+        for possible in ("created_by", "created_by_user_id", "issued_by"):
+            if possible in columns:
+                values[possible] = identity.get("id")
+                break
+
+        insert_cols = [name for name in values if name in columns]
+        placeholders = ", ".join(["%s"] * len(insert_cols))
+        col_sql = ", ".join(f"`{name}`" for name in insert_cols)
+        cur.execute(
+            f"INSERT INTO school_invitations ({col_sql}) VALUES ({placeholders})",
+            tuple(values[name] for name in insert_cols)
+        )
+        conn.commit()
+        return jsonify({
+            "success": True,
+            "invitation_code": invitation_code,
+            "expires_at": expires_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "invited_role": invited_role
+        }), 201
+    except Exception as exc:
+        if conn:
+            conn.rollback()
+        return server_error(exc)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
 if __name__ == "__main__":
     app.run(debug=False)
-    
