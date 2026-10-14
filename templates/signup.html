@@ -1,1902 +1,299 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <meta name="description"
-          content="Create your ML Predictor student account.">
-
-    <title>Signup · ML Predictor</title>
-
-    <style>
-
-        /* =========================================
-           RESET
-        ========================================= */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-
-        body {
-
-            min-height: 100vh;
-
-            background:
-                radial-gradient(
-                    circle at 10% 10%,
-                    rgba(249,115,22,0.08),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 90% 80%,
-                    rgba(59,130,246,0.06),
-                    transparent 30%
-                ),
-                #080a0e;
-
-            color: #e8eaf0;
-
-            font-family:
-                'Segoe UI',
-                system-ui,
-                -apple-system,
-                sans-serif;
-        }
-
-
-        /* =========================================
-           NAVBAR
-        ========================================= */
-
-        .navbar {
-
-            height: 68px;
-
-            position: fixed;
-
-            top: 0;
-            left: 0;
-
-            width: 100%;
-
-            z-index: 1000;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            padding:
-                0 6%;
-
-            background:
-                rgba(8,10,14,0.90);
-
-            border-bottom:
-                1px solid #242832;
-
-            backdrop-filter:
-                blur(16px);
-        }
-
-
-        .logo {
-
-            color: #f97316;
-
-            font-size: 18px;
-
-            font-weight: 900;
-
-            letter-spacing: 1px;
-        }
-
-
-        .logo span {
-
-            color: white;
-        }
-
-
-        .nav-link {
-
-            color: #aeb3c0;
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            transition: 0.2s;
-        }
-
-
-        .nav-link:hover {
-
-            color: #f97316;
-        }
-
-
-        /* =========================================
-           MAIN
-        ========================================= */
-
-        .page {
-
-            width: 100%;
-
-            max-width: 1400px;
-
-            margin: auto;
-
-            padding:
-                105px 5% 60px;
-
-            display: grid;
-
-            grid-template-columns:
-                1.05fr
-                0.95fr;
-
-            gap: 50px;
-
-            align-items: center;
-        }
-
-
-        /* =========================================
-           LEFT SIDE
-        ========================================= */
-
-        .visual {
-
-            min-height: 650px;
-
-            position: relative;
-
-            border-radius: 32px;
-
-            overflow: hidden;
-
-            border:
-                1px solid #292d37;
-
-            background-image:
-
-                linear-gradient(
-                    to bottom,
-                    rgba(8,10,14,0.08),
-                    rgba(8,10,14,0.92)
-                ),
-
-                url(
-                    "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1500&q=90"
-                );
-
-            background-size: cover;
-
-            background-position: center;
-        }
-
-
-        .visual::after {
-
-            content: "";
-
-            position: absolute;
-
-            inset: 0;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(249,115,22,0.10),
-                    transparent 45%
-                );
-
-            pointer-events: none;
-        }
-
-
-        .visual-content {
-
-            position: absolute;
-
-            left: 30px;
-
-            right: 30px;
-
-            bottom: 30px;
-
-            z-index: 2;
-        }
-
-
-        .visual-badge {
-
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            padding:
-                8px 13px;
-
-            margin-bottom: 18px;
-
-            border-radius: 30px;
-
-            background:
-                rgba(249,115,22,0.12);
-
-            border:
-                1px solid
-                rgba(249,115,22,0.30);
-
-            color: #fb923c;
-
-            font-size: 10px;
-
-            font-weight: 800;
-
-            letter-spacing: 1px;
-        }
-
-
-        .visual-content h1 {
-
-            font-size:
-                clamp(35px, 4vw, 57px);
-
-            line-height: 1.05;
-
-            margin-bottom: 17px;
-        }
-
-
-        .visual-content h1 span {
-
-            color: #f97316;
-        }
-
-
-        .visual-content p {
-
-            max-width: 570px;
-
-            color: #aeb3c0;
-
-            line-height: 1.8;
-
-            font-size: 14px;
-        }
-
-
-        /* =========================================
-           FEATURE BOXES
-        ========================================= */
-
-        .features {
-
-            margin-top: 24px;
-
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 10px;
-        }
-
-
-        .feature {
-
-            padding: 14px;
-
-            border-radius: 15px;
-
-            background:
-                rgba(8,10,14,0.72);
-
-            border:
-                1px solid
-                rgba(255,255,255,0.08);
-
-            backdrop-filter:
-                blur(10px);
-        }
-
-
-        .feature-icon {
-
-            font-size: 20px;
-
-            margin-bottom: 7px;
-        }
-
-
-        .feature strong {
-
-            display: block;
-
-            color: white;
-
-            font-size: 11px;
-
-            margin-bottom: 4px;
-        }
-
-
-        .feature span {
-
-            color: #7d8492;
-
-            font-size: 9px;
-
-            line-height: 1.4;
-        }
-
-
-        /* =========================================
-           RIGHT SIDE
-        ========================================= */
-
-        .signup-area {
-
-            width: 100%;
-
-            max-width: 500px;
-
-            margin: auto;
-        }
-
-
-        .signup-card {
-
-            background:
-                rgba(19,21,26,0.96);
-
-            border:
-                1px solid #2a2d38;
-
-            border-radius: 28px;
-
-            padding: 35px;
-
-            box-shadow:
-                0 30px 90px
-                rgba(0,0,0,0.40);
-        }
-
-
-        .signup-icon {
-
-            width: 56px;
-            height: 56px;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 16px;
-
-            background:
-                rgba(249,115,22,0.10);
-
-            border:
-                1px solid
-                rgba(249,115,22,0.22);
-
-            font-size: 25px;
-
-            margin-bottom: 18px;
-        }
-
-
-        .signup-card h2 {
-
-            font-size: 29px;
-
-            margin-bottom: 7px;
-        }
-
-
-        .subtitle {
-
-            color: #777e8e;
-
-            font-size: 12px;
-
-            line-height: 1.7;
-
-            margin-bottom: 25px;
-        }
-
-
-        /* =========================================
-           FORM
-        ========================================= */
-
-        .field {
-
-            margin-bottom: 16px;
-        }
-
-
-        .field label {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            color: #aeb3c0;
-
-            font-size: 11px;
-
-            font-weight: 700;
-
-            margin-bottom: 7px;
-        }
-
-
-        .input-wrapper {
-
-            position: relative;
-        }
-
-
-        input,
-        select {
-
-            width: 100%;
-
-            height: 48px;
-
-            padding:
-                0 14px;
-
-            background:
-                #1a1c23;
-
-            border:
-                1px solid #2a2d38;
-
-            border-radius: 12px;
-
-            color: white;
-
-            outline: none;
-
-            font-size: 13px;
-
-            transition: 0.2s;
-        }
-
-
-        input:focus,
-        select:focus {
-
-            border-color:
-                #f97316;
-
-            box-shadow:
-                0 0 0 3px
-                rgba(249,115,22,0.08);
-        }
-
-
-        input::placeholder {
-
-            color: #5f6673;
-        }
-
-
-        select {
-
-            cursor: pointer;
-        }
-
-
-        select option {
-
-            background: #17191f;
-
-            color: white;
-        }
-
-
-        /* =========================================
-           SHOW PASSWORD
-        ========================================= */
-
-        .password-toggle {
-
-            position: absolute;
-
-            right: 12px;
-
-            top: 50%;
-
-            transform:
-                translateY(-50%);
-
-            background: transparent;
-
-            border: none;
-
-            color: #737b8b;
-
-            width: auto;
-
-            padding: 5px;
-
-            margin: 0;
-
-            font-size: 13px;
-
-            cursor: pointer;
-        }
-
-
-        .password-toggle:hover {
-
-            background: transparent;
-
-            color: #f97316;
-
-            transform:
-                translateY(-50%);
-        }
-
-
-        /* =========================================
-           PASSWORD STRENGTH
-        ========================================= */
-
-        .strength {
-
-            margin-top: 8px;
-        }
-
-
-        .strength-bars {
-
-            display: grid;
-
-            grid-template-columns:
-                repeat(4,1fr);
-
-            gap: 4px;
-        }
-
-
-        .strength-bars span {
-
-            height: 3px;
-
-            border-radius: 5px;
-
-            background: #292d37;
-        }
-
-
-        .strength-text {
-
-            display: block;
-
-            margin-top: 5px;
-
-            color: #666d7b;
-
-            font-size: 9px;
-        }
-
-
-        /* =========================================
-           REGISTER BUTTON
-        ========================================= */
-
-        .register-btn {
-
-            width: 100%;
-
-            height: 49px;
-
-            margin-top: 8px;
-
-            border: none;
-
-            border-radius: 30px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #f97316,
-                    #fb923c
-                );
-
-            color: #111;
-
-            font-size: 13px;
-
-            font-weight: 900;
-
-            cursor: pointer;
-
-            transition: 0.25s;
-        }
-
-
-        .register-btn:hover {
-
-            transform:
-                translateY(-2px);
-
-            box-shadow:
-                0 12px 30px
-                rgba(249,115,22,0.20);
-        }
-
-
-        .register-btn:disabled {
-
-            opacity: 0.6;
-
-            cursor: not-allowed;
-
-            transform: none;
-        }
-
-
-        /* =========================================
-           MESSAGE
-        ========================================= */
-
-        .message {
-
-            display: none;
-
-            margin-top: 14px;
-
-            padding: 11px;
-
-            border-radius: 11px;
-
-            font-size: 11px;
-
-            line-height: 1.5;
-        }
-
-
-        .message.error {
-
-            color: #ef4444;
-
-            background:
-                rgba(239,68,68,0.08);
-
-            border:
-                1px solid
-                rgba(239,68,68,0.12);
-        }
-
-
-        .message.success {
-
-            color: #22c55e;
-
-            background:
-                rgba(34,197,94,0.08);
-
-            border:
-                1px solid
-                rgba(34,197,94,0.12);
-        }
-
-
-        /* =========================================
-           ACCOUNT LINK
-        ========================================= */
-
-        .login-link {
-
-            margin-top: 20px;
-
-            text-align: center;
-
-            color: #666d7b;
-
-            font-size: 11px;
-        }
-
-
-        .login-link a {
-
-            color: #f97316;
-
-            text-decoration: none;
-
-            font-weight: 700;
-        }
-
-
-        .login-link a:hover {
-
-            color: #fb923c;
-        }
-
-
-        /* =========================================
-           DATABASE INFO
-        ========================================= */
-
-        .database-card {
-
-            margin-top: 16px;
-
-            padding: 18px;
-
-            border-radius: 19px;
-
-            background:
-                #101217;
-
-            border:
-                1px solid #292d37;
-        }
-
-
-        .database-title {
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            margin-bottom: 14px;
-        }
-
-
-        .database-title strong {
-
-            color: white;
-
-            font-size: 12px;
-        }
-
-
-        .database-title span {
-
-            color: #22c55e;
-
-            font-size: 9px;
-
-            font-weight: 800;
-        }
-
-
-        .db-row {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            padding: 9px 0;
-
-            border-bottom:
-                1px solid #20232c;
-        }
-
-
-        .db-row:last-child {
-
-            border-bottom: none;
-        }
-
-
-        .db-row span {
-
-            color: #707786;
-
-            font-size: 10px;
-        }
-
-
-        .db-row strong {
-
-            color: #d8dbe2;
-
-            font-size: 10px;
-        }
-
-
-        .connected {
-
-            color: #22c55e !important;
-        }
-
-
-        /* =========================================
-           FOOTER
-        ========================================= */
-
-        footer {
-
-            padding:
-                25px 20px 35px;
-
-            text-align: center;
-
-            color: #5f6673;
-
-            font-size: 10px;
-
-            border-top:
-                1px solid #222630;
-        }
-
-
-        footer strong {
-
-            color: #cfd3dc;
-        }
-
-
-        /* =========================================
-           RESPONSIVE
-        ========================================= */
-
-        @media (max-width: 1000px) {
-
-            .page {
-
-                grid-template-columns: 1fr;
-
-                max-width: 700px;
-            }
-
-
-            .visual {
-
-                min-height: 500px;
-            }
-
-
-            .signup-area {
-
-                max-width: 600px;
-            }
-        }
-
-
-        @media (max-width: 600px) {
-
-            .navbar {
-
-                padding:
-                    0 20px;
-            }
-
-
-            .nav-link {
-
-                display: none;
-            }
-
-
-            .page {
-
-                padding:
-                    95px 18px 40px;
-            }
-
-
-            .visual {
-
-                min-height: 470px;
-
-                border-radius: 24px;
-            }
-
-
-            .visual-content {
-
-                left: 20px;
-
-                right: 20px;
-
-                bottom: 20px;
-            }
-
-
-            .features {
-
-                grid-template-columns: 1fr;
-            }
-
-
-            .signup-card {
-
-                padding: 27px 20px;
-
-                border-radius: 23px;
-            }
-
-
-            .signup-card h2 {
-
-                font-size: 25px;
-            }
-        }
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign Up | StudentPredict</title>
+<style>
+:root {
+  --blue:#075cf5; --bg:#f1f6ff; --card:#fff; --ink:#102344;
+  --muted:#64748b; --line:#d5e2ff; --field:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:Arial,Helvetica,sans-serif}
+a{color:var(--blue);text-decoration:none}
+header{background:linear-gradient(110deg,#0876ff,#0746b8);
+color:white;padding:18px 5%;display:flex;justify-content:space-between;
+align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-size:24px;font-weight:800;color:white}
+.tools{display:flex;gap:10px;align-items:center}
+select,.theme{padding:9px;border:0;border-radius:8px;cursor:pointer}
+main{padding:35px 16px;display:flex;justify-content:center}
+.card{background:var(--card);border:1px solid var(--line);
+border-radius:18px;padding:30px;width:100%;max-width:650px;
+box-shadow:0 15px 45px #0a347d12}
+.logo{text-align:center;font-size:43px}
+h1{text-align:center;margin:8px 0;font-size:30px}
+.sub{text-align:center;color:var(--muted);margin-bottom:25px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{margin-bottom:17px}
+label{display:block;font-weight:700;font-size:14px;margin-bottom:8px}
+input,select.role{width:100%;padding:13px;border:1px solid var(--line);
+border-radius:9px;background:var(--field);color:var(--ink);font-size:15px}
+input:focus,select:focus{outline:2px solid #8ab8ff}
+button,.btn{display:block;width:100%;padding:14px;border:0;
+border-radius:9px;background:var(--blue);color:white;font-weight:700;
+font-size:16px;cursor:pointer}
+button:disabled{opacity:.6}
+.note{padding:12px;background:#edf5ff;border-radius:9px;
+color:#29466e;font-size:13px;line-height:1.5;margin-bottom:18px}
+.msg{display:none;padding:12px;border-radius:8px;margin-bottom:15px;
+font-size:14px;line-height:1.5}
+.error{background:#fff0f1;color:#a21d32}
+.success{background:#eafaf0;color:#08753a}
+.check{display:flex;align-items:flex-start;gap:9px;font-size:13px;
+line-height:1.5;margin:15px 0}
+.check input{width:auto;margin-top:3px}
+.bottom{text-align:center;color:var(--muted);font-size:14px;margin-top:22px}
+footer{text-align:center;background:#08275a;color:#e0eaff;
+padding:18px;font-size:13px;line-height:1.9}
+footer a{color:white}
+.dark{--bg:#0b1220;--card:#121e32;--ink:#eef4ff;
+--muted:#b2c1de;--line:#293d5e;--field:#101a2c}
+.dark .note{background:#172b46;color:#dce9ff}
+@media(max-width:560px){.grid{grid-template-columns:1fr}
+.card{padding:22px}.brand{font-size:20px}}
+</style>
 </head>
-
-
 <body>
+<header>
+  <a class="brand" href="/login">🎓 StudentPredict</a>
+  <div class="tools">
+    <select id="language" aria-label="Language">
+      <option value="en">English</option>
+      <option value="rw">Kinyarwanda</option>
+      <option value="fr">Français</option>
+    </select>
+    <button class="theme" id="theme" type="button"
+    style="width:auto;padding:9px">☀️ / 🌙</button>
+  </div>
+</header>
 
+<main>
+<section class="card">
+  <div class="logo">🎓</div>
+  <h1 data-en="Create your account" data-rw="Fungura konti yawe"
+  data-fr="Créer votre compte">Create your account</h1>
+  <p class="sub" data-en="Join StudentPredict to manage academic progress"
+  data-rw="Injira muri StudentPredict ukurikirane umusaruro w'amasomo"
+  data-fr="Rejoignez StudentPredict pour suivre les résultats scolaires">
+  Join StudentPredict to manage academic progress</p>
 
-<!-- =========================================
-     NAVBAR
-========================================= -->
+  <div class="msg error" id="error" role="alert"></div>
+  <div class="msg success" id="success" role="status"></div>
 
-<nav class="navbar">
+  <div class="note" data-en="Students and teachers can register here. Headmaster accounts must be created or approved by an authorized administrator."
+  data-rw="Abanyeshuri n'abarimu bashobora kwiyandikisha hano. Konti ya Headmaster igomba gutangwa cyangwa kwemezwa n'ubuyobozi bwemerewe."
+  data-fr="Les élèves et les enseignants peuvent s'inscrire ici. Les comptes des directeurs doivent être autorisés par un administrateur.">
+  Students and teachers can register here. Headmaster accounts must be created or approved by an authorized administrator.
+  </div>
 
-    <div class="logo">
-        ML <span>PREDICTOR</span>
+  <form id="signupForm" method="post" action="/signup">
+    <div class="grid">
+      <div class="field">
+        <label for="full_name" data-en="Full name" data-rw="Amazina yose"
+        data-fr="Nom complet">Full name</label>
+        <input id="full_name" name="full_name" autocomplete="name"
+        placeholder="Enter your full name" required>
+      </div>
+      <div class="field">
+        <label for="username" data-en="Username" data-rw="Izina ukoresha"
+        data-fr="Nom d'utilisateur">Username</label>
+        <input id="username" name="username" autocomplete="username"
+        minlength="3" maxlength="50" placeholder="Choose a username" required>
+      </div>
     </div>
 
-    <a
-        href="/login"
-        class="nav-link"
-    >
-        ← Back to Login
-    </a>
-
-</nav>
-
-
-<!-- =========================================
-     MAIN PAGE
-========================================= -->
-
-<main class="page">
-
-
-    <!-- =====================================
-         STUDENT IMAGE / INFORMATION
-    ====================================== -->
-
-    <section class="visual">
-
-        <div class="visual-content">
-
-            <div class="visual-badge">
-                🎓 STUDENT LEARNING PLATFORM
-            </div>
-
-
-            <h1>
-
-                Build Your
-                <span>Academic Future.</span>
-
-            </h1>
-
-
-            <p>
-
-                Create your ML Predictor account and use
-                Machine Learning to understand your academic
-                performance, monitor your progress and learn
-                where you can improve.
-
-            </p>
-
-
-            <div class="features">
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        🤖
-                    </div>
-
-                    <strong>
-                        Machine Learning
-                    </strong>
-
-                    <span>
-                        Analyze academic information
-                        using ML.
-                    </span>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        📊
-                    </div>
-
-                    <strong>
-                        Track Progress
-                    </strong>
-
-                    <span>
-                        Keep your prediction history
-                        in one place.
-                    </span>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        🔐
-                    </div>
-
-                    <strong>
-                        Protected Account
-                    </strong>
-
-                    <span>
-                        Your account data is handled
-                        through the backend.
-                    </span>
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================
-         SIGNUP AREA
-    ====================================== -->
-
-    <section class="signup-area">
-
-
-        <div class="signup-card">
-
-
-            <div class="signup-icon">
-                📝
-            </div>
-
-
-            <h2>
-                Create Account
-            </h2>
-
-
-            <p class="subtitle">
-
-                Join ML Predictor to save your academic
-                information, predictions and learning history
-                in your personal account.
-
-            </p>
-
-
-            <!-- USERNAME -->
-
-            <div class="field">
-
-                <label for="su_username">
-
-                    Username
-
-                    <span>
-                        Required
-                    </span>
-
-                </label>
-
-                <input
-                    type="text"
-                    id="su_username"
-                    placeholder="Choose your username"
-                    autocomplete="username"
-                    maxlength="50"
-                >
-
-            </div>
-
-
-            <!-- PASSWORD -->
-
-            <div class="field">
-
-                <label for="su_password">
-                    Password
-                </label>
-
-
-                <div class="input-wrapper">
-
-                    <input
-                        type="password"
-                        id="su_password"
-                        placeholder="Create a password"
-                        autocomplete="new-password"
-                    >
-
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        onclick="togglePassword(
-                            'su_password',
-                            this
-                        )"
-                    >
-                        👁
-                    </button>
-
-                </div>
-
-
-                <div class="strength">
-
-                    <div class="strength-bars">
-
-                        <span id="bar1"></span>
-                        <span id="bar2"></span>
-                        <span id="bar3"></span>
-                        <span id="bar4"></span>
-
-                    </div>
-
-                    <span
-                        class="strength-text"
-                        id="strengthText"
-                    >
-                        Password strength
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- CONFIRM PASSWORD -->
-
-            <div class="field">
-
-                <label for="su_confirm">
-                    Confirm Password
-                </label>
-
-
-                <div class="input-wrapper">
-
-                    <input
-                        type="password"
-                        id="su_confirm"
-                        placeholder="Repeat your password"
-                        autocomplete="new-password"
-                    >
-
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        onclick="togglePassword(
-                            'su_confirm',
-                            this
-                        )"
-                    >
-                        👁
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- SECURITY QUESTION -->
-
-            <div class="field">
-
-                <label for="su_question">
-                    Security Question
-                </label>
-
-
-                <select id="su_question">
-
-                    <option
-                        value="What is your mother's maiden name?"
-                    >
-                        Mother's maiden name?
-                    </option>
-
-
-                    <option
-                        value="What was your first pet's name?"
-                    >
-                        First pet's name?
-                    </option>
-
-
-                    <option
-                        value="What city were you born in?"
-                    >
-                        Birth city?
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- SECURITY ANSWER -->
-
-            <div class="field">
-
-                <label for="su_answer">
-                    Security Answer
-                </label>
-
-
-                <input
-                    type="text"
-                    id="su_answer"
-                    placeholder="Enter your answer"
-                    autocomplete="off"
-                    maxlength="100"
-                >
-
-            </div>
-
-
-            <!-- REGISTER -->
-
-            <button
-                type="button"
-                class="register-btn"
-                id="registerButton"
-                onclick="doSignup()"
-            >
-
-                Create My Account →
-
-            </button>
-
-
-            <!-- MESSAGE -->
-
-            <div
-                id="su_msg"
-                class="message"
-            ></div>
-
-
-            <!-- LOGIN -->
-
-            <div class="login-link">
-
-                Already have an account?
-
-                <a href="/login">
-                    Login here
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- =====================================
-             DATABASE INFORMATION
-        ====================================== -->
-
-        <div class="database-card">
-
-            <div class="database-title">
-
-                <strong>
-                    ☁️ Platform Infrastructure
-                </strong>
-
-                <span>
-                    ● CLOUD READY
-                </span>
-
-            </div>
-
-
-            <div class="db-row">
-
-                <span>
-                    Application
-                </span>
-
-                <strong>
-                    ML Predictor
-                </strong>
-
-            </div>
-
-
-            <div class="db-row">
-
-                <span>
-                    Backend
-                </span>
-
-                <strong>
-                    Flask / Python
-                </strong>
-
-            </div>
-
-
-            <div class="db-row">
-
-                <span>
-                    Cloud Database
-                </span>
-
-                <strong>
-                    TiDB Cloud
-                </strong>
-
-            </div>
-
-
-            <div class="db-row">
-
-                <span>
-                    Database Type
-                </span>
-
-                <strong>
-                    MySQL Compatible
-                </strong>
-
-            </div>
-
-
-            <div class="db-row">
-
-                <span>
-                    Data
-                </span>
-
-                <strong class="connected">
-                    Users · Students · Predictions
-                </strong>
-
-            </div>
-
-        </div>
-
-
-    </section>
-
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email"
+      placeholder="you@example.com" required>
+    </div>
+
+    <div class="field">
+      <label for="role" data-en="Account type" data-rw="Uruhare rwawe"
+      data-fr="Type de compte">Account type</label>
+      <select id="role" name="role" class="role" required>
+        <option value="student" data-en="Student" data-rw="Umunyeshuri"
+        data-fr="Élève / étudiant">Student</option>
+        <option value="teacher" data-en="Teacher" data-rw="Umwarimu"
+        data-fr="Enseignant">Teacher</option>
+      </select>
+    </div>
+
+    <div class="field" id="inviteField">
+      <label for="invitation_code" data-en="School invitation code"
+      data-rw="Code y'ubutumire bw'ishuri"
+      data-fr="Code d'invitation de l'école">School invitation code</label>
+      <input id="invitation_code" name="invitation_code"
+      autocomplete="off" placeholder="Enter the code provided by your school">
+      <small style="display:block;color:var(--muted);margin-top:7px"
+      data-en="Use the code provided by your school administrator."
+      data-rw="Koresha code wahawe n'ubuyobozi bw'ishuri."
+      data-fr="Utilisez le code fourni par l'administration de votre école.">
+      Use the code provided by your school administrator.</small>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label for="password" data-en="Password" data-rw="Ijambo ry'ibanga"
+        data-fr="Mot de passe">Password</label>
+        <input id="password" name="password" type="password"
+        autocomplete="new-password" minlength="8"
+        placeholder="At least 8 characters" required>
+      </div>
+      <div class="field">
+        <label for="confirm_password" data-en="Confirm password"
+        data-rw="Ongera ijambo ry'ibanga"
+        data-fr="Confirmer le mot de passe">Confirm password</label>
+        <input id="confirm_password" name="confirm_password"
+        type="password" autocomplete="new-password"
+        placeholder="Repeat password" required>
+      </div>
+    </div>
+
+    <label class="check">
+      <input type="checkbox" id="terms" required>
+      <span data-en="I agree to the school's and StudentPredict's applicable terms and privacy policy."
+      data-rw="Nemera amategeko akoreshwa n'uburyo bwo kurinda amakuru ya StudentPredict n'ishuri."
+      data-fr="J'accepte les conditions applicables et la politique de confidentialité.">
+      I agree to the school's and StudentPredict's applicable terms and privacy policy.
+      </span>
+    </label>
+
+    <button id="submitBtn" type="submit"
+    data-en="Create Account" data-rw="Fungura konti"
+    data-fr="Créer le compte">Create Account</button>
+  </form>
+
+  <p class="bottom">
+    <span data-en="Already have an account?" data-rw="Usanzwe ufite konti?"
+    data-fr="Vous avez déjà un compte ?">Already have an account?</span>
+    <a href="/login" data-en="Login" data-rw="Injira" data-fr="Connexion">Login</a>
+    <br><a href="/forgot" data-en="Forgot password?"
+    data-rw="Wibagiwe ijambo ry'ibanga?"
+    data-fr="Mot de passe oublié ?">Forgot password?</a>
+  </p>
+</section>
 </main>
 
-
-<!-- =========================================
-     FOOTER
-========================================= -->
-
 <footer>
-
-    © 2026
-
-    <strong>
-        Tuyishime Eric
-    </strong>
-
-    · ML Predictor
-
+  <strong>StudentPredict</strong><br>
+  <a href="tel:+250798555810">☎ 0798555810</a><br>
+  <a href="mailto:tuyishimeeric139@gmail.com">✉ tuyishimeeric139@gmail.com</a><br>
+  © 2026 StudentPredict
 </footer>
 
-
 <script>
+const lang = document.getElementById("language");
 
-
-/* =========================================
-   PASSWORD VISIBILITY
-========================================= */
-
-function togglePassword(
-    inputId,
-    button
-) {
-
-    const input =
-        document.getElementById(
-            inputId
-        );
-
-
-    if (input.type === 'password') {
-
-        input.type = 'text';
-
-        button.innerText = '🙈';
-
-    } else {
-
-        input.type = 'password';
-
-        button.innerText = '👁';
-
-    }
-
+function setLanguage(value) {
+  document.documentElement.lang = value;
+  document.querySelectorAll("[data-en]").forEach(el => {
+    el.textContent = el.dataset[value] || el.dataset.en;
+  });
+  try { localStorage.setItem("studentpredict-language", value); } catch(e) {}
 }
 
-
-/* =========================================
-   PASSWORD STRENGTH
-========================================= */
-
-document
-    .getElementById('su_password')
-    .addEventListener(
-        'input',
-        function() {
-
-            const password =
-                this.value;
-
-
-            const bars = [
-
-                document.getElementById('bar1'),
-
-                document.getElementById('bar2'),
-
-                document.getElementById('bar3'),
-
-                document.getElementById('bar4')
-
-            ];
-
-
-            const text =
-                document.getElementById(
-                    'strengthText'
-                );
-
-
-            bars.forEach(function(bar) {
-
-                bar.style.background =
-                    '#292d37';
-
-            });
-
-
-            if (!password) {
-
-                text.innerText =
-                    'Password strength';
-
-                text.style.color =
-                    '#666d7b';
-
-                return;
-            }
-
-
-            let score = 0;
-
-
-            if (password.length >= 4)
-                score++;
-
-
-            if (password.length >= 8)
-                score++;
-
-
-            if (/[A-Z]/.test(password))
-                score++;
-
-
-            if (
-                /[0-9]/.test(password) &&
-                /[^A-Za-z0-9]/.test(password)
-            )
-                score++;
-
-
-            const colors = [
-
-                '#ef4444',
-                '#f97316',
-                '#eab308',
-                '#22c55e'
-
-            ];
-
-
-            for (
-                let i = 0;
-                i < score;
-                i++
-            ) {
-
-                bars[i].style.background =
-                    colors[score - 1];
-
-            }
-
-
-            const labels = [
-
-                'Very weak',
-
-                'Weak',
-
-                'Good',
-
-                'Strong'
-
-            ];
-
-
-            text.innerText =
-                labels[score - 1] ||
-                'Very weak';
-
-
-            text.style.color =
-                colors[score - 1] ||
-                '#ef4444';
-
-        }
-    );
-
-
-/* =========================================
-   SIGNUP
-========================================= */
-
-async function doSignup() {
-
-
-    const username =
-        document
-            .getElementById(
-                'su_username'
-            )
-            .value
-            .trim();
-
-
-    const pass =
-        document
-            .getElementById(
-                'su_password'
-            )
-            .value;
-
-
-    const conf =
-        document
-            .getElementById(
-                'su_confirm'
-            )
-            .value;
-
-
-    const question =
-        document
-            .getElementById(
-                'su_question'
-            )
-            .value;
-
-
-    const answer =
-        document
-            .getElementById(
-                'su_answer'
-            )
-            .value
-            .trim();
-
-
-    const msgDiv =
-        document.getElementById(
-            'su_msg'
-        );
-
-
-    const button =
-        document.getElementById(
-            'registerButton'
-        );
-
-
-    /* CLEAR MESSAGE */
-
-    msgDiv.innerText = '';
-
-    msgDiv.style.display =
-        'none';
-
-
-    /* VALIDATION */
-
-    if (!username) {
-
-        showError(
-            'Please enter a username.'
-        );
-
-        return;
-    }
-
-
-    if (username.length < 3) {
-
-        showError(
-            'Username must contain at least 3 characters.'
-        );
-
-        return;
-    }
-
-
-    if (!pass) {
-
-        showError(
-            'Please create a password.'
-        );
-
-        return;
-    }
-
-
-    if (pass.length < 4) {
-
-        showError(
-            'Password must contain at least 4 characters.'
-        );
-
-        return;
-    }
-
-
-    if (pass !== conf) {
-
-        showError(
-            'Passwords do not match.'
-        );
-
-        return;
-    }
-
-
-    if (!answer) {
-
-        showError(
-            'Security answer is required.'
-        );
-
-        return;
-    }
-
-
-    /* LOADING */
-
-    button.disabled = true;
-
-    button.innerText =
-        'Creating account...';
-
-
-    try {
-
-
-        const res =
-            await fetch(
-                '/api/signup',
-                {
-
-                    method: 'POST',
-
-                    headers: {
-
-                        'Content-Type':
-                            'application/json'
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            username:
-                                username,
-
-                            password:
-                                pass,
-
-                            security_question:
-                                question,
-
-                            security_answer:
-                                answer
-
-                        })
-
-                }
-            );
-
-
-        const data =
-            await res.json();
-
-
-        if (data.success) {
-
-
-            msgDiv.className =
-                'message success';
-
-
-            msgDiv.innerText =
-                '✅ Account created successfully! Redirecting to login...';
-
-
-            msgDiv.style.display =
-                'block';
-
-
-            button.innerText =
-                'Account Created ✓';
-
-
-            setTimeout(
-                function() {
-
-                    window.location.href =
-                        '/login';
-
-                },
-                1500
-            );
-
-
-        } else {
-
-
-            showError(
-                data.error ||
-                'Unable to create account.'
-            );
-
-
-            button.disabled =
-                false;
-
-
-            button.innerText =
-                'Create My Account →';
-
-        }
-
-
-    } catch (error) {
-
-
-        console.error(
-            'Signup error:',
-            error
-        );
-
-
-        showError(
-            'Connection error. Please check your internet connection and try again.'
-        );
-
-
-        button.disabled =
-            false;
-
-
-        button.innerText =
-            'Create My Account →';
-
-    }
-
+try {
+  lang.value = localStorage.getItem("studentpredict-language") || "en";
+} catch(e) {}
+setLanguage(lang.value);
+lang.addEventListener("change", () => setLanguage(lang.value));
+
+function setTheme(value) {
+  document.body.classList.toggle("dark", value === "dark");
+  try { localStorage.setItem("studentpredict-theme", value); } catch(e) {}
 }
+try {
+  setTheme(localStorage.getItem("studentpredict-theme") || "light");
+} catch(e) { setTheme("light"); }
 
+document.getElementById("theme").addEventListener("click", () => {
+  setTheme(document.body.classList.contains("dark") ? "light" : "dark");
+});
 
-/* =========================================
-   SHOW ERROR
-========================================= */
+const role = document.getElementById("role");
+const invite = document.getElementById("invitation_code");
 
-function showError(message) {
+role.addEventListener("change", () => {
+  invite.required = true;
+});
 
-    const msgDiv =
-        document.getElementById(
-            'su_msg'
-        );
+document.getElementById("signupForm").addEventListener("submit", async e => {
+  e.preventDefault();
 
+  const error = document.getElementById("error");
+  const success = document.getElementById("success");
+  const btn = document.getElementById("submitBtn");
+  error.style.display = "none";
+  success.style.display = "none";
 
-    msgDiv.className =
-        'message error';
+  const password = document.getElementById("password").value;
+  const confirm = document.getElementById("confirm_password").value;
 
+  if (password.length < 8) {
+    error.textContent = "Password must contain at least 8 characters.";
+    error.style.display = "block";
+    return;
+  }
+  if (password !== confirm) {
+    error.textContent = "Passwords do not match.";
+    error.style.display = "block";
+    return;
+  }
+  if (!invite.value.trim()) {
+    error.textContent = "Enter the invitation code provided by your school.";
+    error.style.display = "block";
+    invite.focus();
+    return;
+  }
 
-    msgDiv.innerText =
-        '⚠️ ' + message;
+  btn.disabled = true;
 
+  try {
+    const response = await fetch("/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        full_name: document.getElementById("full_name").value.trim(),
+        username: document.getElementById("username").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        role: role.value,
+        invitation_code: invite.value.trim(),
+        password: password,
+        confirm_password: confirm
+      })
+    });
 
-    msgDiv.style.display =
-        'block';
+    const data = await response.json();
 
-}
-
-
-/* =========================================
-   ENTER KEY
-========================================= */
-
-document.addEventListener(
-    'keydown',
-    function(event) {
-
-        if (
-            event.key === 'Enter'
-        ) {
-
-            const active =
-                document.activeElement;
-
-
-            if (
-                active &&
-                active.tagName === 'INPUT'
-            ) {
-
-                doSignup();
-
-            }
-
-        }
-
+    if (!response.ok || data.success === false) {
+      throw new Error(data.error || data.message || "Registration failed.");
     }
-);
 
+    success.textContent = data.message ||
+      "Account created. Follow the instructions to continue.";
+    success.style.display = "block";
+
+    if (data.redirect) {
+      setTimeout(() => window.location.href = data.redirect, 900);
+    } else if (data.success) {
+      setTimeout(() => window.location.href = "/login", 1400);
+    }
+  } catch (err) {
+    error.textContent = err.message ||
+      "Could not create account. Please try again.";
+    error.style.display = "block";
+  } finally {
+    btn.disabled = false;
+  }
+});
 </script>
-
-
 </body>
 </html>
