@@ -298,11 +298,11 @@ def generate_unique_school_code(cur):
 # Signup API
 #
 # HEADMASTER:
-#   Create user + school + school membership in one transaction.
+#   Create user + school + membership in one transaction.
 #
 # TEACHER / STUDENT:
 #   Validate invitation, create user + membership, and consume
-#   the invitation in one transaction.
+#   invitation in one transaction.
 # ---------------------------------------------------------
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
@@ -335,7 +335,6 @@ def api_signup():
             data.get("approval_mode", "HEADMASTER")
         ).strip().upper()
 
-        # Basic required fields.
         if not all([full_name, username, email, password]):
             return jsonify({
                 "success": False,
@@ -403,7 +402,6 @@ def api_signup():
                     "message": "Choose a valid grade approval method."
                 }), 400
 
-        # Teacher and Student must use an invitation.
         elif not invitation_code:
             return jsonify({
                 "success": False,
@@ -413,10 +411,9 @@ def api_signup():
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
 
-        # Start a transaction before creating any records.
         conn.start_transaction()
 
-        # Check username and email before inserting.
+        # Check username.
         cur.execute(
             "SELECT id FROM users WHERE username=%s LIMIT 1",
             (username,)
@@ -429,6 +426,7 @@ def api_signup():
                 "message": "Username already exists."
             }), 409
 
+        # Check email.
         cur.execute(
             "SELECT id FROM users WHERE email=%s LIMIT 1",
             (email,)
@@ -446,10 +444,7 @@ def api_signup():
         invitation_id = None
         invited_role = requested_role
 
-        # -----------------------------------------------------
-        # Validate invitation for Student / Teacher.
-        # FOR UPDATE helps prevent concurrent use of one code.
-        # -----------------------------------------------------
+        # Validate Student / Teacher invitation.
         if requested_role in ("STUDENT", "TEACHER"):
             cur.execute(
                 """
@@ -480,11 +475,8 @@ def api_signup():
                     "message": "This invitation code has already been used."
                 }), 400
 
-            cur.execute(
-                "SELECT CURRENT_TIMESTAMP AS db_now"
-            )
+            cur.execute("SELECT CURRENT_TIMESTAMP AS db_now")
             db_now = cur.fetchone()["db_now"]
-
             expires_at = invitation.get("expires_at")
 
             if expires_at is not None and expires_at <= db_now:
@@ -498,7 +490,6 @@ def api_signup():
                 invitation["invited_role"]
             ).strip().upper()
 
-            # A headmaster cannot be created using an ordinary invite.
             if invited_role not in ("STUDENT", "TEACHER"):
                 conn.rollback()
                 return jsonify({
@@ -506,12 +497,13 @@ def api_signup():
                     "message": "This invitation is not valid for signup."
                 }), 403
 
-            # The invitation in the database determines the role.
             if requested_role != invited_role:
                 conn.rollback()
                 return jsonify({
                     "success": False,
-                    "message": "Your selected role does not match the invitation."
+                    "message": (
+                        "Your selected role does not match the invitation."
+                    )
                 }), 403
 
             invited_email = (
@@ -531,7 +523,6 @@ def api_signup():
             class_id = invitation["class_id"]
             invitation_id = invitation["id"]
 
-            # Make sure the referenced school still exists.
             cur.execute(
                 "SELECT id FROM schools WHERE id=%s LIMIT 1",
                 (school_id,)
@@ -544,11 +535,7 @@ def api_signup():
                     "message": "The school for this invitation was not found."
                 }), 400
 
-        # -----------------------------------------------------
-        # Create the account inside the same transaction.
-        # We do not call register_user() here because that
-        # function commits independently.
-        # -----------------------------------------------------
+        # Create the user.
         password_hash = generate_password_hash(password)
 
         cur.execute(
@@ -568,9 +555,7 @@ def api_signup():
 
         user_id = cur.lastrowid
 
-        # -----------------------------------------------------
         # HEADMASTER: create school and membership.
-        # -----------------------------------------------------
         if invited_role == "HEADMASTER":
             school_code = generate_unique_school_code(cur)
 
@@ -602,9 +587,7 @@ def api_signup():
                 (school_id, user_id)
             )
 
-        # -----------------------------------------------------
         # TEACHER / STUDENT: join the invited school.
-        # -----------------------------------------------------
         else:
             cur.execute(
                 """
@@ -646,7 +629,6 @@ def api_signup():
                     "The invitation was already used or has expired."
                 )
 
-        # All required records succeeded; commit together.
         conn.commit()
 
         return jsonify({
@@ -691,13 +673,19 @@ def api_signup():
 
 
 # ---------------------------------------------------------
-# Forgot password: security question
+# Forgot password: get security question
 # ---------------------------------------------------------
 @app.route("/api/get-security-question", methods=["POST"])
 def get_question():
     try:
         data = request.get_json(silent=True) or {}
         username = str(data.get("username", "")).strip()
+
+        if not username:
+            return jsonify({
+                "success": False,
+                "message": "Enter your username."
+            }), 400
 
         question = get_security_question(username)
 
@@ -716,30 +704,61 @@ def get_question():
         return server_error(e)
 
 
+# ---------------------------------------------------------
+# Forgot password: verify security answer
+# ---------------------------------------------------------
 @app.route("/api/verify-security-answer", methods=["POST"])
 def verify_ans():
     try:
         data = request.get_json(silent=True) or {}
 
-        ok = verify_security_answer(
-            str(data.get("username", "")).strip(),
-            data.get("answer", "")
-        )
+        username = str(data.get("username", "")).strip()
+        answer = data.get("answer", "")
+
+        if not username or not isinstance(answer, str) or not answer.strip():
+            return jsonify({
+                "success": False,
+                "message": "Enter your username and security answer."
+            }), 400
+
+        ok = verify_security_answer(username, answer)
 
         return jsonify({
             "success": bool(ok),
-            "message": "" if ok else "Wrong security answer."
+            "message": (
+                "Security answer verified."
+                if ok else "Incorrect username or security answer."
+            )
         }), (200 if ok else 400)
 
     except Exception as e:
         return server_error(e)
 
 
+# ---------------------------------------------------------
+# Forgot password: securely reset password
+# ---------------------------------------------------------
 @app.route("/api/reset-password", methods=["POST"])
 def reset_pwd():
     try:
         data = request.get_json(silent=True) or {}
+
+        username = str(data.get("username", "")).strip()
+        answer = data.get("answer", "")
         new_password = data.get("new_password", "")
+        confirm_password = data.get("confirm_password", "")
+
+        if not username:
+            return jsonify({
+                "success": False,
+                "message": "Enter your username."
+            }), 400
+
+        if not isinstance(answer, str) or not answer.strip():
+            return jsonify({
+                "success": False,
+                "message": "Enter your security answer."
+            }), 400
 
         if not isinstance(new_password, str) or len(new_password) < 8:
             return jsonify({
@@ -747,10 +766,27 @@ def reset_pwd():
                 "message": "Password must contain at least 8 characters."
             }), 400
 
-        ok, msg = force_reset_password(
-            str(data.get("username", "")).strip(),
-            new_password
-        )
+        if not isinstance(confirm_password, str):
+            return jsonify({
+                "success": False,
+                "message": "Confirm your new password."
+            }), 400
+
+        if new_password != confirm_password:
+            return jsonify({
+                "success": False,
+                "message": "The passwords do not match."
+            }), 400
+
+        # Important: verify the security answer again on the server.
+        # Frontend verification alone is not sufficient.
+        if not verify_security_answer(username, answer):
+            return jsonify({
+                "success": False,
+                "message": "Incorrect username or security answer."
+            }), 400
+
+        ok, msg = force_reset_password(username, new_password)
 
         return jsonify({
             "success": bool(ok),
@@ -990,20 +1026,27 @@ def history():
 
 
 # ---------------------------------------------------------
-# Statistics
+# Statistics and data visualization
 # ---------------------------------------------------------
 @app.route("/api/stats")
 def stats():
     empty = {
+        "success": True,
         "total": 0,
         "passed": 0,
         "failed": 0,
         "pass_rate": 0,
-        "subjects": []
+        "subjects": [],
+        "trend": [],
+        "result_chart": []
     }
 
     if "username" not in session:
-        return jsonify(empty), 401
+        return jsonify({
+            **empty,
+            "success": False,
+            "message": "Login required"
+        }), 401
 
     conn = None
     cur = None
@@ -1011,43 +1054,51 @@ def stats():
     try:
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
+        username = session["username"]
 
+        # 1. Overall summary
         cur.execute(
             """
             SELECT
                 COUNT(*) AS total,
-                COALESCE(SUM(prediction='PASS'), 0) AS passed,
-                COALESCE(SUM(prediction='FAIL'), 0) AS failed
+                COALESCE(SUM(prediction = 'PASS'), 0) AS passed,
+                COALESCE(SUM(prediction = 'FAIL'), 0) AS failed
             FROM predictions
-            WHERE username=%s
+            WHERE username = %s
             """,
-            (session["username"],)
+            (username,)
         )
 
-        data = cur.fetchone()
-        total = int(data["total"])
-        passed = int(data["passed"])
-        failed = int(data["failed"])
+        summary = cur.fetchone() or {}
 
+        total = int(summary.get("total") or 0)
+        passed = int(summary.get("passed") or 0)
+        failed = int(summary.get("failed") or 0)
+
+        pass_rate = round(
+            (passed / total) * 100, 2
+        ) if total else 0
+
+        # 2. Subject-by-subject data for bar charts
         cur.execute(
             """
             SELECT
                 subject,
                 COUNT(*) AS total,
-                SUM(prediction='PASS') AS passed,
-                SUM(prediction='FAIL') AS failed
+                COALESCE(SUM(prediction = 'PASS'), 0) AS passed,
+                COALESCE(SUM(prediction = 'FAIL'), 0) AS failed
             FROM predictions
-            WHERE username=%s
+            WHERE username = %s
             GROUP BY subject
-            ORDER BY total DESC
+            ORDER BY total DESC, subject ASC
             """,
-            (session["username"],)
+            (username,)
         )
 
         subjects = []
 
         for row in cur.fetchall():
-            subject_total = int(row["total"])
+            subject_total = int(row["total"] or 0)
             subject_passed = int(row["passed"] or 0)
             subject_failed = int(row["failed"] or 0)
 
@@ -1061,14 +1112,53 @@ def stats():
                 ) if subject_total else 0
             })
 
+        # 3. Latest 12 months, ordered chronologically.
+        # The inner query selects the latest months first.
+        cur.execute(
+            """
+            SELECT month, total, passed, failed
+            FROM (
+                SELECT
+                    DATE_FORMAT(created_at, '%Y-%m') AS month,
+                    COUNT(*) AS total,
+                    COALESCE(SUM(prediction = 'PASS'), 0) AS passed,
+                    COALESCE(SUM(prediction = 'FAIL'), 0) AS failed
+                FROM predictions
+                WHERE username = %s
+                GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                ORDER BY month DESC
+                LIMIT 12
+            ) AS monthly_results
+            ORDER BY month ASC
+            """,
+            (username,)
+        )
+
+        trend = []
+
+        for row in cur.fetchall():
+            trend.append({
+                "month": str(row["month"]),
+                "total": int(row["total"] or 0),
+                "passed": int(row["passed"] or 0),
+                "failed": int(row["failed"] or 0)
+            })
+
+        # 4. Pie / doughnut chart data
+        result_chart = [
+            {"name": "Passed", "value": passed},
+            {"name": "Failed", "value": failed}
+        ]
+
         return jsonify({
+            "success": True,
             "total": total,
             "passed": passed,
             "failed": failed,
-            "pass_rate": round(
-                passed / total * 100, 2
-            ) if total else 0,
-            "subjects": subjects
+            "pass_rate": pass_rate,
+            "subjects": subjects,
+            "trend": trend,
+            "result_chart": result_chart
         })
 
     except Exception as e:
