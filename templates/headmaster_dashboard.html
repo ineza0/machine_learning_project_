@@ -9,167 +9,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root {
-  --bg:#f3f6fc;
-  --panel:#fff;
-  --text:#172033;
-  --muted:#66748a;
-  --line:#e1e7f0;
-  --primary:#315ee8;
-  --primary-hover:#2448bd;
-  --sidebar:#101a2c;
-  --sidebar-text:#e9eef8;
-  --green:#13834b;
-  --red:#c33232;
-  --orange:#c77716;
-  --shadow:0 8px 28px rgba(20,35,65,.06);
-}
-body.dark {
-  --bg:#0c1220;
-  --panel:#151f31;
-  --text:#f1f5fb;
-  --muted:#a7b3c7;
-  --line:#2c394f;
-  --primary:#7193ff;
-  --primary-hover:#8da7ff;
-  --sidebar:#080d17;
-  --sidebar-text:#e9eef8;
-  --green:#54d995;
-  --red:#ff8585;
-  --orange:#ffc16b;
-  --shadow:0 8px 28px rgba(0,0,0,.16);
-}
-* {box-sizing:border-box}
-html {scroll-behavior:smooth}
-body {
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Inter,Arial,Helvetica,sans-serif;
-  transition:background .2s,color .2s;
-}
-button,input,select {font:inherit}
-button,a {transition:.15s}
-button {cursor:pointer}
-a {color:inherit}
-.app {display:flex;min-height:100vh}
-.sidebar {
-  width:250px;background:var(--sidebar);color:var(--sidebar-text);
-  padding:25px 16px;flex-shrink:0;
-}
-.brand {font-size:23px;font-weight:850;letter-spacing:-.6px}
-.brand span {color:#7ca2ff}
-.brand-note {font-size:12px;color:#a4b1c8;margin:7px 0 30px}
-.nav-title {
-  font-size:10px;color:#91a0b9;letter-spacing:1.4px;
-  text-transform:uppercase;margin:24px 10px 9px
-}
-.nav {
-  display:block;text-decoration:none;padding:12px 13px;
-  margin:4px 0;border-radius:10px;font-size:13px;color:var(--sidebar-text)
-}
-.nav:hover,.nav.active {background:#273751;color:#fff}
-.nav-icon {display:inline-block;width:25px}
-.main {flex:1;min-width:0}
-.topbar {
-  position:sticky;top:0;z-index:5;background:var(--panel);
-  border-bottom:1px solid var(--line);padding:16px 26px;
-  display:flex;justify-content:space-between;align-items:center;
-  gap:16px;flex-wrap:wrap
-}
-.topbar h1 {margin:0;font-size:22px}
-.welcome {font-size:13px;color:var(--muted);margin-top:6px}
-.actions {display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-select,input {
-  background:var(--panel);color:var(--text);
-  border:1px solid var(--line);border-radius:9px;padding:10px 11px;
-  max-width:100%
-}
-.btn {
-  border:1px solid var(--line);border-radius:9px;padding:10px 13px;
-  color:var(--text);background:var(--panel);font-size:12px;font-weight:700
-}
-.btn:hover {border-color:var(--primary)}
-.btn.primary {background:var(--primary);color:white;border-color:var(--primary)}
-.btn.primary:hover {background:var(--primary-hover)}
-.btn.danger {background:#a72727;color:#fff;border-color:#a72727}
-.content {max-width:1600px;margin:auto;padding:25px}
-.page-heading {margin:0 0 7px;font-size:21px}
-.description {color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 18px}
-.grid {display:grid;gap:16px}
-.metrics {grid-template-columns:repeat(4,minmax(0,1fr));margin:20px 0 28px}
-.card {
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:15px;padding:19px;box-shadow:var(--shadow);min-width:0
-}
-.metric-label {color:var(--muted);font-size:12px}
-.metric-value {font-size:30px;font-weight:850;margin:12px 0 7px}
-.metric-note {color:var(--muted);font-size:11px}
-.green {color:var(--green)}
-.red {color:var(--red)}
-.orange {color:var(--orange)}
-.section {margin:28px 0}
-.section-head {
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;flex-wrap:wrap;margin-bottom:14px
-}
-.section-head h2,.card h2 {font-size:17px;margin:0 0 7px}
-.two-col {grid-template-columns:repeat(2,minmax(0,1fr))}
-.three-col {grid-template-columns:repeat(3,minmax(0,1fr))}
-.chart-box {height:290px;position:relative;margin-top:15px}
-.table-wrap {
-  overflow-x:auto;border:1px solid var(--line);
-  border-radius:12px;background:var(--panel)
-}
-table {width:100%;border-collapse:collapse;min-width:700px}
-th,td {
-  text-align:left;padding:13px;border-bottom:1px solid var(--line);
-  font-size:12px;vertical-align:middle
-}
-th {background:var(--bg);color:var(--muted);font-weight:750}
-tr:last-child td {border-bottom:0}
-.pill {
-  display:inline-block;padding:5px 9px;border-radius:30px;
-  font-size:10px;font-weight:800;background:var(--bg)
-}
-.pill.pending {color:var(--orange)}
-.pill.approved {color:var(--green)}
-.pill.rejected {color:var(--red)}
-.notice {
-  border:1px dashed var(--line);border-radius:11px;padding:14px;
-  color:var(--muted);font-size:12px;line-height:1.6
-}
-.form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.field {display:flex;flex-direction:column;gap:6px}
-.field label {font-size:12px;color:var(--muted);font-weight:700}
-.field input,.field select {width:100%}
-.form-actions {margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
-.message {font-size:12px;color:var(--muted);padding-top:12px;line-height:1.5}
-.message.error {color:var(--red)}
-.message.success {color:var(--green)}
-.analysis-list {display:grid;gap:10px;margin-top:12px}
-.analysis-item {
-  border:1px solid var(--line);border-radius:11px;padding:13px;
-  font-size:12px;line-height:1.6
-}
-.analysis-item strong {display:block;margin-bottom:5px}
-.footer {text-align:center;color:var(--muted);font-size:11px;padding:24px}
-.hidden {display:none!important}
-@media(max-width:1100px) {
-  .metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
-  .three-col {grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:760px) {
-  .app {display:block}
-  .sidebar {width:100%;padding:17px}
-  .brand-note {margin-bottom:15px}
-  .nav-title {margin-top:14px}
-  .nav-list {display:flex;overflow-x:auto;gap:5px}
-  .nav {white-space:nowrap;padding:10px}
-  .topbar {position:static;padding:16px}
-  .content {padding:14px}
-  .metrics,.two-col,.three-col,.form-grid {grid-template-columns:1fr}
-  .chart-box {height:250px}
-  .topbar h1 {font-size:19px}
-}
+:root{--bg:#eef5ff;--panel:#fff;--text:#14213d;--muted:#687892;--line:#dce7f7;--primary:#0866f5;--primary2:#0649bf;--sidebar:#071b35;--sidebar2:#0b2c55;--green:#159447;--red:#dc3545;--orange:#e9a008;--shadow:0 8px 24px rgba(20,61,125,.09);--radius:13px}
+body.dark{--bg:#081321;--panel:#101f33;--text:#eef5ff;--muted:#a5b6ce;--line:#273c58;--primary:#4388ff;--primary2:#2365d7;--sidebar:#040c18;--sidebar2:#0a1a2d;--green:#42d783;--red:#ff727d;--orange:#ffc857;--shadow:0 8px 24px rgba(0,0,0,.24)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px;transition:background .2s,color .2s}button,input,select,textarea{font:inherit}button,a{transition:all .18s}button{cursor:pointer}a{color:inherit;text-decoration:none}.app{display:flex;min-height:100vh}.sidebar{width:244px;flex:0 0 244px;background:linear-gradient(180deg,var(--sidebar),var(--sidebar2));color:#f1f6ff;padding:23px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;box-shadow:4px 0 20px #0a2d5a12}.brand{font-size:25px;font-weight:900;letter-spacing:-1px;padding:0 11px}.brand span{color:#5da0ff}.brand-note{font-size:11px;color:#a9bfdf;padding:7px 11px 25px}.nav-title{font-size:10px;color:#7f9dc4;letter-spacing:1.5px;font-weight:800;margin:20px 11px 9px}.nav-list{display:grid;gap:5px}.nav{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:9px;font-size:12px;font-weight:650;color:#dce9fb;border:1px solid transparent}.nav-icon{display:inline-flex;width:22px;justify-content:center;font-size:16px}.nav:hover,.nav.active{background:linear-gradient(100deg,#0866f5,#0d4ab5);color:white;box-shadow:0 5px 14px #0066ff38}.main{flex:1;min-width:0}.topbar{position:sticky;top:0;z-index:10;background:var(--panel);border-bottom:1px solid var(--line);padding:17px 26px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 3px 14px #0a397408}.topbar h1{margin:0;font-size:22px;font-weight:850;letter-spacing:-.6px}.welcome{font-size:12px;color:var(--muted);margin-top:5px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}select,input,textarea{width:100%;min-width:0;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:11px 12px;outline:none}select:focus,input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px #1670ff1c}.actions select{width:auto;min-width:120px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:8px;padding:10px 14px;color:var(--text);background:var(--panel);font-size:12px;font-weight:750;white-space:nowrap}.btn:hover{transform:translateY(-1px);border-color:var(--primary);box-shadow:0 4px 12px #1256bd16}.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}.btn.primary:hover{background:var(--primary2)}.btn.danger{background:#d92d42;color:white;border-color:#d92d42}.content{max-width:1700px;margin:auto;padding:25px 27px}.page-heading{margin:0 0 7px;font-size:21px;font-weight:850}.description{color:var(--muted);font-size:12px;line-height:1.65;margin:0 0 17px}.grid{display:grid;gap:16px}.metrics{grid-template-columns:repeat(4,minmax(0,1fr));margin:20px 0 28px}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:19px;box-shadow:var(--shadow);min-width:0}.metric-label{font-size:12px;font-weight:700;color:var(--muted)}.metric-value{font-size:31px;font-weight:900;letter-spacing:-1px;margin:12px 0 6px;color:var(--primary)}.metric-note{font-size:11px;color:var(--muted)}.section{margin:27px 0}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.section-head h2,.card h2{font-size:16px;font-weight:850;margin:0 0 7px}.two-col{grid-template-columns:repeat(2,minmax(0,1fr))}.three-col{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-box{height:270px;position:relative;margin-top:15px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;padding:12px 13px;border-bottom:1px solid var(--line);font-size:12px;vertical-align:middle}th{background:color-mix(in srgb,var(--bg) 85%,var(--panel));color:var(--muted);font-weight:800;white-space:nowrap}tbody tr:hover{background:color-mix(in srgb,var(--primary) 4%,var(--panel))}tr:last-child td{border-bottom:0}.pill{display:inline-block;padding:5px 9px;border-radius:30px;font-size:10px;font-weight:850;background:var(--bg)}.pill.pending{color:var(--orange)}.pill.approved{color:var(--green)}.pill.rejected{color:var(--red)}.notice{border:1px dashed var(--line);border-radius:10px;padding:14px;color:var(--muted);font-size:12px;line-height:1.6;background:color-mix(in srgb,var(--bg) 55%,var(--panel))}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.field{display:flex;flex-direction:column;gap:7px;min-width:0}.field label{font-size:12px;color:var(--text);font-weight:800}.field-help{font-size:11px;line-height:1.5;color:var(--muted)}.form-actions{margin-top:18px;display:flex;gap:9px;flex-wrap:wrap}.message{font-size:12px;color:var(--muted);padding-top:11px;line-height:1.5}.message.error{color:var(--red)}.message.success{color:var(--green)}.analysis-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:13px}.analysis-item{border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:10px;padding:14px;font-size:12px;line-height:1.65;background:color-mix(in srgb,var(--primary) 3%,var(--panel))}.analysis-item strong{display:block;margin-bottom:5px;font-size:13px}.analysis-item .red{color:var(--red)}.analysis-item .green{color:var(--green)}.footer{text-align:center;color:var(--muted);font-size:11px;padding:24px}.hidden{display:none!important}#analysis-content:before{content:"✦  PERFORMANCE INSIGHTS";display:block;font-size:10px;font-weight:900;letter-spacing:1.4px;color:var(--primary);margin-bottom:2px}@media(max-width:1100px){.sidebar{width:215px;flex-basis:215px}.content{padding:20px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.three-col{grid-template-columns:1fr}.chart-box{height:245px}}@media(max-width:760px){.app{display:block}.sidebar{position:relative;width:100%;height:auto;padding:14px}.brand-note{padding-bottom:12px}.nav-title{margin-top:12px}.nav-list{display:flex;overflow-x:auto;gap:5px}.nav{white-space:nowrap;padding:10px}.topbar{position:relative;padding:15px}.content{padding:13px}.metrics,.two-col,.three-col,.form-grid,.analysis-list{grid-template-columns:1fr}.chart-box{height:230px}.topbar h1{font-size:19px}.card{padding:15px}.actions select{min-width:100px}}
 </style>
 </head>
 
@@ -296,8 +138,8 @@ tr:last-child td {border-bottom:0}
 
       <section class="section">
         <div class="card">
-          <h2 data-i18n="aiAnalysis">AI-assisted performance analysis</h2>
-          <p class="description" data-i18n="aiDescription">Evidence-based suggestions from the school's available grade data.</p>
+          <h2 data-i18n="aiAnalysis">AI Analysis — School Performance Insights</h2>
+          <p class="description" data-i18n="aiDescription">Automatic recommendations based on the performance data returned by your school dashboard.</p>
           <div id="analysis-content" class="analysis-list">
             <div class="notice" data-i18n="analysisWaiting">Waiting for school performance data.</div>
           </div>
@@ -356,11 +198,15 @@ tr:last-child td {border-bottom:0}
                   <label for="invite-email" data-i18n="emailOptional">Email (optional)</label>
                   <input id="invite-email" type="email" placeholder="person@example.com">
                 </div>
+                <div class="field" id="invite-school-field">
+                  <label for="invite-school" data-i18n="inviteSchool">School name</label>
+                  <input id="invite-school" name="school_name" type="text" placeholder="Type school name" autocomplete="organization" required>
+                  <small class="field-help">Andika izina ry'ishuri ryawe.</small>
+                </div>
                 <div class="field" id="invite-class-field">
                   <label for="invite-class" data-i18n="classOptional">Class (for student)</label>
-                  <select id="invite-class">
-                    <option value="" data-i18n="selectClass">Select class</option>
-                  </select>
+                  <input id="invite-class" name="class_name" type="text" placeholder="e.g. L4 NIT" autocomplete="off">
+                  <small class="field-help">Andika class umunyeshuri azajya arimo.</small>
                 </div>
                 <div class="field">
                   <label for="invite-expiry" data-i18n="expiry">Expires in</label>
@@ -463,7 +309,7 @@ student:"Student",subject:"Subject",score:"Score",teacher:"Teacher",action:"Acti
 approve:"Approve",reject:"Reject",inviteTitle:"Invite teachers and students",
 inviteDesc:"Create a school invitation code. The server must enforce its expiry and single-use rules.",
 createInvitation:"Create invitation",inviteRole:"Invite as",emailOptional:"Email (optional)",
-classOptional:"Class (for student)",selectClass:"Select class",expiry:"Expires in",
+classOptional:"Class (for student)",inviteSchool:"School",selectSchool:"Select school",selectClass:"Select class",expiry:"Expires in",
 generateCode:"Generate invitation code",newCode:"New invitation code",copyCode:"Copy code",
 invitationRules:"Invitation security",rule1:"Codes should belong only to your school.",
 rule2:"The server should reject expired or already-used codes.",
@@ -508,7 +354,7 @@ student:"Umunyeshuri",subject:"Isomo",score:"Amanota",teacher:"Umwarimu",action:
 approve:"Emeza",reject:"Anga",inviteTitle:"Tumira abarimu n'abanyeshuri",
 inviteDesc:"Kora kode y'ishuri yo gutumira. Server igomba kugenzura igihe izarangirira n'ikoreshwa rimwe.",
 createInvitation:"Kora ubutumire",inviteRole:"Ubutumire bwa",emailOptional:"Imeyili (si ngombwa)",
-classOptional:"Class (ku munyeshuri)",selectClass:"Hitamo class",expiry:"Igihe cyo kurangira",
+classOptional:"Class (ku munyeshuri)",inviteSchool:"Ishuri",selectSchool:"Hitamo ishuri",selectClass:"Hitamo class",expiry:"Igihe cyo kurangira",
 generateCode:"Kora kode y'ubutumire",newCode:"Kode nshya y'ubutumire",copyCode:"Koporora kode",
 invitationRules:"Umutekano w'ubutumire",rule1:"Kode igomba kuba iy'ishuri ryanyu gusa.",
 rule2:"Server igomba kwanga kode yarangiye cyangwa yakoreshejwe.",
@@ -554,7 +400,7 @@ student:"Élève",subject:"Matière",score:"Note",teacher:"Enseignant",action:"A
 approve:"Approuver",reject:"Rejeter",inviteTitle:"Inviter enseignants et élèves",
 inviteDesc:"Créez un code d'invitation scolaire avec expiration et usage unique vérifiés par le serveur.",
 createInvitation:"Créer une invitation",inviteRole:"Inviter comme",emailOptional:"E-mail (facultatif)",
-classOptional:"Classe (pour un élève)",selectClass:"Choisir une classe",expiry:"Expire dans",
+classOptional:"Classe (pour un élève)",inviteSchool:"Établissement",selectSchool:"Choisir un établissement",selectClass:"Choisir une classe",expiry:"Expire dans",
 generateCode:"Créer le code",newCode:"Nouveau code d'invitation",copyCode:"Copier le code",
 invitationRules:"Sécurité des invitations",rule1:"Les codes doivent appartenir uniquement à votre établissement.",
 rule2:"Le serveur doit refuser les codes expirés ou déjà utilisés.",
@@ -693,19 +539,10 @@ async function loadInvitations() {
   renderInvitations();
 }
 
-function populateClassSelect(classes) {
-  const select = $("invite-class");
-  const selected = select.value;
-  select.replaceChildren();
-  const first = element("option", "", tr("selectClass"));
-  first.value = "";
-  select.appendChild(first);
-  classes.forEach(item => {
-    const option = element("option", "", item.class_name || item.name || item.class);
-    option.value = item.id ?? item.class_id;
-    select.appendChild(option);
-  });
-  if (selected) select.value = selected;
+// School and class are typed manually as requested; the backend validates both.
+async function loadInvitationSchools() {
+  // No dropdowns: Headmaster types the school and class names.
+  return Promise.resolve();
 }
 $("invite-role").addEventListener("change", () => {
   $("invite-class-field").classList.toggle("hidden", $("invite-role").value !== "STUDENT");
@@ -807,16 +644,22 @@ function renderInvitations() {
 $("invite-form").addEventListener("submit", async event => {
   event.preventDefault();
   const role = $("invite-role").value;
-  const classId = $("invite-class").value;
-  if (role === "STUDENT" && !classId) {
+  const schoolName = $("invite-school").value.trim();
+  const className = $("invite-class").value.trim();
+  if (!schoolName) {
+    setMessage("invite-message", lang === "rw" ? "Andika izina ry'ishuri." : lang === "fr" ? "Saisissez le nom de l'école." : "Enter the school name.", "error");
+    return;
+  }
+  if (role === "STUDENT" && !className) {
     setMessage("invite-message", lang === "rw" ? "Hitamo class y'umunyeshuri." :
-      lang === "fr" ? "Choisissez la classe de l'élève." : "Select the student's class.", "error");
+      lang === "fr" ? "Choisissez la classe de l'élève." : "Type the student's class.", "error");
     return;
   }
   const payload = {
     invited_role: role,
+    school_name: schoolName,
     email: $("invite-email").value.trim() || null,
-    class_id: role === "STUDENT" ? Number(classId) : null,
+    class_name: role === "STUDENT" ? className : null,
     expires_in_days: Number($("invite-expiry").value)
   };
   try {
@@ -934,7 +777,7 @@ async function refreshAll() {
   setMessage("grades-message", "");
   setMessage("invitations-message", "");
   try {
-    await Promise.all([loadSummary(), loadPerformance(), loadPendingGrades(), loadInvitations()]);
+    await Promise.all([loadSummary(), loadPerformance(), loadPendingGrades(), loadInvitations(), loadInvitationSchools()]);
     setMessage("grades-message", "");
     setMessage("invitations-message", "");
   } catch (error) {
