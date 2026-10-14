@@ -1604,6 +1604,7 @@ def platform_admin_overview():
 
 
 @app.route("/api/headmaster/overview", methods=["GET"])
+@app.route("/api/headmaster/summary", methods=["GET"])
 def headmaster_overview():
     """Statistics and pending grade count restricted to the headmaster's own school."""
     if not session.get("username"):
@@ -1624,21 +1625,31 @@ def headmaster_overview():
         school = cur.fetchone()
         cur.execute("SELECT COUNT(*) AS total FROM school_members WHERE school_id=%s", (school_id,))
         members = int((cur.fetchone() or {}).get("total") or 0)
-        cur.execute("SELECT COUNT(*) AS total FROM students WHERE school_id=%s", (school_id,))
+        student_columns = _table_columns(cur, "students")
+        if "school_id" in student_columns:
+            cur.execute("SELECT COUNT(*) AS total FROM students WHERE school_id=%s", (school_id,))
+        elif "user_id" in student_columns:
+            cur.execute("SELECT COUNT(*) AS total FROM students st JOIN school_members sm ON sm.user_id=st.user_id WHERE sm.school_id=%s", (school_id,))
+        else:
+            cur.execute("SELECT 0 AS total")
         students = int((cur.fetchone() or {}).get("total") or 0)
-        cur.execute(
-            """
-            SELECT COUNT(*) AS total
-            FROM student_grades sg
-            JOIN students st ON st.id=sg.student_id
-            WHERE st.school_id=%s AND sg.status='PENDING'
-            """,
-            (school_id,)
-        )
-        pending = int((cur.fetchone() or {}).get("total") or 0)
+        cur.execute("SELECT COUNT(*) AS total FROM school_members WHERE school_id=%s AND UPPER(member_role)='TEACHER'", (school_id,))
+        teachers = int((cur.fetchone() or {}).get("total") or 0)
+        cur.execute("SELECT COUNT(*) AS total FROM classes WHERE school_id=%s", (school_id,))
+        class_count = int((cur.fetchone() or {}).get("total") or 0)
+        grade_columns = _table_columns(cur, "student_grades")
+        student_columns = _table_columns(cur, "students")
+        if {"id", "student_id", "status"}.issubset(grade_columns) and "school_id" in student_columns:
+            cur.execute("SELECT COUNT(*) AS total FROM student_grades sg JOIN students st ON st.id=sg.student_id WHERE st.school_id=%s", (school_id,))
+            total_grades = int((cur.fetchone() or {}).get("total") or 0)
+            cur.execute("SELECT COUNT(*) AS total FROM student_grades sg JOIN students st ON st.id=sg.student_id WHERE st.school_id=%s AND UPPER(sg.status)='PENDING'", (school_id,))
+            pending = int((cur.fetchone() or {}).get("total") or 0)
+        else:
+            total_grades = pending = 0
         return jsonify({
             "success": True, "school": school or {}, "members": members,
-            "students": students, "pending_grades": pending
+            "students": students, "teachers": teachers, "classes": class_count,
+            "grade_records": total_grades, "total_grades": total_grades, "pending_grades": pending
         })
     except Exception as e:
         return server_error(e)
@@ -1647,7 +1658,58 @@ def headmaster_overview():
         if conn: conn.close()
 
 
+@app.route("/api/headmaster/performance", methods=["GET"])
+def headmaster_performance():
+    """Return class list and available grade performance for the signed-in school's headmaster."""
+    if not session.get("username"):
+        return jsonify({"success": False, "message": "Login required."}), 401
+    conn = cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+        identity = _load_session_user(cur)
+        if not identity or identity.get("role") != "HEADMASTER":
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        school_id = (identity.get("membership") or {}).get("school_id")
+        if not school_id:
+            return jsonify({"success": False, "message": "No school linked to account."}), 400
+        classes = []
+        class_cols = _table_columns(cur, "classes")
+        if {"id", "school_id", "class_name"}.issubset(class_cols):
+            cur.execute("SELECT id, class_name FROM classes WHERE school_id=%s ORDER BY class_name", (school_id,))
+            classes = cur.fetchall()
+        # Only aggregate grades when this database has the expected class links.
+        if {"school_id", "class_id"}.issubset(_table_columns(cur, "students")) and {"student_id", "score", "max_score", "status"}.issubset(_table_columns(cur, "student_grades")):
+            cur.execute("""
+                SELECT c.id, c.class_name,
+                       COUNT(DISTINCT st.id) AS students,
+                       AVG(CASE WHEN sg.status='APPROVED' AND sg.max_score > 0 THEN (sg.score / sg.max_score) * 100 END) AS average,
+                       AVG(CASE WHEN sg.status='APPROVED' AND sg.max_score > 0 AND sg.score >= sg.max_score * 0.5 THEN 100.0 WHEN sg.status='APPROVED' AND sg.max_score > 0 THEN 0.0 END) AS pass_rate
+                FROM classes c
+                LEFT JOIN students st ON st.class_id=c.id AND st.school_id=c.school_id
+                LEFT JOIN student_grades sg ON sg.student_id=st.id
+                WHERE c.school_id=%s
+                GROUP BY c.id, c.class_name
+                ORDER BY c.class_name
+            """, (school_id,))
+            classes = cur.fetchall()
+            for row in classes:
+                row["average"] = float(row.get("average") or 0)
+                row["pass_rate"] = float(row.get("pass_rate") or 0)
+        for row in classes:
+            if row.get("id") is not None:
+                row["id"] = int(row["id"])
+            row["students"] = int(row.get("students") or 0)
+        return jsonify({"success": True, "classes": classes, "class_list": classes, "classes_performance": classes})
+    except Exception as e:
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
 @app.route("/api/headmaster/pending-grades", methods=["GET"])
+@app.route("/api/headmaster/grades/pending", methods=["GET"])
 def headmaster_pending_grades():
     if not session.get("username"):
         return jsonify({"success": False, "message": "Login required."}), 401
@@ -1938,16 +2000,17 @@ def headmaster_manage_invitations():
         if invited_role not in {"TEACHER", "STUDENT"}:
             return jsonify({"success": False, "message": "Only Teacher or Student invitations are allowed."}), 400
 
-        # The Headmaster types the school name, but the server still verifies
-        # it against the school linked to their account (never trust typed IDs).
+        # The Headmaster types the school name in the form. For security,
+        # invitations are ALWAYS attached to own_school_id from the verified
+        # account membership; the typed name is not used to choose another school.
         school_name = str(data.get("school_name") or "").strip()
+        if not school_name:
+            return jsonify({"success": False, "message": "Please type your school name."}), 400
         cur.execute("SELECT school_name FROM schools WHERE id=%s LIMIT 1", (own_school_id,))
         own_school = cur.fetchone()
         if not own_school:
-            return jsonify({"success": False, "message": "Your account is not linked to a valid school."}), 400
+            return jsonify({"success": False, "message": "Your Headmaster account is not linked to a valid school. Ask the platform administrator to link it to a school."}), 400
         actual_school_name = str(own_school.get("school_name") or "").strip()
-        if not school_name or school_name.casefold() != actual_school_name.casefold():
-            return jsonify({"success": False, "message": "The school name must match the school linked to your Headmaster account."}), 400
 
         class_name = str(data.get("class_name") or "").strip()
         class_id = None
@@ -1960,8 +2023,42 @@ def headmaster_manage_invitations():
             )
             class_row = cur.fetchone()
             if not class_row:
-                return jsonify({"success": False, "message": "That class was not found in your school. Check the spelling or create the class first."}), 400
-            class_id = class_row["id"]
+                # If the Headmaster typed a new class, create it for this school.
+                # The school_id always comes from the authenticated Headmaster membership.
+                class_columns = _table_columns(cur, "classes")
+                if not {"id", "school_id", "class_name"}.issubset(class_columns):
+                    return jsonify({
+                        "success": False,
+                        "message": "The classes table must contain id, school_id and class_name."
+                    }), 500
+                try:
+                    cur.execute(
+                        "INSERT INTO classes (school_id, class_name) VALUES (%s, %s)",
+                        (own_school_id, class_name)
+                    )
+                    class_id = cur.lastrowid
+                    if not class_id:
+                        cur.execute(
+                            "SELECT id FROM classes WHERE school_id=%s AND LOWER(TRIM(class_name))=LOWER(TRIM(%s)) LIMIT 1",
+                            (own_school_id, class_name)
+                        )
+                        created_class = cur.fetchone()
+                        class_id = created_class["id"] if created_class else None
+                    if not class_id:
+                        conn.rollback()
+                        return jsonify({
+                            "success": False,
+                            "message": "The class could not be created. Check the classes table schema and required columns."
+                        }), 500
+                except Exception as class_exc:
+                    conn.rollback()
+                    return jsonify({
+                        "success": False,
+                        "message": "Could not create this class in your school. Check whether the classes table has additional required columns.",
+                        "detail": str(class_exc)
+                    }), 500
+            else:
+                class_id = class_row["id"]
 
         try:
             days = int(data.get("expires_in_days", 7))
@@ -2001,12 +2098,118 @@ def headmaster_manage_invitations():
             "success": True,
             "invitation_code": invitation_code,
             "expires_at": expires_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "invited_role": invited_role
+            "invited_role": invited_role,
+            "school_name": actual_school_name
         }), 201
     except Exception as exc:
         if conn:
             conn.rollback()
         return server_error(exc)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+# =========================================================
+# HEADMASTER SCHOOL REPORTS (PDF / EXCEL)
+# These endpoints are scoped to the authenticated Headmaster's school.
+# =========================================================
+def _headmaster_report_rows(cur, school_id):
+    student_columns = _table_columns(cur, "students")
+    grade_columns = _table_columns(cur, "student_grades")
+    if not {"id", "student_id", "score", "max_score", "status"}.issubset(grade_columns):
+        return [], "The student_grades table is missing required columns."
+    if "school_id" not in student_columns:
+        return [], "The students table must contain school_id to create a school-scoped report."
+    name_col = "student_name" if "student_name" in student_columns else ("full_name" if "full_name" in student_columns else None)
+    extra = []
+    for col in ("term", "academic_year", "created_at"):
+        if col in grade_columns: extra.append("sg.`%s`" % col)
+    select_name = ("st.`%s` AS student_name" % name_col) if name_col else "CAST(st.id AS CHAR) AS student_name"
+    select_extra = (", " + ", ".join(extra)) if extra else ""
+    cur.execute(
+        "SELECT sg.id AS grade_id, %s, sg.score, sg.max_score, sg.status%s "
+        "FROM student_grades sg JOIN students st ON st.id=sg.student_id "
+        "WHERE st.school_id=%%s ORDER BY sg.id DESC LIMIT 5000" % (select_name, select_extra),
+        (school_id,)
+    )
+    return cur.fetchall(), None
+
+
+@app.route("/api/headmaster/reports/excel", methods=["GET"])
+def headmaster_report_excel():
+    if not session.get("username"):
+        return redirect(url_for("login_page"))
+    conn = cur = None
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill
+        import tempfile
+        conn = get_db_connection(); cur = conn.cursor(dictionary=True)
+        identity = _load_session_user(cur)
+        if not identity or identity.get("role") != "HEADMASTER":
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        school_id = (identity.get("membership") or {}).get("school_id")
+        if not school_id:
+            return jsonify({"success": False, "message": "No school linked to account."}), 400
+        rows, problem = _headmaster_report_rows(cur, school_id)
+        if problem: return jsonify({"success": False, "message": problem}), 400
+        cur.execute("SELECT school_name FROM schools WHERE id=%s", (school_id,))
+        school = cur.fetchone() or {}
+        wb = Workbook(); ws = wb.active; ws.title = "School Grades"
+        ws.append([school.get("school_name") or "StudentPredict - School Report"])
+        ws.append(["Grade ID", "Student", "Score", "Maximum", "Status", "Term", "Academic Year", "Created At"])
+        for cell in ws[2]:
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = PatternFill("solid", fgColor="315EE8")
+        for row in rows:
+            ws.append([row.get("grade_id"), row.get("student_name"), float(row.get("score") or 0), float(row.get("max_score") or 0), row.get("status"), row.get("term"), row.get("academic_year"), str(row.get("created_at") or "")])
+        for col in ws.columns:
+            letter = col[0].column_letter
+            ws.column_dimensions[letter].width = min(max(max(len(str(c.value or "")) for c in col) + 2, 12), 32)
+        fd, path = tempfile.mkstemp(suffix=".xlsx", prefix="studentpredict_school_"); os.close(fd); wb.save(path)
+        return send_file(path, as_attachment=True, download_name="studentpredict_school_report.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    except Exception as e:
+        return server_error(e)
+    finally:
+        if cur: cur.close()
+        if conn: conn.close()
+
+
+@app.route("/api/headmaster/reports/pdf", methods=["GET"])
+def headmaster_report_pdf():
+    if not session.get("username"):
+        return redirect(url_for("login_page"))
+    conn = cur = None
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import landscape, A4
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        import tempfile
+        conn = get_db_connection(); cur = conn.cursor(dictionary=True)
+        identity = _load_session_user(cur)
+        if not identity or identity.get("role") != "HEADMASTER":
+            return jsonify({"success": False, "message": "Headmaster only."}), 403
+        school_id = (identity.get("membership") or {}).get("school_id")
+        if not school_id:
+            return jsonify({"success": False, "message": "No school linked to account."}), 400
+        rows, problem = _headmaster_report_rows(cur, school_id)
+        if problem: return jsonify({"success": False, "message": problem}), 400
+        cur.execute("SELECT school_name FROM schools WHERE id=%s", (school_id,))
+        school = cur.fetchone() or {}
+        fd, path = tempfile.mkstemp(suffix=".pdf", prefix="studentpredict_school_"); os.close(fd)
+        doc = SimpleDocTemplate(path, pagesize=landscape(A4), title="StudentPredict School Report")
+        styles = getSampleStyleSheet()
+        data = [["Grade ID", "Student", "Score", "Maximum", "Status", "Term", "Academic Year", "Created At"]]
+        for row in rows:
+            data.append([str(row.get("grade_id") or ""), str(row.get("student_name") or ""), str(row.get("score") or 0), str(row.get("max_score") or 0), str(row.get("status") or ""), str(row.get("term") or ""), str(row.get("academic_year") or ""), str(row.get("created_at") or "")])
+        table = Table(data, repeatRows=1)
+        table.setStyle(TableStyle([("BACKGROUND", (0,0), (-1,0), colors.HexColor("#315EE8")), ("TEXTCOLOR", (0,0), (-1,0), colors.white), ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"), ("GRID", (0,0), (-1,-1), .4, colors.lightgrey), ("FONTSIZE", (0,0), (-1,-1), 8), ("VALIGN", (0,0), (-1,-1), "TOP")]))
+        doc.build([Paragraph(str(school.get("school_name") or "StudentPredict School Report"), styles["Title"]), Paragraph("School grade records (maximum 5,000 rows)", styles["Normal"]), Spacer(1, 12), table])
+        return send_file(path, as_attachment=True, download_name="studentpredict_school_report.pdf", mimetype="application/pdf")
+    except Exception as e:
+        return server_error(e)
     finally:
         if cur: cur.close()
         if conn: conn.close()
