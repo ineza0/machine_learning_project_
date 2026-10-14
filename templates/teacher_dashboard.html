@@ -1,110 +1,1700 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+
     <title>StudentPredict | Teacher Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <script defer src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <script defer
+            src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        .dashboard { max-width: 1400px; margin: auto; padding: 24px; }
-        .top { display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap; }
-        .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; margin:24px 0; }
-        .card { background:var(--panel,#fff); color:var(--text,#172033); padding:20px; border-radius:14px; border:1px solid var(--line,#e4eaf2); }
-        .value { font-size:30px; font-weight:800; margin-top:8px; }
-        .muted { color:var(--muted,#68758b); }
-        .section { margin-top:20px; }
-        .table-wrap { overflow-x:auto; }
-        table { width:100%; border-collapse:collapse; min-width:550px; }
-        th,td { text-align:left; padding:12px; border-bottom:1px solid var(--line,#e4eaf2); }
-        .btn { padding:9px 13px; border-radius:8px; cursor:pointer; }
-        .notice { padding:14px; border:1px dashed var(--line,#ddd); border-radius:10px; }
-        @media(max-width:600px) { .dashboard { padding:12px; } }
+        :root {
+            color-scheme: light;
+            --bg: #f4f7fc;
+            --panel: #ffffff;
+            --panel-2: #f8faff;
+            --text: #182338;
+            --muted: #728097;
+            --line: #e4eaf3;
+            --primary: #4568f5;
+            --primary-soft: #edf1ff;
+            --green: #168767;
+            --green-soft: #e8f8f1;
+            --orange: #c87520;
+            --orange-soft: #fff3e5;
+            --red: #d34f61;
+            --red-soft: #fff0f1;
+            --purple: #8064d8;
+            --shadow: 0 8px 28px rgba(31, 49, 83, .055);
+            --radius: 18px;
+        }
+
+        body.dark-mode {
+            color-scheme: dark;
+            --bg: #101624;
+            --panel: #192235;
+            --panel-2: #202b40;
+            --text: #edf2ff;
+            --muted: #a1aec5;
+            --line: #303c52;
+            --primary: #91a5ff;
+            --primary-soft: #293453;
+            --green: #55d4a6;
+            --green-soft: #173c35;
+            --orange: #ffc078;
+            --orange-soft: #453322;
+            --red: #ff8795;
+            --red-soft: #48272f;
+            --purple: #b6a2ff;
+            --shadow: 0 8px 28px rgba(0, 0, 0, .16);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.55;
+            transition: background .2s, color .2s;
+        }
+
+        button, input, select, textarea { font: inherit; }
+        button, select { cursor: pointer; }
+
+        button:focus-visible, input:focus-visible,
+        select:focus-visible, textarea:focus-visible {
+            outline: 3px solid rgba(69, 104, 245, .28);
+            outline-offset: 2px;
+        }
+
+        .app {
+            max-width: 1600px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #4668f5, #8c71ff);
+            color: #fff;
+            font-size: 22px;
+            font-weight: 900;
+            box-shadow: 0 8px 20px #4568f530;
+        }
+
+        .brand-name {
+            font-size: 18px;
+            font-weight: 850;
+            letter-spacing: -.5px;
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .top-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            align-items: center;
+        }
+
+        .field, .btn {
+            border: 1px solid var(--line);
+            background: var(--panel);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 10px 12px;
+            min-height: 40px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform .15s, opacity .15s;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        body.dark-mode .btn-primary { color: #121a2a; }
+
+        .btn-soft {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-color: transparent;
+        }
+
+        .btn-danger {
+            color: var(--red);
+            background: var(--red-soft);
+            border-color: transparent;
+        }
+
+        .welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .eyebrow {
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(25px, 3vw, 34px);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin: 6px 0 8px;
+        }
+
+        h2 { font-size: 17px; margin: 0; letter-spacing: -.3px; }
+        h3 { font-size: 14px; margin: 0; }
+        p { margin: 6px 0; }
+        .muted { color: var(--muted); }
+        .small { font-size: 12px; }
+        .hidden { display: none !important; }
+
+        .school-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            padding: 10px 13px;
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .metric, .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .metric { padding: 19px; }
+
+        .metric-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            font-size: 19px;
+        }
+
+        .icon-blue { background: var(--primary-soft); }
+        .icon-green { background: var(--green-soft); }
+        .icon-orange { background: var(--orange-soft); }
+        .icon-red { background: var(--red-soft); }
+
+        .metric-value {
+            font-size: 30px;
+            line-height: 1.2;
+            font-weight: 850;
+            letter-spacing: -1px;
+            margin-top: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-label { font-size: 12px; color: var(--muted); }
+        .metric-note { font-size: 11px; color: var(--muted); margin-top: 7px; }
+
+        .layout-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(300px, .85fr);
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .layout-equal {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .panel { padding: 21px; margin-bottom: 18px; }
+
+        .panel-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .panel-head p { font-size: 12px; color: var(--muted); }
+
+        .chart-box {
+            height: 275px;
+            width: 100%;
+            position: relative;
+        }
+
+        .chart-box.short { height: 225px; }
+
+        .ai-panel {
+            background:
+                radial-gradient(ellipse at top right, #8d75ff24, transparent 48%),
+                var(--panel);
+            border-color: #8271dd55;
+        }
+
+        .ai-heading {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .ai-symbol {
+            display: grid;
+            place-items: center;
+            height: 42px;
+            width: 42px;
+            border-radius: 13px;
+            color: white;
+            font-size: 20px;
+            background: linear-gradient(135deg, #7561db, #a06be9);
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 750;
+            background: var(--panel-2);
+            color: var(--muted);
+        }
+
+        .status.good { background: var(--green-soft); color: var(--green); }
+        .status.warn { background: var(--orange-soft); color: var(--orange); }
+        .status.bad { background: var(--red-soft); color: var(--red); }
+
+        .insight-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .insight {
+            padding: 12px;
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .insight strong { display: block; margin-bottom: 3px; }
+        .insight p { color: var(--muted); font-size: 12px; }
+
+        .toolbar {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .toolbar .field { min-width: 145px; }
+        .toolbar .grow { flex: 1; }
+
+        .table-wrap {
+            width: 100%;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 680px;
+        }
+
+        th, td {
+            padding: 13px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            background: var(--panel-2);
+        }
+
+        td { font-size: 12px; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--panel-2); }
+
+        .score-track {
+            width: 80px;
+            height: 6px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--line);
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 7px;
+        }
+
+        .score-fill {
+            display: block;
+            height: 100%;
+            border-radius: 10px;
+            background: var(--primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .form-group { display: grid; gap: 6px; min-width: 0; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 12px; font-weight: 750; }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            min-width: 0;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            color: var(--text);
+            padding: 11px 12px;
+            border-radius: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 16px;
+        }
+
+        .notice {
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            color: var(--muted);
+            background: var(--panel-2);
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .notice.error {
+            color: var(--red);
+            background: var(--red-soft);
+            border-color: transparent;
+        }
+
+        .notice.success {
+            color: var(--green);
+            background: var(--green-soft);
+            border-color: transparent;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 24px 12px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 14px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .loading { opacity: .65; pointer-events: none; }
+
+        @media (max-width: 1050px) {
+            .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .layout-main { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 720px) {
+            .app { padding: 13px; }
+            .topbar, .welcome { align-items: flex-start; flex-direction: column; }
+            .top-actions { width: 100%; }
+            .top-actions .field, .top-actions .btn { flex: 1; }
+            .layout-equal { grid-template-columns: 1fr; }
+            .panel { padding: 15px; }
+            .metric { padding: 15px; }
+            .metric-value { font-size: 25px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: auto; }
+            .chart-box { height: 245px; }
+        }
+
+        @media (max-width: 380px) {
+            .metrics { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
+
 <body>
-<div class="dashboard">
-    <header class="top">
-        <div>
-            <p class="muted">StudentPredict / Teacher</p>
-            <h1>Teacher Dashboard</h1>
-            <p>Welcome, {{ session.get('full_name') or session.get('username', 'Teacher') }}</p>
+<div class="app">
+
+    <header class="topbar">
+        <div class="brand-row">
+            <div class="brand-icon">S</div>
+            <div>
+                <div class="brand-name">StudentPredict</div>
+                <div class="brand-sub">Teacher workspace · Academic insights</div>
+            </div>
         </div>
-        <div>
-            <select id="language-select" aria-label="Language">
+
+        <div class="top-actions">
+            <select class="field" id="language-select" aria-label="Language">
                 <option value="en">English</option>
                 <option value="rw">Kinyarwanda</option>
                 <option value="fr">Français</option>
             </select>
-            <button class="btn" id="theme-toggle" type="button">Dark mode</button>
-            <button class="btn" type="button" data-logout>Log out</button>
+
+            <button class="btn" id="theme-toggle" type="button">🌙 Dark</button>
+            <button class="btn" id="refresh-button" type="button">↻ Refresh</button>
+            <button class="btn btn-danger" type="button" data-logout>Log out</button>
         </div>
     </header>
 
-    <section class="cards">
-        <article class="card">
-            <div class="muted">Assigned classes</div>
-            <div class="value" id="class-count">—</div>
+    <section class="welcome">
+        <div>
+            <div class="eyebrow" data-i18n="teacher_workspace">Teacher workspace</div>
+            <h1><span data-i18n="hello">Hello</span>,
+                {{ session.get('full_name') or session.get('username', 'Teacher') }} 👋
+            </h1>
+            <p class="muted" data-i18n="welcome_text">
+                Track grades, understand class performance and support every learner.
+            </p>
+        </div>
+
+        <div class="school-label">
+            🏫 <span id="school-name">School information loads from your account</span>
+        </div>
+    </section>
+
+    <div id="global-message" class="notice hidden" role="status"></div>
+
+    <!-- KPI CARDS -->
+    <section class="metrics">
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label" data-i18n="assigned_classes">Assigned classes</span>
+                <span class="metric-icon icon-blue">🏫</span>
+            </div>
+            <div class="metric-value" id="class-count">—</div>
+            <div class="metric-note" data-i18n="classes_accessible">Classes assigned to your account</div>
         </article>
-        <article class="card">
-            <div class="muted">Assigned subjects</div>
-            <div class="value" id="subject-count">—</div>
+
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label" data-i18n="students_taught">Students taught</span>
+                <span class="metric-icon icon-green">👨‍🎓</span>
+            </div>
+            <div class="metric-value" id="student-count">—</div>
+            <div class="metric-note" data-i18n="students_in_assignments">Students in your assignments</div>
         </article>
-        <article class="card">
-            <div class="muted">Grades entered</div>
-            <div class="value" id="grade-count">—</div>
+
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label" data-i18n="grades_entered">Grades entered</span>
+                <span class="metric-icon icon-orange">📝</span>
+            </div>
+            <div class="metric-value" id="grade-count">—</div>
+            <div class="metric-note" data-i18n="grades_recorded">Recorded grades in your assignments</div>
         </article>
-        <article class="card">
-            <div class="muted">Pending grades</div>
-            <div class="value" id="pending-count">—</div>
+
+        <article class="metric">
+            <div class="metric-head">
+                <span class="metric-label" data-i18n="pending_grades">Pending grades</span>
+                <span class="metric-icon icon-red">⏳</span>
+            </div>
+            <div class="metric-value" id="pending-count">—</div>
+            <div class="metric-note" data-i18n="awaiting_approval">Awaiting approval, where required</div>
         </article>
     </section>
 
-    <section class="card section">
-        <h2>My teaching assignments</h2>
-        <p class="muted">Only classes and subjects assigned to your account should appear here.</p>
-        <div class="notice" id="assignment-message">
-            Teacher assignment API has not been connected yet.
+    <!-- CHARTS + AI -->
+    <section class="layout-main">
+        <article class="panel">
+            <div class="panel-head">
+                <div>
+                    <h2 data-i18n="class_performance">Class performance</h2>
+                    <p data-i18n="class_performance_desc">Average score by your assigned class</p>
+                </div>
+                <span class="status" id="analytics-status">Waiting for data</span>
+            </div>
+            <div class="chart-box">
+                <canvas id="class-chart" aria-label="Class performance chart"></canvas>
+                <div class="empty" id="class-chart-empty">
+                    Class analytics will appear when the teacher analytics API is connected.
+                </div>
+            </div>
+        </article>
+
+        <article class="panel ai-panel">
+            <div class="panel-head">
+                <div class="ai-heading">
+                    <div class="ai-symbol">✦</div>
+                    <div>
+                        <h2 data-i18n="ai_learning_insights">AI learning insights</h2>
+                        <p data-i18n="ai_desc">Evidence-based guidance from available grade data</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ai-summary" class="notice">
+                <span data-i18n="ai_not_connected">
+                    AI analysis has not been connected yet. No AI findings are being invented.
+                </span>
+            </div>
+
+            <div class="insight-list" id="ai-insights">
+                <div class="insight">
+                    <strong data-i18n="insight_placeholder_title">Insights will appear here</strong>
+                    <p data-i18n="insight_placeholder_desc">
+                        Connect the protected teacher analysis endpoint to receive recommendations.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" id="run-ai" type="button" data-i18n="analyze_grades">
+                    Analyze grades
+                </button>
+            </div>
+        </article>
+    </section>
+
+    <section class="layout-equal">
+        <article class="panel">
+            <div class="panel-head">
+                <div>
+                    <h2 data-i18n="subject_performance">Subject performance</h2>
+                    <p data-i18n="subject_performance_desc">Average scores across your assigned subjects</p>
+                </div>
+            </div>
+            <div class="chart-box short">
+                <canvas id="subject-chart" aria-label="Subject performance chart"></canvas>
+                <div class="empty" id="subject-chart-empty">Subject data will appear here.</div>
+            </div>
+        </article>
+
+        <article class="panel">
+            <div class="panel-head">
+                <div>
+                    <h2 data-i18n="grade_distribution">Grade distribution</h2>
+                    <p data-i18n="grade_distribution_desc">How recorded scores are distributed</p>
+                </div>
+            </div>
+            <div class="chart-box short">
+                <canvas id="distribution-chart" aria-label="Grade distribution chart"></canvas>
+                <div class="empty" id="distribution-chart-empty">Grade distribution will appear here.</div>
+            </div>
+        </article>
+    </section>
+
+    <!-- ASSIGNMENTS -->
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h2 data-i18n="my_assignments">My teaching assignments</h2>
+                <p data-i18n="assignments_desc">
+                    Only classes and subjects assigned to your account are shown.
+                </p>
+            </div>
+            <span class="status" id="assignment-count">0 assignments</span>
         </div>
+
+        <div id="assignment-message" class="notice">
+            Loading assignments…
+        </div>
+
         <div class="table-wrap">
             <table>
                 <thead>
-                    <tr>
-                        <th>Class</th>
-                        <th>Subject</th>
-                        <th>Academic year</th>
-                        <th>Action</th>
-                    </tr>
+                <tr>
+                    <th data-i18n="class">Class</th>
+                    <th data-i18n="subject">Subject</th>
+                    <th data-i18n="academic_year">Academic year</th>
+                    <th data-i18n="action">Action</th>
+                </tr>
                 </thead>
                 <tbody id="assignment-table">
-                    <tr>
-                        <td colspan="4">Assignments will appear after the API is connected.</td>
-                    </tr>
+                <tr><td colspan="4" class="empty">Loading assignments…</td></tr>
                 </tbody>
             </table>
         </div>
     </section>
 
-    <section class="card section">
-        <h2>Grade entry</h2>
-        <p class="muted">
-            The grade-entry form will be enabled after the secure Flask API is ready.
-            The server must verify your teacher assignment before accepting a grade.
-        </p>
-        <ol>
-            <li>Select an assigned class and subject.</li>
-            <li>Select a student from that class.</li>
-            <li>Enter the score, maximum score, term and academic year.</li>
-            <li>Submit the grade for the school's configured approval process.</li>
-        </ol>
+    <!-- GRADE ENTRY -->
+    <section class="panel" id="grade-entry">
+        <div class="panel-head">
+            <div>
+                <h2 data-i18n="enter_grades">Enter student grades</h2>
+                <p data-i18n="grade_entry_desc">
+                    Select one of your assignments before entering a grade.
+                </p>
+            </div>
+            <span class="status warn" data-i18n="server_verified">Server-verified access</span>
+        </div>
+
+        <form id="grade-form">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="assignment-id" data-i18n="assignment">Teaching assignment</label>
+                    <select id="assignment-id" name="assignment_id" required>
+                        <option value="">Load your assignments first</option>
+                    </select>
+                </div>
+
+                <div class="form-group full">
+                    <label for="student-id" data-i18n="student">Student</label>
+                    <select id="student-id" name="student_id" required disabled>
+                        <option value="">Select an assignment first</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="score" data-i18n="score">Score obtained</label>
+                    <input id="score" name="score" type="number"
+                           min="0" step="0.01" required placeholder="e.g. 75">
+                </div>
+
+                <div class="form-group">
+                    <label for="max-score" data-i18n="maximum_score">Maximum score</label>
+                    <input id="max-score" name="max_score" type="number"
+                           min="0.01" step="0.01" value="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="term" data-i18n="term">Term</label>
+                    <select id="term" name="term" required>
+                        <option value="Term 1">Term 1</option>
+                        <option value="Term 2">Term 2</option>
+                        <option value="Term 3">Term 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="academic-year" data-i18n="academic_year">Academic year</label>
+                    <input id="academic-year" name="academic_year"
+                           type="text" required placeholder="e.g. 2026">
+                </div>
+
+                <div class="form-group full">
+                    <label for="grade-comment" data-i18n="teacher_comment">Teacher comment (optional)</label>
+                    <textarea id="grade-comment" name="comment" rows="2"
+                              maxlength="1000"
+                              placeholder="Optional learning feedback"></textarea>
+                </div>
+            </div>
+
+            <div class="notice" data-i18n="approval_notice">
+                Grades are saved according to your school's approval policy.
+                The server must verify your assignment and school access.
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" id="submit-grade" type="submit"
+                        data-i18n="save_grade">Save grade</button>
+                <button class="btn" id="reset-grade" type="reset"
+                        data-i18n="clear_form">Clear form</button>
+            </div>
+        </form>
+
+        <div id="grade-message" class="notice hidden" role="status"></div>
     </section>
 
-    <section class="card section">
-        <h2>Recent grade activity</h2>
-        <p class="muted">Recent activity will appear after the teacher-grade API is implemented.</p>
+    <!-- GRADE RECORDS -->
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h2 data-i18n="grade_records">Grade records</h2>
+                <p data-i18n="grade_records_desc">
+                    Review the records available to your teacher account.
+                </p>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <select id="record-assignment" class="field">
+                <option value="">All my assignments</option>
+            </select>
+
+            <input id="record-search" class="field grow"
+                   type="search" placeholder="Search student or subject">
+
+            <button class="btn" id="export-excel" type="button">↓ Excel</button>
+            <button class="btn" id="export-pdf" type="button">↓ PDF</button>
+        </div>
+
+        <div id="records-message" class="notice">
+            Grade records will appear after the records API is connected.
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th data-i18n="student">Student</th>
+                    <th data-i18n="class">Class</th>
+                    <th data-i18n="subject">Subject</th>
+                    <th data-i18n="score">Score</th>
+                    <th data-i18n="percentage">Percentage</th>
+                    <th data-i18n="status">Status</th>
+                    <th data-i18n="date">Date</th>
+                </tr>
+                </thead>
+                <tbody id="records-table">
+                <tr><td colspan="7" class="empty">No records loaded.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </section>
+
+    <footer class="footer">
+        StudentPredict · Teacher workspace · Secure, school-scoped academic records
+    </footer>
 </div>
+
+<script>
+(() => {
+    "use strict";
+
+    /*
+     * Flask API contracts used by this page:
+     * GET  /api/teacher/assignments
+     * GET  /api/teacher/analytics
+     * GET  /api/teacher/students?assignment_id=...
+     * GET  /api/teacher/grades
+     * POST /api/teacher/grades
+     * GET  /api/teacher/ai-analysis
+     * GET  /api/teacher/report/excel?assignment_id=...
+     * GET  /api/teacher/report/pdf?assignment_id=...
+     *
+     * These endpoints must exist in app.py. This frontend does not create
+     * database records or fabricate analytics when an endpoint is missing.
+     */
+
+    const API = {
+        assignments: "/api/teacher/assignments",
+        analytics: "/api/teacher/analytics",
+        students: "/api/teacher/students",
+        grades: "/api/teacher/grades",
+        ai: "/api/teacher/ai-analysis",
+        excel: "/api/teacher/report/excel",
+        pdf: "/api/teacher/report/pdf"
+    };
+
+    const translations = {
+        en: {
+            teacher_workspace: "Teacher workspace",
+            hello: "Hello",
+            welcome_text: "Track grades, understand class performance and support every learner.",
+            assigned_classes: "Assigned classes",
+            classes_accessible: "Classes assigned to your account",
+            students_taught: "Students taught",
+            students_in_assignments: "Students in your assignments",
+            grades_entered: "Grades entered",
+            grades_recorded: "Recorded grades in your assignments",
+            pending_grades: "Pending grades",
+            awaiting_approval: "Awaiting approval, where required",
+            class_performance: "Class performance",
+            class_performance_desc: "Average score by your assigned class",
+            ai_learning_insights: "AI learning insights",
+            ai_desc: "Evidence-based guidance from available grade data",
+            ai_not_connected: "AI analysis is not connected yet. No AI findings are being invented.",
+            insight_placeholder_title: "Insights will appear here",
+            insight_placeholder_desc: "Connect the protected teacher analysis endpoint to receive recommendations.",
+            analyze_grades: "Analyze grades",
+            subject_performance: "Subject performance",
+            subject_performance_desc: "Average scores across your assigned subjects",
+            grade_distribution: "Grade distribution",
+            grade_distribution_desc: "How recorded scores are distributed",
+            my_assignments: "My teaching assignments",
+            assignments_desc: "Only classes and subjects assigned to your account are shown.",
+            class: "Class", subject: "Subject", academic_year: "Academic year",
+            action: "Action", enter_grades: "Enter student grades",
+            grade_entry_desc: "Select one of your assignments before entering a grade.",
+            server_verified: "Server-verified access", assignment: "Teaching assignment",
+            student: "Student", score: "Score", maximum_score: "Maximum score",
+            term: "Term", teacher_comment: "Teacher comment (optional)",
+            approval_notice: "Grades are saved according to your school's approval policy. The server must verify your assignment and school access.",
+            save_grade: "Save grade", clear_form: "Clear form",
+            grade_records: "Grade records",
+            grade_records_desc: "Review the records available to your teacher account.",
+            percentage: "Percentage", status: "Status", date: "Date",
+            search_placeholder: "Search student or subject",
+            refresh: "↻ Refresh", dark: "🌙 Dark", light: "☀ Light",
+            loading: "Loading…", load_error: "Could not load data. Check that the Flask API is implemented and that you are signed in.",
+            no_assignments: "No assignments found for your account.",
+            select_assignment: "Select an assignment first",
+            select_student: "Select a student",
+            choose_assignment: "Choose assignment",
+            students_error: "Could not load students for this assignment.",
+            save_success: "Grade submitted successfully.",
+            save_error: "Could not save the grade. Check the server response.",
+            no_records: "No grade records found.",
+            all_assignments: "All my assignments",
+            waiting_data: "Waiting for data",
+            class_col: "Class", subject_col: "Subject",
+            view_students: "Enter grades",
+            status_pending: "Pending", status_approved: "Approved",
+            status_rejected: "Rejected", status_unknown: "Unknown",
+            assignments_count: "assignments",
+            api_unavailable: "This feature needs its protected Flask API before it can work.",
+            ai_error: "AI analysis could not be loaded. Ensure the analysis endpoint is implemented.",
+            no_ai_findings: "No analysis was returned.",
+            export_error: "The report download endpoint is unavailable or returned an error.",
+            export_note: "Downloads include only records your teacher account is authorized to access.",
+            saved_pending: "Grade saved and awaiting approval.",
+            saved_approved: "Grade saved according to the school's approval policy.",
+            invalid_score: "Score must be between zero and the maximum score.",
+            choose_student: "Choose a student first.",
+            score_average: "Average score (%)",
+            score_label: "Score",
+            distribution: "Number of grades"
+        },
+        rw: {
+            teacher_workspace: "Aho umwarimu akorera",
+            hello: "Muraho",
+            welcome_text: "Kurikirana amanota, imikorere y’amashuri n’uburyo wafasha buri munyeshuri.",
+            assigned_classes: "Amashuri wigisha",
+            classes_accessible: "Amashuri wahawe uburenganzira",
+            students_taught: "Abanyeshuri wigisha",
+            students_in_assignments: "Abanyeshuri bo mu mashuri wigisha",
+            grades_entered: "Amanota yinjiye",
+            grades_recorded: "Amanota wabitswe",
+            pending_grades: "Amanota ategereje",
+            awaiting_approval: "Ategereje kwemezwa aho bisabwa",
+            class_performance: "Imikorere y’amashuri",
+            class_performance_desc: "Impuzandengo y’amanota kuri buri shuri",
+            ai_learning_insights: "Isesengura rya AI",
+            ai_desc: "Inama zishingiye ku makuru y’amanota",
+            ai_not_connected: "Isesengura rya AI ntirahuye na system. Nta bisubizo by’impimbano byerekanwa.",
+            insight_placeholder_title: "Inama zizagaragara hano",
+            insight_placeholder_desc: "Huza API ya AI irinzwe kugira ngo ubone inama.",
+            analyze_grades: "Sesengura amanota",
+            subject_performance: "Imikorere y’amasomo",
+            subject_performance_desc: "Impuzandengo y’amanota mu masomo wigisha",
+            grade_distribution: "Uko amanota akwirakwijwe",
+            grade_distribution_desc: "Umubare w’amanota ari mu byiciro bitandukanye",
+            my_assignments: "Amasomo n’amashuri nigisha",
+            assignments_desc: "Hagaragara gusa amashuri n’amasomo wahawe.",
+            class: "Ishuri", subject: "Isomo", academic_year: "Umwaka w’amashuri",
+            action: "Igikorwa", enter_grades: "Kwinjiza amanota",
+            grade_entry_desc: "Banza uhitemo ishuri n’isomo ushinzwe.",
+            server_verified: "Uburenganzira bugenzurwa na server",
+            assignment: "Ishuri n’isomo", student: "Umunyeshuri",
+            score: "Amanota yabonye", maximum_score: "Amanota ntarengwa",
+            term: "Igihembwe", teacher_comment: "Igitekerezo cy’umwarimu (si ngombwa)",
+            approval_notice: "Amanota abikwa hakurikijwe uburyo ishuri ryahisemo bwo kuyemeza. Server igomba kugenzura uburenganzira bwawe.",
+            save_grade: "Bika amanota", clear_form: "Siba ibyuzuye",
+            grade_records: "Amanota yabitswe",
+            grade_records_desc: "Reba amanota konti yawe yemerewe kubona.",
+            percentage: "Ijanisha", status: "Imiterere", date: "Itariki",
+            search_placeholder: "Shakisha umunyeshuri cyangwa isomo",
+            refresh: "↻ Kuvugurura", dark: "🌙 Umwijima", light: "☀ Urumuri",
+            loading: "Birimo gutegurwa…",
+            load_error: "Amakuru ntiyabonetse. Reba ko Flask API ihari kandi winjiye muri konti.",
+            no_assignments: "Nta masomo cyangwa mashuri washinzwe yabonetse.",
+            select_assignment: "Banza uhitemo ishuri n’isomo",
+            select_student: "Hitamo umunyeshuri",
+            students_error: "Abanyeshuri ntibashoboye kuboneka.",
+            save_success: "Amanota yoherejwe neza.",
+            save_error: "Amanota ntiyabashije kubikwa. Reba ubutumwa bwa server.",
+            no_records: "Nta manota yabonetse.",
+            all_assignments: "Amasomo yanjye yose",
+            waiting_data: "Hategerejwe amakuru",
+            view_students: "Injiza amanota",
+            status_pending: "Ategereje", status_approved: "Yemejwe",
+            status_rejected: "Yanzwe", status_unknown: "Ntizwi",
+            assignments_count: "amasomo",
+            api_unavailable: "Iki gikorwa gisaba Flask API irinzwe.",
+            ai_error: "Isesengura rya AI ntiryabonetse. Reba API yabugenewe.",
+            no_ai_findings: "Nta sesengura ryagarutse.",
+            export_error: "Raporo ntiyashoboye gukururwa.",
+            export_note: "Ukura gusa amakuru konti yawe yemerewe kubona.",
+            saved_pending: "Amanota yabitswe ategereje kwemezwa.",
+            saved_approved: "Amanota yabitswe hakurikijwe amabwiriza y’ishuri.",
+            invalid_score: "Amanota agomba kuba hagati ya zeru n’amanota ntarengwa.",
+            choose_student: "Banza uhitemo umunyeshuri.",
+            score_average: "Impuzandengo (%)", score_label: "Amanota",
+            distribution: "Umubare w’amanota"
+        },
+        fr: {
+            teacher_workspace: "Espace enseignant",
+            hello: "Bonjour",
+            welcome_text: "Suivez les notes, analysez les classes et accompagnez chaque élève.",
+            assigned_classes: "Classes attribuées",
+            classes_accessible: "Classes autorisées pour votre compte",
+            students_taught: "Élèves enseignés",
+            students_in_assignments: "Élèves de vos classes",
+            grades_entered: "Notes saisies",
+            grades_recorded: "Notes enregistrées dans vos classes",
+            pending_grades: "Notes en attente",
+            awaiting_approval: "En attente de validation si nécessaire",
+            class_performance: "Performance des classes",
+            class_performance_desc: "Moyenne des notes par classe",
+            ai_learning_insights: "Analyses pédagogiques IA",
+            ai_desc: "Conseils fondés sur les notes disponibles",
+            ai_not_connected: "L'analyse IA n'est pas connectée. Aucun résultat fictif n'est affiché.",
+            insight_placeholder_title: "Les analyses apparaîtront ici",
+            insight_placeholder_desc: "Connectez l'API d'analyse protégée pour obtenir des recommandations.",
+            analyze_grades: "Analyser les notes",
+            subject_performance: "Performance par matière",
+            subject_performance_desc: "Moyennes des matières attribuées",
+            grade_distribution: "Répartition des notes",
+            grade_distribution_desc: "Répartition des notes enregistrées",
+            my_assignments: "Mes affectations",
+            assignments_desc: "Seules les classes et matières attribuées à votre compte apparaissent.",
+            class: "Classe", subject: "Matière", academic_year: "Année scolaire",
+            action: "Action", enter_grades: "Saisir les notes",
+            grade_entry_desc: "Choisissez une affectation avant de saisir une note.",
+            server_verified: "Accès vérifié par le serveur",
+            assignment: "Affectation", student: "Élève",
+            score: "Note obtenue", maximum_score: "Note maximale",
+            term: "Trimestre", teacher_comment: "Commentaire de l'enseignant (facultatif)",
+            approval_notice: "Les notes suivent la procédure de validation de l'école. Le serveur doit vérifier vos autorisations.",
+            save_grade: "Enregistrer", clear_form: "Effacer",
+            grade_records: "Relevé des notes",
+            grade_records_desc: "Consultez les notes accessibles à votre compte.",
+            percentage: "Pourcentage", status: "Statut", date: "Date",
+            search_placeholder: "Rechercher un élève ou une matière",
+            refresh: "↻ Actualiser", dark: "🌙 Sombre", light: "☀ Clair",
+            loading: "Chargement…",
+            load_error: "Impossible de charger les données. Vérifiez l'API Flask et votre connexion.",
+            no_assignments: "Aucune affectation trouvée.",
+            select_assignment: "Choisissez d'abord une affectation",
+            select_student: "Choisir un élève",
+            students_error: "Impossible de charger les élèves de cette affectation.",
+            save_success: "Note envoyée avec succès.",
+            save_error: "Impossible d'enregistrer la note. Vérifiez la réponse du serveur.",
+            no_records: "Aucune note trouvée.",
+            all_assignments: "Toutes mes affectations",
+            waiting_data: "En attente de données",
+            view_students: "Saisir les notes",
+            status_pending: "En attente", status_approved: "Validé",
+            status_rejected: "Rejeté", status_unknown: "Inconnu",
+            assignments_count: "affectations",
+            api_unavailable: "Cette fonction nécessite une API Flask sécurisée.",
+            ai_error: "Analyse IA indisponible. Vérifiez l'API d'analyse.",
+            no_ai_findings: "Aucune analyse reçue.",
+            export_error: "Le téléchargement du rapport a échoué.",
+            export_note: "Les téléchargements se limitent aux données autorisées pour votre compte.",
+            saved_pending: "Note enregistrée en attente de validation.",
+            saved_approved: "Note enregistrée selon la politique de l'école.",
+            invalid_score: "La note doit être comprise entre zéro et la note maximale.",
+            choose_student: "Choisissez d'abord un élève.",
+            score_average: "Moyenne (%)", score_label: "Note",
+            distribution: "Nombre de notes"
+        }
+    };
+
+    let language = "en";
+    let assignments = [];
+    let records = [];
+    let charts = {};
+    let analytics = null;
+
+    const $ = id => document.getElementById(id);
+    const t = key => translations[language][key] || translations.en[key] || key;
+
+    function safeText(value) {
+        return String(value ?? "");
+    }
+
+    function escapeHTML(value) {
+        return safeText(value).replace(/[&<>"']/g, char => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;",
+            '"': "&quot;", "'": "&#39;"
+        })[char]);
+    }
+
+    function showMessage(id, message, type = "") {
+        const element = $(id);
+        if (!element) return;
+        element.textContent = message;
+        element.className = "notice" + (type ? " " + type : "");
+        element.classList.remove("hidden");
+    }
+
+    function hideMessage(id) {
+        $(id)?.classList.add("hidden");
+    }
+
+    async function requestJSON(url, options = {}) {
+        const response = await fetch(url, {
+            credentials: "same-origin",
+            ...options,
+            headers: {
+                "Accept": "application/json",
+                ...(options.body ? {"Content-Type": "application/json"} : {}),
+                ...(options.headers || {})
+            }
+        });
+
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            throw new Error("Expected a JSON API response");
+        }
+
+        const data = await response.json();
+
+        if (!response.ok || data.success === false) {
+            throw new Error(data.message || ("HTTP " + response.status));
+        }
+
+        return data;
+    }
+
+    function setMetric(id, value) {
+        $(id).textContent = value === undefined || value === null ? "—" : value;
+    }
+
+    function getArray(data, keys) {
+        for (const key of keys) {
+            if (Array.isArray(data?.[key])) return data[key];
+            if (Array.isArray(data?.data?.[key])) return data.data[key];
+        }
+        return [];
+    }
+
+    function assignmentId(item) {
+        return item.assignment_id ?? item.id;
+    }
+
+    function assignmentClass(item) {
+        return item.class_name ?? item.class ?? "—";
+    }
+
+    function assignmentSubject(item) {
+        return item.subject_name ?? item.subject ?? "—";
+    }
+
+    function applyTranslations() {
+        document.documentElement.lang = language;
+
+        document.querySelectorAll("[data-i18n]").forEach(element => {
+            const key = element.dataset.i18n;
+            if (translations[language][key]) {
+                element.textContent = translations[language][key];
+            }
+        });
+
+        $("record-search").placeholder = t("search_placeholder");
+        $("refresh-button").textContent = t("refresh");
+        updateThemeButton();
+        renderAssignments();
+        renderRecords();
+        renderAI();
+    }
+
+    function setLanguage(value) {
+        language = translations[value] ? value : "en";
+        localStorage.setItem("studentpredict_teacher_language", language);
+        applyTranslations();
+        renderCharts();
+    }
+
+    function updateThemeButton() {
+        $("theme-toggle").textContent =
+            document.body.classList.contains("dark-mode") ? t("light") : t("dark");
+    }
+
+    function setTheme(dark) {
+        document.body.classList.toggle("dark-mode", dark);
+        localStorage.setItem("studentpredict_teacher_theme", dark ? "dark" : "light");
+        updateThemeButton();
+        renderCharts();
+    }
+
+    function renderAssignments() {
+        const tbody = $("assignment-table");
+        const select = $("assignment-id");
+        const filter = $("record-assignment");
+        const oldSelection = select.value;
+        const oldFilter = filter.value;
+
+        if (!assignments.length) {
+            tbody.innerHTML = `<tr><td colspan="4" class="empty">${escapeHTML(t("no_assignments"))}</td></tr>`;
+            $("assignment-message").textContent = t("no_assignments");
+        } else {
+            tbody.innerHTML = assignments.map(item => `
+                <tr>
+                    <td>${escapeHTML(assignmentClass(item))}</td>
+                    <td>${escapeHTML(assignmentSubject(item))}</td>
+                    <td>${escapeHTML(item.academic_year ?? "—")}</td>
+                    <td><button class="btn btn-soft" data-select-assignment="${escapeHTML(assignmentId(item))}">
+                        ${escapeHTML(t("view_students"))}
+                    </button></td>
+                </tr>
+            `).join("");
+
+            $("assignment-message").textContent = "";
+            $("assignment-message").classList.add("hidden");
+        }
+
+        select.innerHTML = `<option value="">${escapeHTML(t("choose_assignment"))}</option>` +
+            assignments.map(item => `
+                <option value="${escapeHTML(assignmentId(item))}">
+                    ${escapeHTML(assignmentClass(item))} — ${escapeHTML(assignmentSubject(item))}
+                </option>`).join("");
+
+        filter.innerHTML = `<option value="">${escapeHTML(t("all_assignments"))}</option>` +
+            assignments.map(item => `
+                <option value="${escapeHTML(assignmentId(item))}">
+                    ${escapeHTML(assignmentClass(item))} — ${escapeHTML(assignmentSubject(item))}
+                </option>`).join("");
+
+        if (assignments.some(item => String(assignmentId(item)) === oldSelection)) {
+            select.value = oldSelection;
+        }
+        if (assignments.some(item => String(assignmentId(item)) === oldFilter)) {
+            filter.value = oldFilter;
+        }
+
+        $("assignment-count").textContent = `${assignments.length} ${t("assignments_count")}`;
+    }
+
+    async function loadAssignments() {
+        $("assignment-message").textContent = t("loading");
+        $("assignment-message").classList.remove("hidden");
+
+        try {
+            const data = await requestJSON(API.assignments);
+            assignments = getArray(data, ["assignments", "items"]);
+            if (data.school_name) $("school-name").textContent = data.school_name;
+
+            const classes = new Set(assignments.map(assignmentClass));
+            const subjects = new Set(assignments.map(assignmentSubject));
+
+            setMetric("class-count", classes.size);
+            setMetric("subject-count", subjects.size);
+            renderAssignments();
+        } catch (error) {
+            assignments = [];
+            renderAssignments();
+            showMessage("assignment-message", t("load_error"), "error");
+            setMetric("class-count", "—");
+            setMetric("subject-count", "—");
+        }
+    }
+
+    async function loadStudents() {
+        const id = $("assignment-id").value;
+        const studentSelect = $("student-id");
+
+        studentSelect.disabled = true;
+        studentSelect.innerHTML = `<option value="">${escapeHTML(t("loading"))}</option>`;
+
+        if (!id) {
+            studentSelect.innerHTML = `<option value="">${escapeHTML(t("select_assignment"))}</option>`;
+            return;
+        }
+
+        try {
+            const data = await requestJSON(
+                API.students + "?assignment_id=" + encodeURIComponent(id)
+            );
+            const students = getArray(data, ["students", "items"]);
+
+            studentSelect.innerHTML = `<option value="">${escapeHTML(t("select_student"))}</option>` +
+                students.map(student => `
+                    <option value="${escapeHTML(student.student_id ?? student.id)}">
+                        ${escapeHTML(student.student_name ?? student.full_name ?? student.username ?? "Student")}
+                    </option>`).join("");
+
+            studentSelect.disabled = students.length === 0;
+        } catch (error) {
+            studentSelect.innerHTML = `<option value="">${escapeHTML(t("students_error"))}</option>`;
+            showMessage("grade-message", t("students_error"), "error");
+        }
+    }
+
+    function renderRecords() {
+        const query = $("record-search").value.trim().toLowerCase();
+        const selectedAssignment = $("record-assignment").value;
+
+        const filtered = records.filter(record => {
+            const text = [
+                record.student_name, record.subject_name, record.class_name,
+                record.status
+            ].join(" ").toLowerCase();
+
+            const recordAssignment = record.assignment_id;
+            const assignmentMatches = !selectedAssignment ||
+                String(recordAssignment) === String(selectedAssignment);
+
+            return text.includes(query) && assignmentMatches;
+        });
+
+        const tbody = $("records-table");
+
+        if (!filtered.length) {
+            tbody.innerHTML = `<tr><td colspan="7" class="empty">${escapeHTML(t("no_records"))}</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(record => {
+            const score = Number(record.score);
+            const maxScore = Number(record.max_score);
+            const percent = Number.isFinite(score) && maxScore > 0
+                ? Math.max(0, Math.min(100, score / maxScore * 100)) : null;
+
+            const status = String(record.status || "UNKNOWN").toUpperCase();
+            const statusKey = status === "APPROVED" ? "status_approved" :
+                status === "PENDING" ? "status_pending" :
+                status === "REJECTED" ? "status_rejected" : "status_unknown";
+
+            const statusClass = status === "APPROVED" ? "good" :
+                status === "PENDING" ? "warn" :
+                status === "REJECTED" ? "bad" : "";
+
+            return `<tr>
+                <td>${escapeHTML(record.student_name || "—")}</td>
+                <td>${escapeHTML(record.class_name || "—")}</td>
+                <td>${escapeHTML(record.subject_name || "—")}</td>
+                <td>${Number.isFinite(score) ? score : "—"} / ${Number.isFinite(maxScore) ? maxScore : "—"}</td>
+                <td>${percent === null ? "—" : `
+                    <span class="score-track"><span class="score-fill" style="width:${percent}%"></span></span>
+                    ${percent.toFixed(1)}%`}</td>
+                <td><span class="status ${statusClass}">${escapeHTML(t(statusKey))}</span></td>
+                <td>${escapeHTML(record.created_at || "—")}</td>
+            </tr>`;
+        }).join("");
+    }
+
+    async function loadRecords() {
+        $("records-message").textContent = t("loading");
+        $("records-message").classList.remove("hidden");
+
+        try {
+            const params = new URLSearchParams();
+            if ($("record-assignment").value) {
+                params.set("assignment_id", $("record-assignment").value);
+            }
+
+            const data = await requestJSON(
+                API.grades + (params.toString() ? "?" + params.toString() : "")
+            );
+
+            records = getArray(data, ["grades", "records", "items"]);
+            setMetric("grade-count", data.total_grades ?? records.length);
+            setMetric("pending-count",
+                data.pending_grades ?? records.filter(r =>
+                    String(r.status).toUpperCase() === "PENDING").length
+            );
+
+            $("records-message").classList.add("hidden");
+            renderRecords();
+        } catch (error) {
+            records = [];
+            renderRecords();
+            showMessage("records-message", t("load_error"), "error");
+        }
+    }
+
+    function makeChart(id, type, labels, values, label) {
+        const canvas = $(id);
+        const empty = $(id + "-empty");
+
+        if (!canvas || typeof Chart === "undefined" || !labels.length) {
+            if (canvas) canvas.classList.add("hidden");
+            if (empty) empty.classList.remove("hidden");
+            return;
+        }
+
+        canvas.classList.remove("hidden");
+        if (empty) empty.classList.add("hidden");
+
+        const dark = document.body.classList.contains("dark-mode");
+        const textColor = dark ? "#a1aec5" : "#728097";
+        const gridColor = dark ? "#303c52" : "#e4eaf3";
+
+        if (charts[id]) charts[id].destroy();
+
+        charts[id] = new Chart(canvas, {
+            type,
+            data: {
+                labels,
+                datasets: [{
+                    label,
+                    data: values,
+                    backgroundColor: type === "line"
+                        ? "rgba(69,104,245,.15)"
+                        : ["#526ff5", "#25a783", "#f2a64b", "#9275e8",
+                           "#e56e80", "#44a9ce", "#8295ad"],
+                    borderColor: type === "line" ? "#526ff5" : "transparent",
+                    borderWidth: type === "line" ? 2 : 0,
+                    fill: type === "line",
+                    tension: .35,
+                    borderRadius: type === "bar" ? 6 : 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: type === "doughnut",
+                        labels: { color: textColor, usePointStyle: true, padding: 16 }
+                    }
+                },
+                scales: type === "doughnut" ? {} : {
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: id === "class-chart" || id === "subject-chart" ? 100 : undefined,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderCharts() {
+        if (!analytics) return;
+
+        const classes = analytics.class_performance || [];
+        const subjects = analytics.subject_performance || [];
+        const distribution = analytics.grade_distribution || {};
+
+        makeChart("class-chart", "bar",
+            classes.map(x => x.class_name || x.name || "—"),
+            classes.map(x => Number(x.average ?? x.average_score ?? 0)),
+            t("score_average"));
+
+        makeChart("subject-chart", "bar",
+            subjects.map(x => x.subject_name || x.name || "—"),
+            subjects.map(x => Number(x.average ?? x.average_score ?? 0)),
+            t("score_average"));
+
+        makeChart("distribution-chart", "doughnut",
+            distribution.labels || [],
+            distribution.values || [],
+            t("distribution"));
+
+        $("analytics-status").textContent = t("waiting_data");
+    }
+
+    async function loadAnalytics() {
+        try {
+            analytics = await requestJSON(API.analytics);
+            analytics = analytics.analytics || analytics.data || analytics;
+
+            const summary = analytics.summary || {};
+            if (summary.students_taught !== undefined) {
+                setMetric("student-count", summary.students_taught);
+            }
+
+            if (summary.total_grades !== undefined) {
+                setMetric("grade-count", summary.total_grades);
+            }
+
+            if (summary.pending_grades !== undefined) {
+                setMetric("pending-count", summary.pending_grades);
+            }
+
+            if (summary.pass_rate !== undefined) {
+                $("analytics-status").textContent =
+                    `${Number(summary.pass_rate).toFixed(1)}% pass rate`;
+            }
+
+            renderCharts();
+        } catch (error) {
+            analytics = null;
+            $("analytics-status").textContent = t("waiting_data");
+            ["class-chart", "subject-chart", "distribution-chart"].forEach(id => {
+                $(id).classList.add("hidden");
+                $(id + "-empty").classList.remove("hidden");
+            });
+        }
+    }
+
+    function renderAI(data) {
+        const list = $("ai-insights");
+        if (!data) return;
+
+        const summary = data.summary || data.analysis || "";
+        $("ai-summary").textContent = summary || t("no_ai_findings");
+
+        const insights = [
+            ...(data.strengths || []).map(item => ({
+                title: "✓ " + (typeof item === "string" ? item : item.title || item.subject || "Strength"),
+                detail: typeof item === "string" ? "" : item.detail || item.recommendation || ""
+            })),
+            ...(data.weaknesses || []).map(item => ({
+                title: "⚠ " + (typeof item === "string" ? item : item.title || item.subject || "Area to improve"),
+                detail: typeof item === "string" ? "" : item.detail || item.recommendation || ""
+            })),
+            ...(data.recommendations || []).map(item => ({
+                title: typeof item === "string" ? item : item.title || "Recommendation",
+                detail: typeof item === "string" ? "" : item.detail || item.description || ""
+            }))
+        ];
+
+        list.innerHTML = insights.length ? insights.map(item => `
+            <div class="insight">
+                <strong>${escapeHTML(item.title)}</strong>
+                <p>${escapeHTML(item.detail)}</p>
+            </div>`).join("") : `
+            <div class="insight">
+                <strong>${escapeHTML(t("no_ai_findings"))}</strong>
+                <p>${escapeHTML(t("ai_not_connected"))}</p>
+            </div>`;
+    }
+
+    async function runAI() {
+        const button = $("run-ai");
+        button.disabled = true;
+        button.textContent = t("loading");
+
+        try {
+            const data = await requestJSON(API.ai);
+            renderAI(data.analysis || data);
+        } catch (error) {
+            showMessage("ai-summary", t("ai_error"), "error");
+        } finally {
+            button.disabled = false;
+            button.textContent = t("analyze_grades");
+        }
+    }
+
+    async function submitGrade(event) {
+        event.preventDefault();
+        hideMessage("grade-message");
+
+        const assignment = $("assignment-id").value;
+        const student = $("student-id").value;
+        const score = Number($("score").value);
+        const maxScore = Number($("max-score").value);
+
+        if (!assignment || !student) {
+            showMessage("grade-message", t("choose_student"), "error");
+            return;
+        }
+
+        if (!Number.isFinite(score) || !Number.isFinite(maxScore) ||
+            score < 0 || maxScore <= 0 || score > maxScore) {
+            showMessage("grade-message", t("invalid_score"), "error");
+            return;
+        }
+
+        const button = $("submit-grade");
+        button.disabled = true;
+        button.textContent = t("loading");
+
+        const payload = {
+            assignment_id: assignment,
+            student_id: student,
+            score,
+            max_score: maxScore,
+            term: $("term").value,
+            academic_year: $("academic-year").value.trim(),
+            comment: $("grade-comment").value.trim()
+        };
+
+        try {
+            const result = await requestJSON(API.grades, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+
+            showMessage(
+                "grade-message",
+                result.status === "PENDING" ? t("saved_pending") :
+                    result.message || t("saved_approved"),
+                "success"
+            );
+
+            $("grade-form").reset();
+            $("max-score").value = "100";
+            $("student-id").disabled = true;
+            $("student-id").innerHTML =
+                `<option value="">${escapeHTML(t("select_assignment"))}</option>`;
+
+            await Promise.all([loadRecords(), loadAnalytics()]);
+        } catch (error) {
+            showMessage("grade-message", error.message || t("save_error"), "error");
+        } finally {
+            button.disabled = false;
+            button.textContent = t("save_grade");
+        }
+    }
+
+    function exportReport(format) {
+        const endpoint = format === "excel" ? API.excel : API.pdf;
+        const params = new URLSearchParams();
+
+        if ($("record-assignment").value) {
+            params.set("assignment_id", $("record-assignment").value);
+        }
+
+        const url = endpoint + (params.toString() ? "?" + params.toString() : "");
+
+        /*
+         * The backend must authorize the teacher and scope the report to
+         * assignments belonging to that teacher before returning a file.
+         */
+        fetch(url, { credentials: "same-origin" })
+            .then(async response => {
+                if (!response.ok) throw new Error("Download failed");
+
+                const contentType = response.headers.get("content-type") || "";
+                if (contentType.includes("application/json")) {
+                    const data = await response.json();
+                    throw new Error(data.message || t("export_error"));
+                }
+
+                const blob = await response.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = objectUrl;
+                link.download = format === "excel"
+                    ? "studentpredict_teacher_grades.xlsx"
+                    : "studentpredict_teacher_grades.pdf";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(objectUrl);
+            })
+            .catch(error => showMessage(
+                "records-message", error.message || t("export_error"), "error"
+            ));
+    }
+
+    async function refreshAll() {
+        $("refresh-button").disabled = true;
+        try {
+            await loadAssignments();
+            await Promise.all([loadAnalytics(), loadRecords()]);
+        } finally {
+            $("refresh-button").disabled = false;
+        }
+    }
+
+    document.addEventListener("click", event => {
+        const button = event.target.closest("[data-select-assignment]");
+        if (button) {
+            $("assignment-id").value = button.dataset.selectAssignment;
+            $("grade-entry").scrollIntoView({ behavior: "smooth", block: "start" });
+            loadStudents();
+        }
+
+        if (event.target.closest("[data-logout]")) {
+            window.location.assign("/logout");
+        }
+    });
+
+    $("language-select").addEventListener("change", event => setLanguage(event.target.value));
+    $("theme-toggle").addEventListener("click", () =>
+        setTheme(!document.body.classList.contains("dark-mode")));
+    $("refresh-button").addEventListener("click", refreshAll);
+    $("assignment-id").addEventListener("change", loadStudents);
+    $("grade-form").addEventListener("submit", submitGrade);
+    $("run-ai").addEventListener("click", runAI);
+    $("record-search").addEventListener("input", renderRecords);
+    $("record-assignment").addEventListener("change", loadRecords);
+    $("export-excel").addEventListener("click", () => exportReport("excel"));
+    $("export-pdf").addEventListener("click", () => exportReport("pdf"));
+
+    $("grade-form").addEventListener("reset", () => {
+        setTimeout(() => {
+            hideMessage("grade-message");
+            $("student-id").disabled = true;
+        }, 0);
+    });
+
+    const savedLanguage = localStorage.getItem("studentpredict_teacher_language");
+    const savedTheme = localStorage.getItem("studentpredict_teacher_theme");
+
+    $("language-select").value = translations[savedLanguage] ? savedLanguage : "en";
+    language = $("language-select").value;
+    setTheme(savedTheme === "dark");
+    applyTranslations();
+
+    refreshAll();
+})();
+</script>
 </body>
 </html>
-```
