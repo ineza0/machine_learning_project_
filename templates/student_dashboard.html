@@ -1,1039 +1,1169 @@
-
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title>Student Dashboard | StudentPredict</title>
+
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --bg: #f4f7fb;
+            --bg: #f4f7fc;
             --card: #ffffff;
             --text: #172033;
-            --muted: #64748b;
-            --border: #e2e8f0;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --sidebar: #111827;
-            --sidebar-text: #e5e7eb;
-            --green: #15803d;
-            --red: #b91c1c;
-            --shadow: 0 5px 20px rgba(15, 23, 42, .05);
+            --muted: #718096;
+            --border: #e4e9f2;
+            --primary: #5b5ce2;
+            --primary-soft: #eeefff;
+            --green: #15966b;
+            --red: #dc4c64;
+            --amber: #d99118;
+            --sidebar: #171b35;
+            --sidebar-text: #d8dcef;
+            --shadow: 0 8px 30px rgba(29, 41, 76, .06);
+            --radius: 18px;
         }
 
         body.dark {
-            --bg: #0b1120;
-            --card: #151e30;
-            --text: #f1f5f9;
-            --muted: #a1aec2;
-            --border: #2b374b;
-            --primary: #60a5fa;
-            --primary-hover: #93c5fd;
-            --sidebar: #070b14;
-            --sidebar-text: #e5e7eb;
-            --green: #4ade80;
-            --red: #f87171;
-            --shadow: 0 5px 20px rgba(0, 0, 0, .12);
+            --bg: #0c1020;
+            --card: #151b2e;
+            --text: #edf1ff;
+            --muted: #9aa7c0;
+            --border: #28314a;
+            --primary: #9293ff;
+            --primary-soft: #292b50;
+            --green: #47d6a0;
+            --red: #ff8194;
+            --amber: #ffc46b;
+            --sidebar: #090d19;
+            --sidebar-text: #d8dcef;
+            --shadow: 0 8px 30px rgba(0, 0, 0, .15);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
+            font-size: 14px;
             transition: background .2s, color .2s;
         }
 
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
+        button, select { font: inherit; }
+        button, a, select { -webkit-tap-highlight-color: transparent; }
+        button { cursor: pointer; }
+
+        .app { min-height: 100vh; display: flex; }
 
         .sidebar {
-            width: 245px;
+            width: 250px;
+            flex-shrink: 0;
             background: var(--sidebar);
             color: var(--sidebar-text);
-            padding: 24px 16px;
-            flex-shrink: 0;
+            padding: 25px 17px;
+            display: flex;
+            flex-direction: column;
         }
 
         .brand {
-            font-size: 22px;
-            font-weight: 800;
-            margin: 0 0 8px;
+            font-size: 23px;
+            font-weight: 850;
+            letter-spacing: -.8px;
+            padding: 5px 10px;
         }
 
-        .brand span {
-            color: #60a5fa;
-        }
-
+        .brand span { color: #a5a6ff; }
         .brand-subtitle {
-            color: #9ca3af;
+            color: #929bb9;
             font-size: 12px;
-            margin-bottom: 32px;
+            padding: 0 10px;
+            margin: 2px 0 30px;
         }
 
         .nav-label {
-            color: #9ca3af;
-            font-size: 11px;
+            color: #858eac;
+            font-size: 10px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 24px 10px 10px;
+            letter-spacing: 1.4px;
+            margin: 18px 10px 10px;
         }
 
         .nav-link {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             color: var(--sidebar-text);
             text-decoration: none;
-            padding: 12px;
-            border-radius: 9px;
-            margin: 5px 0;
-            font-size: 14px;
+            padding: 12px 13px;
+            border-radius: 11px;
+            margin: 3px 0;
+            font-size: 13px;
         }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background: #25334b;
-            color: #ffffff;
+        .nav-link:hover, .nav-link.active {
+            color: #fff;
+            background: #30365d;
         }
 
-        .main {
-            flex: 1;
-            min-width: 0;
+        .nav-icon { width: 21px; text-align: center; font-size: 17px; }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 16px 10px 0;
+            color: #909ab7;
+            font-size: 11px;
+            line-height: 1.7;
         }
+
+        .main { flex: 1; min-width: 0; }
 
         .topbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
+            gap: 15px;
             flex-wrap: wrap;
-            padding: 20px 28px;
+            padding: 19px 30px;
             background: var(--card);
             border-bottom: 1px solid var(--border);
         }
 
-        .topbar h1 {
-            margin: 0;
-            font-size: 22px;
-        }
+        .topbar h1 { margin: 0; font-size: 22px; letter-spacing: -.5px; }
+        .welcome { color: var(--muted); font-size: 12px; margin-top: 5px; }
 
-        .welcome {
-            color: var(--muted);
-            margin-top: 6px;
-            font-size: 13px;
-        }
-
-        .top-actions {
+        .actions {
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 9px;
             flex-wrap: wrap;
         }
 
-        select,
-        button,
-        .button {
-            font: inherit;
-        }
-
-        select {
+        select, .btn {
+            border: 1px solid var(--border);
             background: var(--card);
             color: var(--text);
-            border: 1px solid var(--border);
-            padding: 9px;
-            border-radius: 8px;
+            border-radius: 10px;
+            padding: 10px 12px;
         }
 
-        button,
-        .button {
-            cursor: pointer;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            text-decoration: none;
+        .btn {
             display: inline-flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             gap: 7px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 12px;
         }
 
-        .primary {
-            background: var(--primary);
-            color: white;
+        .btn:hover { filter: brightness(.97); }
+        .btn-primary { background: var(--primary); color: #fff; border-color: transparent; }
+        .btn-danger { background: #b8324b; color: #fff; border-color: transparent; }
+        .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+        .content { max-width: 1600px; padding: 27px 30px; margin: auto; }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
         }
 
-        .primary:hover {
-            background: var(--primary-hover);
-        }
+        h2, h3, p { margin-top: 0; }
+        h2 { font-size: 18px; letter-spacing: -.3px; margin-bottom: 6px; }
+        h3 { font-size: 14px; margin-bottom: 6px; }
+        .muted { color: var(--muted); }
+        .small { font-size: 12px; }
 
-        .secondary {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .danger {
-            background: #991b1b;
-            color: white;
-        }
-
-        .content {
-            padding: 26px 28px;
-            max-width: 1500px;
-            margin: auto;
-        }
-
-        .section-heading {
-            margin: 0 0 7px;
-            font-size: 19px;
-        }
-
-        .section-description {
-            color: var(--muted);
-            margin: 0 0 20px;
-            font-size: 13px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 17px;
-            margin-bottom: 30px;
-        }
+        .grid { display: grid; gap: 17px; }
+        .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 26px; }
+        .two-col { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+        .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
         .card {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 13px;
+            border-radius: var(--radius);
             padding: 20px;
             box-shadow: var(--shadow);
             min-width: 0;
         }
 
-        .metric-label {
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .metric-value {
-            font-size: 29px;
-            font-weight: 800;
-            margin: 12px 0 7px;
-        }
-
-        .metric-note {
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .green {
-            color: var(--green);
-        }
-
-        .red {
-            color: var(--red);
-        }
-
-        .section {
-            margin-bottom: 30px;
-        }
-
-        .section-header {
+        .metric-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 15px;
+            gap: 10px;
         }
+
+        .metric-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--primary-soft);
+            font-size: 20px;
+        }
+
+        .metric-label { font-size: 12px; color: var(--muted); font-weight: 650; }
+        .metric-value { font-size: 29px; font-weight: 850; letter-spacing: -1px; margin: 14px 0 5px; }
+        .metric-note { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+        .green { color: var(--green); }
+        .red { color: var(--red); }
+        .amber { color: var(--amber); }
+
+        .section { margin-bottom: 25px; scroll-margin-top: 18px; }
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .chart-wrap { position: relative; height: 285px; width: 100%; }
+        .chart-wrap.short { height: 235px; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 30px;
+            padding: 5px 9px;
+            font-size: 10px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .badge-approved { color: var(--green); background: rgba(21, 150, 107, .12); }
+        .badge-pending { color: var(--amber); background: rgba(217, 145, 24, .13); }
+        .badge-rejected { color: var(--red); background: rgba(220, 76, 100, .12); }
 
         .table-wrap {
             overflow-x: auto;
             border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--card);
+            border-radius: 13px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 720px;
-        }
-
-        th,
-        td {
-            padding: 13px 15px;
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td {
+            padding: 13px 14px;
             text-align: left;
             border-bottom: 1px solid var(--border);
-            font-size: 13px;
+            font-size: 12px;
         }
 
         th {
             color: var(--muted);
-            font-weight: 700;
             background: var(--bg);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        tr:last-child td { border-bottom: 0; }
+
+        .advisor {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
         }
 
-        .status {
-            display: inline-block;
-            border-radius: 20px;
-            padding: 5px 9px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .status-pass {
-            color: var(--green);
-            background: rgba(34, 197, 94, .12);
-        }
-
-        .status-fail {
-            color: var(--red);
-            background: rgba(239, 68, 68, .12);
-        }
-
-        .empty,
-        .message {
-            padding: 22px;
-            color: var(--muted);
-            text-align: center;
-            font-size: 13px;
-        }
-
-        .message.error {
-            color: var(--red);
-        }
-
-        .subject-grid {
+        .advisor:last-child { border-bottom: 0; padding-bottom: 0; }
+        .advisor-icon {
+            flex: 0 0 36px;
+            width: 36px;
+            height: 36px;
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 15px;
+            place-items: center;
+            background: var(--primary-soft);
+            border-radius: 11px;
+            font-size: 17px;
         }
 
-        .subject-name {
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
+        .advisor p { color: var(--muted); font-size: 12px; line-height: 1.65; margin: 5px 0 0; }
+        .subject-name { font-weight: 750; margin-bottom: 8px; }
+        .progress { height: 7px; border-radius: 20px; overflow: hidden; background: var(--border); margin: 10px 0; }
+        .progress-fill { height: 100%; background: var(--primary); border-radius: 20px; }
 
-        .progress {
-            height: 8px;
-            background: var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 12px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 10px;
-            width: 0;
-        }
-
-        .subject-meta {
-            font-size: 12px;
-            color: var(--muted);
-        }
+        .subject-card { margin-bottom: 12px; }
+        .subject-card:last-child { margin-bottom: 0; }
+        .subject-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+        .subject-meta { font-size: 11px; color: var(--muted); }
 
         .notice {
+            padding: 14px 16px;
             border: 1px solid var(--border);
-            background: var(--card);
             border-radius: 12px;
-            padding: 18px;
             color: var(--muted);
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .footer {
-            color: var(--muted);
-            text-align: center;
             font-size: 12px;
-            padding: 20px;
+            line-height: 1.7;
+            background: var(--card);
         }
 
-        @media (max-width: 1100px) {
-            .cards {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
+        .empty { padding: 25px 15px; text-align: center; color: var(--muted); font-size: 12px; }
+        .message { padding: 12px 0; color: var(--muted); font-size: 12px; }
+        .message.error { color: var(--red); }
+        .footer { text-align: center; color: var(--muted); padding: 22px; font-size: 11px; }
+        .hidden { display: none !important; }
 
-            .subject-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
+        @media (max-width: 1150px) {
+            .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .two-col { grid-template-columns: 1fr; }
         }
 
-        @media (max-width: 720px) {
-            .layout {
-                display: block;
-            }
+        @media (max-width: 760px) {
+            .app { display: block; }
+            .sidebar { width: 100%; padding: 14px; }
+            .brand-subtitle { margin-bottom: 10px; }
+            .nav-label, .sidebar-bottom { display: none; }
+            .sidebar nav { display: flex; flex-wrap: wrap; gap: 4px; }
+            .nav-link { padding: 9px; font-size: 11px; }
+            .nav-icon { display: none; }
+            .topbar, .content { padding: 17px 14px; }
+            .topbar h1 { font-size: 19px; }
+            .actions { width: 100%; }
+            .actions select { flex: 1; min-width: 100px; }
+            .metrics { gap: 10px; }
+            .card { padding: 15px; }
+            .metric-value { font-size: 25px; }
+            .three-col { grid-template-columns: 1fr; }
+            .chart-wrap { height: 250px; }
+        }
 
-            .sidebar {
-                width: 100%;
-                padding: 15px;
-            }
-
-            .brand-subtitle {
-                margin-bottom: 15px;
-            }
-
-            .nav-label {
-                margin-top: 15px;
-            }
-
-            .topbar,
-            .content {
-                padding: 18px 14px;
-            }
-
-            .cards,
-            .subject-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .top-actions {
-                width: 100%;
-            }
+        @media (max-width: 390px) {
+            .metrics { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 
 <body>
-<div class="layout">
-
+<div class="app">
     <aside class="sidebar">
         <div class="brand">Student<span>Predict</span></div>
-        <div class="brand-subtitle">Student Learning Portal</div>
+        <div class="brand-subtitle" data-i18n="portal">Student Learning Portal</div>
 
-        <div class="nav-label" data-i18n="mainMenu">Main menu</div>
+        <div class="nav-label" data-i18n="menu">MAIN MENU</div>
+        <nav>
+            <a href="#overview" class="nav-link active"><span class="nav-icon">▦</span><span data-i18n="overview">Overview</span></a>
+            <a href="#performance" class="nav-link"><span class="nav-icon">▥</span><span data-i18n="performance">Performance</span></a>
+            <a href="#subjects" class="nav-link"><span class="nav-icon">▤</span><span data-i18n="subjects">My subjects</span></a>
+            <a href="#grades" class="nav-link"><span class="nav-icon">✓</span><span data-i18n="grades">Official grades</span></a>
+            <a href="#advisor" class="nav-link"><span class="nav-icon">✦</span><span data-i18n="advisor">Study advisor</span></a>
+            <a href="#reports" class="nav-link"><span class="nav-icon">▧</span><span data-i18n="reports">Reports</span></a>
+        </nav>
 
-        <a href="#overview" class="nav-link active" data-i18n="overview">
-            ◫ Overview
-        </a>
+        <div class="nav-label" data-i18n="account">ACCOUNT</div>
+        <a href="/logout" class="nav-link"><span class="nav-icon">⇥</span><span data-i18n="logout">Log out</span></a>
 
-        <a href="#subjects" class="nav-link" data-i18n="subjects">
-            ▤ My subjects
-        </a>
-
-        <a href="#history" class="nav-link" data-i18n="history">
-            ◷ Prediction history
-        </a>
-
-        <a href="#reports" class="nav-link" data-i18n="reports">
-            ▧ Reports
-        </a>
-
-        <div class="nav-label" data-i18n="account">Account</div>
-
-        <a href="/logout" class="nav-link" data-i18n="logout">
-            ⇥ Log out
-        </a>
+        <div class="sidebar-bottom">
+            StudentPredict<br>
+            <span data-i18n="tagline">Learn · Create · Innovate</span>
+        </div>
     </aside>
 
     <main class="main">
-
         <header class="topbar">
             <div>
-                <h1 data-i18n="dashboardTitle">Student Dashboard</h1>
-                <div class="welcome">
-                    <span data-i18n="welcome">Welcome</span>,
-                    <strong>{{ full_name or username }}</strong>
-                </div>
+                <h1 data-i18n="dashboard">Student Dashboard</h1>
+                <div class="welcome"><span data-i18n="welcome">Welcome</span>, <strong>{{ full_name or username }}</strong></div>
             </div>
 
-            <div class="top-actions">
+            <div class="actions">
                 <select id="languageSelect" aria-label="Language">
                     <option value="en">English</option>
                     <option value="rw">Kinyarwanda</option>
                     <option value="fr">Français</option>
                 </select>
-
-                <button type="button" class="secondary" id="themeButton">
-                    ☾ <span data-i18n="theme">Dark mode</span>
-                </button>
-
-                <a class="button danger" href="/logout" data-i18n="logout">
-                    Log out
-                </a>
+                <button type="button" class="btn" id="themeButton">☾ <span data-i18n="darkMode">Dark mode</span></button>
+                <button type="button" class="btn btn-primary" id="refreshButton">↻ <span data-i18n="refresh">Refresh</span></button>
+                <a href="/logout" class="btn btn-danger" data-i18n="logout">Log out</a>
             </div>
         </header>
 
         <div class="content">
-
             <section id="overview" class="section">
-                <h2 class="section-heading" data-i18n="overviewTitle">
-                    Your learning overview
-                </h2>
-
-                <p class="section-description" data-i18n="overviewDescription">
-                    Review your saved ML predictions and performance summary.
-                </p>
-
-                <div class="cards">
-                    <div class="card">
-                        <div class="metric-label" data-i18n="totalPredictions">
-                            Total predictions
-                        </div>
-                        <div class="metric-value" id="totalCount">—</div>
-                        <div class="metric-note" data-i18n="totalNote">
-                            Predictions saved to your account
-                        </div>
+                <div class="page-heading">
+                    <div>
+                        <h2 data-i18n="overviewTitle">Your academic overview</h2>
+                        <p class="muted small" data-i18n="overviewDesc">Your progress, official grades and learning recommendations.</p>
                     </div>
+                    <span class="badge badge-approved" id="dataStatus" data-i18n="loading">Loading data...</span>
+                </div>
 
-                    <div class="card">
-                        <div class="metric-label" data-i18n="passed">
-                            Passed predictions
-                        </div>
-                        <div class="metric-value green" id="passedCount">—</div>
-                        <div class="metric-note" data-i18n="passedNote">
-                            Predicted PASS results
-                        </div>
-                    </div>
+                <div class="grid metrics">
+                    <article class="card">
+                        <div class="metric-top"><span class="metric-label" data-i18n="average">Approved grade average</span><span class="metric-icon">◎</span></div>
+                        <div class="metric-value" id="averageValue">—</div>
+                        <div class="metric-note" data-i18n="averageNote">Based on approved grades only</div>
+                    </article>
+                    <article class="card">
+                        <div class="metric-top"><span class="metric-label" data-i18n="passedSubjects">Subjects passed</span><span class="metric-icon">✓</span></div>
+                        <div class="metric-value green" id="passedValue">—</div>
+                        <div class="metric-note" data-i18n="passedNote">Using the school's pass mark</div>
+                    </article>
+                    <article class="card">
+                        <div class="metric-top"><span class="metric-label" data-i18n="improve">Need improvement</span><span class="metric-icon">↗</span></div>
+                        <div class="metric-value amber" id="improveValue">—</div>
+                        <div class="metric-note" data-i18n="improveNote">Approved subjects below pass mark</div>
+                    </article>
+                    <article class="card">
+                        <div class="metric-top"><span class="metric-label" data-i18n="pending">Pending grades</span><span class="metric-icon">◷</span></div>
+                        <div class="metric-value" id="pendingValue">—</div>
+                        <div class="metric-note" data-i18n="pendingNote">Waiting for school approval</div>
+                    </article>
+                </div>
+            </section>
 
-                    <div class="card">
-                        <div class="metric-label" data-i18n="failed">
-                            Failed predictions
-                        </div>
-                        <div class="metric-value red" id="failedCount">—</div>
-                        <div class="metric-note" data-i18n="failedNote">
-                            Predicted FAIL results
-                        </div>
+            <section id="performance" class="section">
+                <div class="section-head">
+                    <div>
+                        <h2 data-i18n="performanceTitle">Performance analytics</h2>
+                        <div class="muted small" data-i18n="performanceDesc">Understand your results across subjects and terms.</div>
                     </div>
+                </div>
 
-                    <div class="card">
-                        <div class="metric-label" data-i18n="passRate">
-                            Prediction pass rate
-                        </div>
-                        <div class="metric-value" id="passRate">—</div>
-                        <div class="metric-note" data-i18n="passRateNote">
-                            Percentage of predicted PASS results
-                        </div>
-                    </div>
+                <div class="grid two-col">
+                    <article class="card">
+                        <h3 data-i18n="subjectChart">Grades by subject</h3>
+                        <p class="muted small" data-i18n="subjectChartDesc">Approved scores converted to percentages.</p>
+                        <div class="chart-wrap"><canvas id="subjectChart" aria-label="Grades by subject chart"></canvas></div>
+                    </article>
+                    <article class="card">
+                        <h3 data-i18n="distribution">Grade distribution</h3>
+                        <p class="muted small" data-i18n="distributionDesc">Passed subjects compared with subjects needing improvement.</p>
+                        <div class="chart-wrap short"><canvas id="distributionChart" aria-label="Grade distribution chart"></canvas></div>
+                        <div class="notice" id="chartNote" data-i18n="chartNote">Charts will appear when grade data is available.</div>
+                    </article>
                 </div>
             </section>
 
             <section id="subjects" class="section">
-                <div class="section-header">
+                <div class="section-head">
                     <div>
-                        <h2 class="section-heading" data-i18n="subjectPerformance">
-                            Subject performance
-                        </h2>
-                        <p class="section-description" data-i18n="subjectDescription">
-                            Summary based on your saved predictions.
-                        </p>
+                        <h2 data-i18n="subjectsTitle">My subjects</h2>
+                        <div class="muted small" data-i18n="subjectsDesc">See your latest approved result for each subject.</div>
                     </div>
-
-                    <button type="button" class="secondary" id="refreshButton"
-                            data-i18n="refresh">
-                        Refresh data
-                    </button>
                 </div>
-
-                <div class="subject-grid" id="subjectGrid">
-                    <div class="card empty" data-i18n="loading">
-                        Loading data...
-                    </div>
+                <div class="grid three-col" id="subjectCards">
+                    <div class="card empty" data-i18n="loading">Loading data...</div>
                 </div>
             </section>
 
-            <section id="history" class="section">
-                <div class="section-header">
+            <section id="grades" class="section">
+                <div class="section-head">
                     <div>
-                        <h2 class="section-heading" data-i18n="recentHistory">
-                            Prediction history
-                        </h2>
-                        <p class="section-description" data-i18n="historyDescription">
-                            Your latest saved prediction records.
-                        </p>
+                        <h2 data-i18n="gradesTitle">Official gradebook</h2>
+                        <div class="muted small" data-i18n="gradesDesc">Grades are entered by your teacher, not by you.</div>
                     </div>
-
-                    <button type="button" class="secondary" id="historyRefresh"
-                            data-i18n="refresh">
-                        Refresh data
-                    </button>
                 </div>
-
                 <div class="table-wrap">
                     <table>
                         <thead>
-                        <tr>
-                            <th data-i18n="date">Date</th>
-                            <th data-i18n="student">Student</th>
-                            <th data-i18n="subject">Subject</th>
-                            <th data-i18n="studyHours">Study hours</th>
-                            <th data-i18n="attendance">Attendance</th>
-                            <th data-i18n="result">Result</th>
-                            <th data-i18n="confidence">Confidence</th>
-                        </tr>
+                            <tr>
+                                <th data-i18n="date">Date</th>
+                                <th data-i18n="subject">Subject</th>
+                                <th data-i18n="term">Term</th>
+                                <th data-i18n="score">Score</th>
+                                <th data-i18n="percentage">Percentage</th>
+                                <th data-i18n="status">Status</th>
+                            </tr>
                         </thead>
-
-                        <tbody id="historyBody">
-                        <tr>
-                            <td colspan="7" class="empty" data-i18n="loading">
-                                Loading data...
-                            </td>
-                        </tr>
+                        <tbody id="gradesBody">
+                            <tr><td colspan="6" class="empty" data-i18n="loading">Loading data...</td></tr>
                         </tbody>
                     </table>
                 </div>
+                <div class="message" id="gradesMessage" role="status"></div>
+            </section>
 
-                <div id="historyMessage" class="message" role="status"></div>
+            <section id="advisor" class="section">
+                <div class="section-head">
+                    <div>
+                        <h2 data-i18n="advisorTitle">Your study advisor</h2>
+                        <div class="muted small" data-i18n="advisorDesc">Suggestions calculated from your approved grades.</div>
+                    </div>
+                </div>
+                <div class="grid two-col">
+                    <article class="card">
+                        <h3 data-i18n="recommendations">Personal recommendations</h3>
+                        <div id="recommendations">
+                            <div class="empty" data-i18n="loading">Loading data...</div>
+                        </div>
+                    </article>
+                    <article class="card">
+                        <h3 data-i18n="strengths">Your strengths</h3>
+                        <div id="strengths">
+                            <div class="empty" data-i18n="loading">Loading data...</div>
+                        </div>
+                        <div class="notice" style="margin-top:16px" data-i18n="advisorDisclaimer">
+                            These are data-based study suggestions, not a guarantee of future results.
+                        </div>
+                    </article>
+                </div>
             </section>
 
             <section id="reports" class="section">
-                <h2 class="section-heading" data-i18n="reportsTitle">
-                    Download your reports
-                </h2>
-
-                <p class="section-description" data-i18n="reportsDescription">
-                    Export your saved prediction history.
-                </p>
-
+                <div class="section-head">
+                    <div>
+                        <h2 data-i18n="reportsTitle">My reports</h2>
+                        <div class="muted small" data-i18n="reportsDesc">Download your available reports.</div>
+                    </div>
+                </div>
                 <div class="card">
-                    <div class="top-actions">
-                        <a href="/report/pdf" class="button primary" data-i18n="downloadPdf">
-                            Download PDF
-                        </a>
-
-                        <a href="/report/excel" class="button secondary" data-i18n="downloadExcel">
-                            Download Excel
-                        </a>
+                    <p class="muted small" data-i18n="reportsNote">These existing export links may contain prediction history. Ask your administrator to connect an official grade report if you need a transcript of approved grades.</p>
+                    <div class="actions">
+                        <a class="btn btn-primary" href="/report/pdf" data-i18n="pdf">Download PDF</a>
+                        <a class="btn" href="/report/excel" data-i18n="excel">Download Excel</a>
                     </div>
                 </div>
             </section>
 
-            <section class="section">
-                <h2 class="section-heading" data-i18n="officialGrades">
-                    Official grades
-                </h2>
-
-                <div class="notice" data-i18n="officialGradesNotice">
-                    Official grades entered by your teacher and approved by your
-                    school will appear here after the grade-management feature
-                    has been connected. ML predictions shown above are estimates,
-                    not official school grades.
-                </div>
-            </section>
-
+            <div class="notice" data-i18n="privacyNotice">
+                Your dashboard should only show records linked to your own student account. ML predictions are estimates and are not official grades.
+            </div>
         </div>
 
-        <footer class="footer">
-            StudentPredict · Learn · Create · Innovate
-        </footer>
+        <footer class="footer">StudentPredict · Learn · Create · Innovate</footer>
     </main>
 </div>
 
 <script>
-    const translations = {
-        en: {
-            mainMenu: "Main menu",
-            overview: "◫ Overview",
-            subjects: "▤ My subjects",
-            history: "◷ Prediction history",
-            reports: "▧ Reports",
-            account: "Account",
-            logout: "⇥ Log out",
-            dashboardTitle: "Student Dashboard",
-            welcome: "Welcome",
-            theme: "Dark mode",
-            lightMode: "Light mode",
-            overviewTitle: "Your learning overview",
-            overviewDescription: "Review your saved ML predictions and performance summary.",
-            totalPredictions: "Total predictions",
-            totalNote: "Predictions saved to your account",
-            passed: "Passed predictions",
-            passedNote: "Predicted PASS results",
-            failed: "Failed predictions",
-            failedNote: "Predicted FAIL results",
-            passRate: "Prediction pass rate",
-            passRateNote: "Percentage of predicted PASS results",
-            subjectPerformance: "Subject performance",
-            subjectDescription: "Summary based on your saved predictions.",
-            refresh: "Refresh data",
-            loading: "Loading data...",
-            noSubjects: "No subject predictions found yet.",
-            recentHistory: "Prediction history",
-            historyDescription: "Your latest saved prediction records.",
-            date: "Date",
-            student: "Student",
-            subject: "Subject",
-            studyHours: "Study hours",
-            attendance: "Attendance",
-            result: "Result",
-            confidence: "Confidence",
-            noHistory: "No prediction history found.",
-            historyError: "Could not load history. Please log in again and retry.",
-            statsError: "Could not load statistics.",
-            reportsTitle: "Download your reports",
-            reportsDescription: "Export your saved prediction history.",
-            downloadPdf: "Download PDF",
-            downloadExcel: "Download Excel",
-            officialGrades: "Official grades",
-            officialGradesNotice: "Official grades entered by your teacher and approved by your school will appear here after the grade-management feature has been connected. ML predictions shown above are estimates, not official school grades.",
-            predictedPass: "PASS",
-            predictedFail: "FAIL",
-            predictions: "predictions",
-            passedShort: "Passed",
-            failedShort: "Failed",
-            passRateShort: "Pass rate"
-        },
-        rw: {
-            mainMenu: "Ibikubiye muri menu",
-            overview: "◫ Incamake",
-            subjects: "▤ Amasomo yanjye",
-            history: "◷ Amateka ya predictions",
-            reports: "▧ Raporo",
-            account: "Konti",
-            logout: "⇥ Sohoka",
-            dashboardTitle: "Dashboard y'umunyeshuri",
-            welcome: "Murakaza neza",
-            theme: "Uburyo bwijimye",
-            lightMode: "Uburyo bw'urumuri",
-            overviewTitle: "Incamake y'amasomo yawe",
-            overviewDescription: "Reba predictions za ML zibitswe na raporo y'imikorere yawe.",
-            totalPredictions: "Predictions zose",
-            totalNote: "Predictions zibitswe kuri konti yawe",
-            passed: "Ibyagaragaje gutsinda",
-            passedNote: "Ibyahanuwe ko watsinda",
-            failed: "Ibyagaragaje gutsindwa",
-            failedNote: "Ibyahanuwe ko watsindwa",
-            passRate: "Ijanisha ry'ibyahanuwe gutsinda",
-            passRateNote: "Ijanisha rya predictions za PASS",
-            subjectPerformance: "Imikorere kuri buri somo",
-            subjectDescription: "Incamake ishingiye kuri predictions wabikije.",
-            refresh: "Ongera urebe amakuru",
-            loading: "Turimo kuzana amakuru...",
-            noSubjects: "Nta predictions z'amasomo ziraboneka.",
-            recentHistory: "Amateka ya predictions",
-            historyDescription: "Predictions ziheruka kubikwa.",
-            date: "Itariki",
-            student: "Umunyeshuri",
-            subject: "Isomo",
-            studyHours: "Amasaha yo kwiga",
-            attendance: "Kwitabira amasomo",
-            result: "Icyavuye muri prediction",
-            confidence: "Icyizere cya model",
-            noHistory: "Nta mateka ya predictions araboneka.",
-            historyError: "Amateka ntiyashoboye gufunguka. Ongera winjire ugerageze.",
-            statsError: "Imibare ntiyashoboye kuzana.",
-            reportsTitle: "Kuramo raporo zawe",
-            reportsDescription: "Bika amateka ya predictions muri dosiye.",
-            downloadPdf: "Kuramo PDF",
-            downloadExcel: "Kuramo Excel",
-            officialGrades: "Amanota yemewe",
-            officialGradesNotice: "Amanota umwarimu yanditse kandi ishuri ryemeje azagaragara hano igihe igice cyo gucunga amanota kizaba cyahujwe. Predictions za ML ni ibigereranyo, si amanota yemewe y'ishuri.",
-            predictedPass: "YAHISE",
-            predictedFail: "YAGIYE HASI",
-            predictions: "predictions",
-            passedShort: "Yatsinze",
-            failedShort: "Yatsinzwe",
-            passRateShort: "Ijanisha ryo gutsinda"
-        },
-        fr: {
-            mainMenu: "Menu principal",
-            overview: "◫ Vue d'ensemble",
-            subjects: "▤ Mes matières",
-            history: "◷ Historique des prédictions",
-            reports: "▧ Rapports",
-            account: "Compte",
-            logout: "⇥ Déconnexion",
-            dashboardTitle: "Tableau de bord étudiant",
-            welcome: "Bienvenue",
-            theme: "Mode sombre",
-            lightMode: "Mode clair",
-            overviewTitle: "Vue d'ensemble de vos études",
-            overviewDescription: "Consultez vos prédictions ML enregistrées et vos statistiques.",
-            totalPredictions: "Nombre total de prédictions",
-            totalNote: "Prédictions enregistrées dans votre compte",
-            passed: "Prédictions de réussite",
-            passedNote: "Résultats prédits PASS",
-            failed: "Prédictions d'échec",
-            failedNote: "Résultats prédits FAIL",
-            passRate: "Taux de réussite prédit",
-            passRateNote: "Pourcentage de résultats PASS prédits",
-            subjectPerformance: "Résultats par matière",
-            subjectDescription: "Résumé basé sur vos prédictions enregistrées.",
-            refresh: "Actualiser",
-            loading: "Chargement des données...",
-            noSubjects: "Aucune prédiction par matière pour le moment.",
-            recentHistory: "Historique des prédictions",
-            historyDescription: "Vos dernières prédictions enregistrées.",
-            date: "Date",
-            student: "Étudiant",
-            subject: "Matière",
-            studyHours: "Heures d'étude",
-            attendance: "Présence",
-            result: "Résultat",
-            confidence: "Confiance",
-            noHistory: "Aucun historique trouvé.",
-            historyError: "Impossible de charger l'historique. Reconnectez-vous et réessayez.",
-            statsError: "Impossible de charger les statistiques.",
-            reportsTitle: "Télécharger vos rapports",
-            reportsDescription: "Exporter votre historique de prédictions.",
-            downloadPdf: "Télécharger PDF",
-            downloadExcel: "Télécharger Excel",
-            officialGrades: "Notes officielles",
-            officialGradesNotice: "Les notes saisies par votre enseignant et approuvées par l'école apparaîtront ici une fois la fonction de gestion des notes connectée. Les prédictions ML sont des estimations, pas des notes scolaires officielles.",
-            predictedPass: "RÉUSSITE",
-            predictedFail: "ÉCHEC",
-            predictions: "prédictions",
-            passedShort: "Réussites",
-            failedShort: "Échecs",
-            passRateShort: "Taux de réussite"
-        }
+"use strict";
+
+/*
+ * StudentPredict student dashboard.
+ * Data source: GET /api/student/grades
+ * Grades are read-only for students.
+ * This page never creates or edits grades.
+ */
+
+const I18N = {
+    en: {
+        portal:"Student Learning Portal", menu:"MAIN MENU", overview:"Overview",
+        performance:"Performance", subjects:"My subjects", grades:"Official grades",
+        advisor:"Study advisor", reports:"Reports", account:"ACCOUNT", logout:"Log out",
+        dashboard:"Student Dashboard", welcome:"Welcome", darkMode:"Dark mode",
+        lightMode:"Light mode", refresh:"Refresh", loading:"Loading data...",
+        overviewTitle:"Your academic overview",
+        overviewDesc:"Your progress, official grades and learning recommendations.",
+        average:"Approved grade average", averageNote:"Based on approved grades only",
+        passedSubjects:"Subjects passed", passedNote:"Using a 50% pass mark",
+        improve:"Need improvement", improveNote:"Approved subjects below 50%",
+        pending:"Pending grades", pendingNote:"Waiting for school approval",
+        performanceTitle:"Performance analytics",
+        performanceDesc:"Understand your results across subjects and terms.",
+        subjectChart:"Grades by subject", subjectChartDesc:"Approved scores converted to percentages.",
+        distribution:"Grade distribution",
+        distributionDesc:"Passed subjects compared with subjects needing improvement.",
+        chartNote:"Charts will appear when grade data is available.",
+        subjectsTitle:"My subjects", subjectsDesc:"See your latest approved result for each subject.",
+        gradesTitle:"Official gradebook", gradesDesc:"Grades are entered by your teacher, not by you.",
+        date:"Date", subject:"Subject", term:"Term", score:"Score",
+        percentage:"Percentage", status:"Status", recommendations:"Personal recommendations",
+        strengths:"Your strengths", advisorTitle:"Your study advisor",
+        advisorDesc:"Suggestions calculated from your approved grades.",
+        advisorDisclaimer:"These are data-based study suggestions, not a guarantee of future results.",
+        reportsTitle:"My reports", reportsDesc:"Download your available reports.",
+        reportsNote:"These existing export links may contain prediction history. Ask your administrator to connect an official grade report if you need a transcript of approved grades.",
+        pdf:"Download PDF", excel:"Download Excel",
+        privacyNotice:"Your dashboard should only show records linked to your own student account. ML predictions are estimates and are not official grades.",
+        noGrades:"No grade records are available yet.",
+        noApproved:"No approved grades yet. Your results will appear here after your teacher submits them and the school approves them.",
+        error:"Could not load your grades. Please refresh or sign in again.",
+        ready:"Grades loaded", partial:"Some data could not be loaded",
+        approved:"Approved", pendingStatus:"Pending", rejected:"Rejected",
+        noSubject:"No subject", noTerm:"—", pass:"Passed", fail:"Needs improvement",
+        needMore:"Not enough approved grade data to make recommendations yet.",
+        focus:"Priority to improve", focusText:"Your result is below the 50% pass mark. Review the topics you found difficult and ask your teacher for practice exercises.",
+        maintain:"Maintain your progress", maintainText:"Your result is good. Keep practising and help reinforce your understanding with revision questions.",
+        strengthText:"This is one of your stronger subjects. Keep revising so you can maintain this result.",
+        noStrength:"Your strengths will be highlighted after approved grades are available.",
+        latest:"Latest approved score", averageShort:"Average",
+        pendingNotice:"This grade is awaiting approval. It is not included in your official average.",
+        rejectedNotice:"This grade was rejected. Please contact your teacher for clarification.",
+        passRate:"Pass rate"
+    },
+    rw: {
+        portal:"Urubuga rw'umunyeshuri", menu:"MENU NKURU", overview:"Incamake",
+        performance:"Imikorere", subjects:"Amasomo yanjye", grades:"Amanota yemewe",
+        advisor:"Inama zo kwiga", reports:"Raporo", account:"KONTI", logout:"Sohoka",
+        dashboard:"Dashboard y'umunyeshuri", welcome:"Murakaza neza",
+        darkMode:"Uburyo bwijimye", lightMode:"Uburyo bw'urumuri",
+        refresh:"Kuvugurura", loading:"Turimo kuzana amakuru...",
+        overviewTitle:"Incamake y'amasomo yawe",
+        overviewDesc:"Reba iterambere ryawe, amanota yemewe n'inama zo kwiga.",
+        average:"Impuzandengo y'amanota yemewe",
+        averageNote:"Ibarwa hakoreshejwe amanota yemejwe gusa",
+        passedSubjects:"Amasomo watsinze", passedNote:"Hakoreshwa 50% nk'amanota yo gutsinda",
+        improve:"Amasomo yo kunoza", improveNote:"Amasomo yemejwe ari munsi ya 50%",
+        pending:"Amanota ategereje", pendingNote:"Ategereje kwemezwa n'ishuri",
+        performanceTitle:"Isesengura ry'imikorere",
+        performanceDesc:"Sobanukirwa n'amanota yawe kuri buri somo no muri buri gihembwe.",
+        subjectChart:"Amanota kuri buri somo",
+        subjectChartDesc:"Amanota yemejwe ahinduwe ijanisha.",
+        distribution:"Uko amanota ateye",
+        distributionDesc:"Gereranya amasomo watsinze n'ayo ukeneye kunoza.",
+        chartNote:"Grafu zizagaragara igihe amakuru y'amanota azaba ahari.",
+        subjectsTitle:"Amasomo yanjye",
+        subjectsDesc:"Reba amanota ya nyuma yemejwe kuri buri somo.",
+        gradesTitle:"Urutonde rw'amanota yemewe",
+        gradesDesc:"Amanota yandikwa n'umwarimu, si wowe uyandika.",
+        date:"Itariki", subject:"Isomo", term:"Igihembwe", score:"Amanota",
+        percentage:"Ijanisha", status:"Imiterere", recommendations:"Inama zihariye",
+        strengths:"Amasomo ukomeyeho", advisorTitle:"Umujyanama wawe mu myigire",
+        advisorDesc:"Inama zishingiye ku manota yawe yemejwe.",
+        advisorDisclaimer:"Izi ni inama zishingiye ku makuru ahari; ntizemeza ko uzabona amanota runaka.",
+        reportsTitle:"Raporo zanjye", reportsDesc:"Kuramo raporo ziboneka.",
+        reportsNote:"Izi links zishobora kuba zikuramo amateka ya predictions. Saba umuyobozi guhuza raporo y'amanota yemewe niba ukeneye transcript.",
+        pdf:"Kuramo PDF", excel:"Kuramo Excel",
+        privacyNotice:"Dashboard igomba kwerekana amakuru ahujwe na konti yawe gusa. Predictions za ML ni ibigereranyo, si amanota yemewe.",
+        noGrades:"Nta manota araboneka.",
+        noApproved:"Nta manota yemejwe arahari. Amanota yawe azagaragara umwarimu amaze kuyohereza kandi ishuri rikayemeza.",
+        error:"Ntitwashoboye kuzana amanota yawe. Ongera ugerageze cyangwa winjire bundi bushya.",
+        ready:"Amanota yabonetse", partial:"Amwe mu makuru ntiyabonetse",
+        approved:"Byemejwe", pendingStatus:"Birategereje", rejected:"Byanzwe",
+        noSubject:"Nta somo", noTerm:"—", pass:"Yatsinze", fail:"Akeneye kunozwa",
+        needMore:"Nta manota yemejwe ahagije yo gutanga inama arahari.",
+        focus:"Isomo ugomba gushyiramo imbaraga",
+        focusText:"Amanota ari munsi ya 50%. Ongera usubiremo ingingo zakugoye, usabe umwarimu imyitozo.",
+        maintain:"Komeza gutera imbere",
+        maintainText:"Amanota yawe ni meza. Komeza kwitoza no gusubiramo ibibazo kugira ngo ukomeze gutera imbere.",
+        strengthText:"Iri ni rimwe mu masomo ukomeyeho. Komeza kurisubiramo kugira ngo ugumane amanota meza.",
+        noStrength:"Amasomo ukomeyeho azagaragazwa igihe amanota yemejwe azaba ahari.",
+        latest:"Amanota ya nyuma yemejwe", averageShort:"Impuzandengo",
+        pendingNotice:"Aya manota ategereje kwemezwa. Ntabwo abarwa mu mpuzandengo yemewe.",
+        rejectedNotice:"Aya manota yaranze kwemezwa. Baza umwarimu wawe ibisobanuro.",
+        passRate:"Ijanisha ryo gutsinda"
+    },
+    fr: {
+        portal:"Portail étudiant", menu:"MENU PRINCIPAL", overview:"Vue d'ensemble",
+        performance:"Performance", subjects:"Mes matières", grades:"Notes officielles",
+        advisor:"Conseiller d'études", reports:"Rapports", account:"COMPTE", logout:"Déconnexion",
+        dashboard:"Tableau de bord étudiant", welcome:"Bienvenue",
+        darkMode:"Mode sombre", lightMode:"Mode clair", refresh:"Actualiser",
+        loading:"Chargement des données...", overviewTitle:"Votre bilan scolaire",
+        overviewDesc:"Consultez votre progression, vos notes officielles et les conseils d'étude.",
+        average:"Moyenne des notes approuvées", averageNote:"Calculée uniquement à partir des notes approuvées",
+        passedSubjects:"Matières réussies", passedNote:"Seuil de réussite fixé ici à 50%",
+        improve:"À améliorer", improveNote:"Matières approuvées sous 50%",
+        pending:"Notes en attente", pendingNote:"En attente de validation par l'école",
+        performanceTitle:"Analyse des performances",
+        performanceDesc:"Comprenez vos résultats par matière et par période.",
+        subjectChart:"Notes par matière", subjectChartDesc:"Notes approuvées converties en pourcentages.",
+        distribution:"Répartition des résultats",
+        distributionDesc:"Matières réussies et matières à améliorer.",
+        chartNote:"Les graphiques apparaîtront lorsque les notes seront disponibles.",
+        subjectsTitle:"Mes matières", subjectsDesc:"Consultez la dernière note approuvée pour chaque matière.",
+        gradesTitle:"Relevé officiel", gradesDesc:"Les notes sont saisies par votre enseignant, pas par vous.",
+        date:"Date", subject:"Matière", term:"Période", score:"Note",
+        percentage:"Pourcentage", status:"Statut", recommendations:"Conseils personnalisés",
+        strengths:"Vos points forts", advisorTitle:"Votre conseiller d'études",
+        advisorDesc:"Conseils calculés à partir de vos notes approuvées.",
+        advisorDisclaimer:"Ces conseils reposent sur les données disponibles et ne garantissent pas les résultats futurs.",
+        reportsTitle:"Mes rapports", reportsDesc:"Téléchargez les rapports disponibles.",
+        reportsNote:"Ces liens peuvent exporter l'historique des prédictions. Demandez à l'administrateur de connecter un relevé officiel si nécessaire.",
+        pdf:"Télécharger PDF", excel:"Télécharger Excel",
+        privacyNotice:"Ce tableau de bord doit afficher uniquement les données liées à votre compte. Les prédictions ML sont des estimations, pas des notes officielles.",
+        noGrades:"Aucune note disponible pour le moment.",
+        noApproved:"Aucune note approuvée. Vos résultats apparaîtront après leur saisie par l'enseignant et leur validation par l'école.",
+        error:"Impossible de charger vos notes. Actualisez la page ou reconnectez-vous.",
+        ready:"Notes chargées", partial:"Certaines données n'ont pas pu être chargées",
+        approved:"Approuvée", pendingStatus:"En attente", rejected:"Rejetée",
+        noSubject:"Sans matière", noTerm:"—", pass:"Réussie", fail:"À améliorer",
+        needMore:"Pas encore assez de notes approuvées pour formuler des conseils.",
+        focus:"Priorité d'amélioration",
+        focusText:"Votre note est inférieure à 50%. Revoyez les notions difficiles et demandez des exercices à votre enseignant.",
+        maintain:"Maintenez votre progression",
+        maintainText:"Votre résultat est bon. Continuez à pratiquer et à réviser pour progresser.",
+        strengthText:"C'est l'une de vos matières les plus fortes. Continuez à réviser pour maintenir ce résultat.",
+        noStrength:"Vos points forts seront affichés lorsque des notes approuvées seront disponibles.",
+        latest:"Dernière note approuvée", averageShort:"Moyenne",
+        pendingNotice:"Cette note attend une validation. Elle n'est pas incluse dans la moyenne officielle.",
+        rejectedNotice:"Cette note a été rejetée. Contactez votre enseignant pour plus d'informations.",
+        passRate:"Taux de réussite"
+    }
+};
+
+let allGrades = [];
+let subjectChart = null;
+let distributionChart = null;
+
+const $ = id => document.getElementById(id);
+const lang = () => $("languageSelect").value;
+const tr = key => I18N[lang()][key] || I18N.en[key] || key;
+
+function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+}
+
+function number(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+}
+
+function escapeStatus(value) {
+    return String(value || "").trim().toUpperCase();
+}
+
+function normaliseGrade(row) {
+    const score = number(row.score ?? row.mark ?? row.grade);
+    const maxScore = number(row.max_score ?? row.max_marks ?? row.out_of ?? 100);
+    let percentage = number(row.percentage ?? row.percent);
+
+    if (percentage === null && score !== null && maxScore !== null && maxScore > 0) {
+        percentage = score / maxScore * 100;
+    }
+
+    const status = escapeStatus(row.status ?? row.approval_status);
+    const subject = String(
+        row.subject_name ?? row.subject ?? row.subject_title ?? tr("noSubject")
+    );
+
+    return {
+        subject,
+        score,
+        maxScore,
+        percentage: percentage === null ? null : Math.max(0, Math.min(100, percentage)),
+        status,
+        term: String(row.term ?? row.semester ?? row.academic_year ?? tr("noTerm")),
+        date: String(row.created_at ?? row.date ?? row.timestamp ?? "—"),
+        id: row.id ?? `${subject}-${row.created_at ?? row.term ?? Math.random()}`
     };
+}
 
-    let currentStats = null;
-    let currentHistory = [];
+function isApproved(grade) {
+    return grade.status === "APPROVED";
+}
 
-    function getLanguage() {
-        return document.getElementById("languageSelect").value;
+function isPending(grade) {
+    return grade.status === "PENDING";
+}
+
+function isRejected(grade) {
+    return grade.status === "REJECTED";
+}
+
+function approvedGrades() {
+    return allGrades.filter(g => isApproved(g) && g.percentage !== null);
+}
+
+function average(items) {
+    if (!items.length) return null;
+    return items.reduce((sum, g) => sum + g.percentage, 0) / items.length;
+}
+
+function showMetric(id, value, suffix = "") {
+    $(id).textContent = value === null || value === undefined ? "—" : value + suffix;
+}
+
+function statusBadge(status) {
+    const span = el("span", "badge");
+    if (status === "APPROVED") {
+        span.classList.add("badge-approved");
+        span.textContent = tr("approved");
+    } else if (status === "REJECTED") {
+        span.classList.add("badge-rejected");
+        span.textContent = tr("rejected");
+    } else {
+        span.classList.add("badge-pending");
+        span.textContent = tr("pendingStatus");
     }
+    return span;
+}
 
-    function t(key) {
-        const lang = getLanguage();
-        return (translations[lang] && translations[lang][key])
-            || translations.en[key]
-            || key;
-    }
+function subjectSummaries() {
+    const groups = new Map();
 
-    function applyTranslations() {
-        document.querySelectorAll("[data-i18n]").forEach(element => {
-            const key = element.getAttribute("data-i18n");
-            if (translations[getLanguage()][key]) {
-                element.textContent = t(key);
-            }
-        });
-
-        updateThemeButton();
-        renderStats();
-        renderHistory();
-    }
-
-    function safeNumber(value) {
-        const number = Number(value);
-        return Number.isFinite(number) ? number : 0;
-    }
-
-    function createElement(tag, className, text) {
-        const element = document.createElement(tag);
-        if (className) element.className = className;
-        if (text !== undefined) element.textContent = text;
-        return element;
-    }
-
-    async function fetchStats() {
-        const response = await fetch("/api/stats", {
-            credentials: "same-origin"
-        });
-
-        if (!response.ok) {
-            throw new Error("Statistics request failed");
-        }
-
-        const data = await response.json();
-
-        if (data.success === false) {
-            throw new Error("Statistics unavailable");
-        }
-
-        currentStats = data;
-        renderStats();
-    }
-
-    async function fetchHistory() {
-        const response = await fetch("/api/history", {
-            credentials: "same-origin"
-        });
-
-        if (!response.ok) {
-            throw new Error("History request failed");
-        }
-
-        const data = await response.json();
-
-        if (!Array.isArray(data)) {
-            throw new Error("Unexpected history response");
-        }
-
-        currentHistory = data;
-        renderHistory();
-    }
-
-    function renderStats() {
-        if (!currentStats) return;
-
-        document.getElementById("totalCount").textContent =
-            safeNumber(currentStats.total);
-
-        document.getElementById("passedCount").textContent =
-            safeNumber(currentStats.passed);
-
-        document.getElementById("failedCount").textContent =
-            safeNumber(currentStats.failed);
-
-        document.getElementById("passRate").textContent =
-            safeNumber(currentStats.pass_rate).toFixed(1) + "%";
-
-        const grid = document.getElementById("subjectGrid");
-        grid.replaceChildren();
-
-        const subjects = Array.isArray(currentStats.subjects)
-            ? currentStats.subjects
-            : [];
-
-        if (!subjects.length) {
-            grid.appendChild(
-                createElement("div", "card empty", t("noSubjects"))
-            );
-            return;
-        }
-
-        subjects.forEach(item => {
-            const card = createElement("div", "card");
-            const name = createElement(
-                "div", "subject-name", item.subject || "Unknown"
-            );
-            const rate = safeNumber(item.pass_rate);
-            const progress = createElement("div", "progress");
-            const fill = createElement("div", "progress-fill");
-            fill.style.width = Math.max(0, Math.min(100, rate)) + "%";
-            progress.appendChild(fill);
-
-            const meta = createElement(
-                "div",
-                "subject-meta",
-                `${t("passedShort")}: ${safeNumber(item.passed)} · ` +
-                `${t("failedShort")}: ${safeNumber(item.failed)}`
-            );
-
-            const total = createElement(
-                "div",
-                "subject-meta",
-                `${safeNumber(item.total)} ${t("predictions")} · ` +
-                `${t("passRateShort")}: ${rate.toFixed(1)}%`
-            );
-
-            card.append(name, progress, meta, total);
-            grid.appendChild(card);
-        });
-    }
-
-    function renderHistory() {
-        const body = document.getElementById("historyBody");
-        const message = document.getElementById("historyMessage");
-
-        body.replaceChildren();
-        message.textContent = "";
-
-        if (!currentHistory.length) {
-            const row = document.createElement("tr");
-            const cell = createElement("td", "empty", t("noHistory"));
-            cell.colSpan = 7;
-            row.appendChild(cell);
-            body.appendChild(row);
-            return;
-        }
-
-        currentHistory.forEach(item => {
-            const row = document.createElement("tr");
-
-            const values = [
-                item.timestamp || "—",
-                item.student_name || "—",
-                item.subject || "—",
-                item.study_hours ?? "—",
-                item.attendance == null ? "—" : `${item.attendance}%`
-            ];
-
-            values.forEach(value => {
-                row.appendChild(createElement("td", "", String(value)));
-            });
-
-            const resultCell = document.createElement("td");
-            const result = String(item.prediction || "").toUpperCase();
-            const isPass = result === "PASS";
-
-            resultCell.appendChild(
-                createElement(
-                    "span",
-                    "status " + (isPass ? "status-pass" : "status-fail"),
-                    isPass ? t("predictedPass") : t("predictedFail")
-                )
-            );
-
-            row.appendChild(resultCell);
-
-            const confidence = safeNumber(item.confidence);
-            row.appendChild(
-                createElement(
-                    "td",
-                    "",
-                    Number.isFinite(confidence)
-                        ? confidence.toFixed(1) + "%"
-                        : "—"
-                )
-            );
-
-            body.appendChild(row);
-        });
-    }
-
-    function updateThemeButton() {
-        const dark = document.body.classList.contains("dark");
-        document.getElementById("themeButton").textContent =
-            "☾ " + (dark ? t("lightMode") : t("theme"));
-    }
-
-    document.getElementById("themeButton").addEventListener("click", () => {
-        document.body.classList.toggle("dark");
-        updateThemeButton();
+    approvedGrades().forEach(g => {
+        if (!groups.has(g.subject)) groups.set(g.subject, []);
+        groups.get(g.subject).push(g);
     });
 
-    document.getElementById("languageSelect").addEventListener(
-        "change", applyTranslations
-    );
+    return [...groups.entries()].map(([subject, grades]) => {
+        grades.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+        return {
+            subject,
+            grades,
+            latest: grades[0],
+            average: average(grades)
+        };
+    }).sort((a, b) => a.average - b.average);
+}
 
-    async function refreshDashboard() {
-        const message = document.getElementById("historyMessage");
-        message.textContent = "";
+function renderOverview() {
+    const approved = approvedGrades();
+    const summaries = subjectSummaries();
+    const avg = average(approved);
+    const passed = summaries.filter(s => s.latest.percentage >= 50).length;
+    const needsWork = summaries.filter(s => s.latest.percentage < 50).length;
+    const pending = allGrades.filter(isPending).length;
 
-        try {
-            await Promise.all([fetchStats(), fetchHistory()]);
-        } catch (error) {
-            console.error(error);
-            message.textContent = t("historyError");
-            message.className = "message error";
+    showMetric("averageValue", avg === null ? null : avg.toFixed(1), avg === null ? "" : "%");
+    showMetric("passedValue", passed);
+    showMetric("improveValue", needsWork);
+    showMetric("pendingValue", pending);
+}
 
-            if (!currentStats) {
-                document.getElementById("subjectGrid").replaceChildren(
-                    createElement("div", "card empty", t("statsError"))
-                );
-            }
-        }
+function renderGradeTable() {
+    const body = $("gradesBody");
+    const message = $("gradesMessage");
+    body.replaceChildren();
+    message.textContent = "";
+
+    if (!allGrades.length) {
+        const row = el("tr");
+        const cell = el("td", "empty", tr("noGrades"));
+        cell.colSpan = 6;
+        row.appendChild(cell);
+        body.appendChild(row);
+        return;
     }
 
-    document.getElementById("refreshButton").addEventListener(
-        "click", refreshDashboard
-    );
+    const sorted = [...allGrades].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
-    document.getElementById("historyRefresh").addEventListener(
-        "click", refreshDashboard
-    );
+    sorted.forEach(g => {
+        const row = el("tr");
+        [
+            g.date,
+            g.subject,
+            g.term,
+            g.score === null ? "—" : `${g.score}${g.maxScore ? " / " + g.maxScore : ""}`,
+            g.percentage === null ? "—" : g.percentage.toFixed(1) + "%"
+        ].forEach(value => row.appendChild(el("td", "", value)));
 
-    applyTranslations();
-    refreshDashboard();
+        const cell = el("td");
+        cell.appendChild(statusBadge(g.status));
+        row.appendChild(cell);
+        body.appendChild(row);
+    });
+
+    if (!approvedGrades().length) {
+        message.textContent = tr("noApproved");
+    }
+}
+
+function renderSubjectCards() {
+    const container = $("subjectCards");
+    container.replaceChildren();
+    const summaries = subjectSummaries();
+
+    if (!summaries.length) {
+        container.appendChild(el("div", "card empty", tr("noApproved")));
+        return;
+    }
+
+    summaries.forEach(s => {
+        const card = el("article", "card");
+        const row = el("div", "subject-row");
+        row.appendChild(el("div", "subject-name", s.subject));
+        row.appendChild(el("strong", s.latest.percentage >= 50 ? "green" : "red",
+            s.latest.percentage.toFixed(1) + "%"));
+
+        const progress = el("div", "progress");
+        const fill = el("div", "progress-fill");
+        fill.style.width = s.latest.percentage + "%";
+        if (s.latest.percentage < 50) fill.style.background = "var(--red)";
+        progress.appendChild(fill);
+
+        card.appendChild(row);
+        card.appendChild(progress);
+        card.appendChild(el("div", "subject-meta",
+            `${tr("latest")}: ${s.latest.score ?? "—"} / ${s.latest.maxScore ?? "—"}`));
+        card.appendChild(el("div", "subject-meta",
+            `${tr("averageShort")}: ${s.average.toFixed(1)}% · ${s.grades.length} record(s)`));
+        container.appendChild(card);
+    });
+}
+
+function chartTheme() {
+    const styles = getComputedStyle(document.body);
+    return {
+        text: styles.getPropertyValue("--muted").trim(),
+        border: styles.getPropertyValue("--border").trim(),
+        primary: styles.getPropertyValue("--primary").trim(),
+        green: styles.getPropertyValue("--green").trim(),
+        red: styles.getPropertyValue("--red").trim()
+    };
+}
+
+function renderCharts() {
+    if (typeof Chart === "undefined") {
+        $("chartNote").textContent = "Chart library unavailable. Check your internet connection.";
+        return;
+    }
+
+    const theme = chartTheme();
+    const summaries = subjectSummaries();
+
+    if (subjectChart) subjectChart.destroy();
+    if (distributionChart) distributionChart.destroy();
+
+    subjectChart = new Chart($("subjectChart"), {
+        type: "bar",
+        data: {
+            labels: summaries.map(s => s.subject),
+            datasets: [{
+                label: tr("percentage"),
+                data: summaries.map(s => Number(s.latest.percentage.toFixed(1))),
+                backgroundColor: summaries.map(s => s.latest.percentage >= 50 ? theme.primary : theme.red),
+                borderRadius: 7,
+                maxBarThickness: 42
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            scales: {
+                x: {
+                    min: 0, max: 100,
+                    ticks: { color: theme.text },
+                    grid: { color: theme.border }
+                },
+                y: {
+                    ticks: { color: theme.text },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: context => `${context.raw}%` } }
+            }
+        }
+    });
+
+    const passed = summaries.filter(s => s.latest.percentage >= 50).length;
+    const needsWork = summaries.filter(s => s.latest.percentage < 50).length;
+
+    distributionChart = new Chart($("distributionChart"), {
+        type: "doughnut",
+        data: {
+            labels: [tr("pass"), tr("fail")],
+            datasets: [{
+                data: [passed, needsWork],
+                backgroundColor: [theme.green, theme.red],
+                borderColor: getComputedStyle(document.body).getPropertyValue("--card").trim(),
+                borderWidth: 4,
+                hoverOffset: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "68%",
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: { color: theme.text, padding: 18 }
+                }
+            }
+        }
+    });
+
+    $("chartNote").textContent = summaries.length
+        ? `${summaries.length} subject(s) · ${passed} passed · ${needsWork} need improvement.`
+        : tr("chartNote");
+}
+
+function addAdvisor(icon, title, description, className = "") {
+    const box = el("div", "advisor");
+    box.appendChild(el("div", "advisor-icon", icon));
+    const content = el("div");
+    content.appendChild(el("strong", className, title));
+    content.appendChild(el("p", "", description));
+    box.appendChild(content);
+    return box;
+}
+
+function renderAdvisor() {
+    const recommendations = $("recommendations");
+    const strengths = $("strengths");
+    recommendations.replaceChildren();
+    strengths.replaceChildren();
+
+    const summaries = subjectSummaries();
+
+    if (!summaries.length) {
+        recommendations.appendChild(el("div", "empty", tr("needMore")));
+        strengths.appendChild(el("div", "empty", tr("noStrength")));
+        return;
+    }
+
+    const weak = summaries.filter(s => s.latest.percentage < 50);
+    const strong = [...summaries].filter(s => s.latest.percentage >= 50)
+        .sort((a, b) => b.average - a.average);
+
+    if (weak.length) {
+        weak.forEach(s => {
+            recommendations.appendChild(addAdvisor(
+                "↗",
+                `${tr("focus")}: ${s.subject} (${s.latest.percentage.toFixed(1)}%)`,
+                tr("focusText"),
+                "red"
+            ));
+        });
+    } else {
+        recommendations.appendChild(addAdvisor(
+            "✓", tr("maintain"), tr("maintainText"), "green"
+        ));
+    }
+
+    if (strong.length) {
+        strong.slice(0, 4).forEach(s => {
+            strengths.appendChild(addAdvisor(
+                "★",
+                `${s.subject} · ${s.average.toFixed(1)}%`,
+                tr("strengthText"),
+                "green"
+            ));
+        });
+    } else {
+        strengths.appendChild(el("div", "empty", tr("noStrength")));
+    }
+}
+
+function renderAll() {
+    renderOverview();
+    renderGradeTable();
+    renderSubjectCards();
+    renderCharts();
+    renderAdvisor();
+}
+
+async function loadGrades() {
+    const status = $("dataStatus");
+    const refresh = $("refreshButton");
+    refresh.disabled = true;
+    status.textContent = tr("loading");
+
+    try {
+        const response = await fetch("/api/student/grades", {
+            method: "GET",
+            credentials: "same-origin",
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            throw new Error("AUTH");
+        }
+        if (!response.ok) throw new Error("HTTP");
+
+        const data = await response.json();
+
+        if (data && data.success === false) {
+            throw new Error(data.message || "API");
+        }
+
+        // Accept either a list, {grades: [...]}, or {data: [...]}.
+        const rows = Array.isArray(data) ? data
+            : Array.isArray(data.grades) ? data.grades
+            : Array.isArray(data.data) ? data.data
+            : null;
+
+        if (!rows) throw new Error("FORMAT");
+
+        allGrades = rows.map(normaliseGrade);
+        renderAll();
+        status.textContent = tr("ready");
+        status.className = "badge badge-approved";
+    } catch (error) {
+        console.error("Student grades could not be loaded:", error);
+        status.textContent = tr("partial");
+        status.className = "badge badge-rejected";
+        $("gradesBody").replaceChildren();
+        const row = el("tr");
+        const cell = el("td", "empty", tr("error"));
+        cell.colSpan = 6;
+        row.appendChild(cell);
+        $("gradesBody").appendChild(row);
+        $("gradesMessage").textContent = tr("error");
+        $("gradesMessage").className = "message error";
+        $("subjectCards").replaceChildren(el("div", "card empty", tr("noApproved")));
+        $("recommendations").replaceChildren(el("div", "empty", tr("needMore")));
+        $("strengths").replaceChildren(el("div", "empty", tr("noStrength")));
+        showMetric("averageValue", null);
+        showMetric("passedValue", null);
+        showMetric("improveValue", null);
+        showMetric("pendingValue", null);
+    } finally {
+        refresh.disabled = false;
+    }
+}
+
+function applyLanguage() {
+    document.documentElement.lang = lang();
+    document.querySelectorAll("[data-i18n]").forEach(node => {
+        const key = node.getAttribute("data-i18n");
+        if (I18N[lang()][key]) node.textContent = tr(key);
+    });
+
+    $("themeButton").innerHTML = "";
+    $("themeButton").appendChild(document.createTextNode("☾ "));
+    $("themeButton").appendChild(el("span", "", document.body.classList.contains("dark")
+        ? tr("lightMode") : tr("darkMode")));
+
+    if (allGrades.length) renderAll();
+    else renderCharts();
+}
+
+function setTheme(dark) {
+    document.body.classList.toggle("dark", dark);
+    try { localStorage.setItem("studentpredict-theme", dark ? "dark" : "light"); }
+    catch (_) {}
+    applyLanguage();
+}
+
+$("themeButton").addEventListener("click", () => {
+    setTheme(!document.body.classList.contains("dark"));
+});
+
+$("languageSelect").addEventListener("change", () => {
+    try { localStorage.setItem("studentpredict-language", lang()); }
+    catch (_) {}
+    applyLanguage();
+});
+
+$("refreshButton").addEventListener("click", loadGrades);
+
+document.querySelectorAll(".nav-link[href^='#']").forEach(link => {
+    link.addEventListener("click", () => {
+        document.querySelectorAll(".nav-link").forEach(item => item.classList.remove("active"));
+        link.classList.add("active");
+    });
+});
+
+// Restore preferences, if browser storage is available.
+try {
+    const savedLanguage = localStorage.getItem("studentpredict-language");
+    if (savedLanguage && I18N[savedLanguage]) $("languageSelect").value = savedLanguage;
+
+    if (localStorage.getItem("studentpredict-theme") === "dark") {
+        document.body.classList.add("dark");
+    }
+} catch (_) {}
+
+applyLanguage();
+loadGrades();
 </script>
 </body>
 </html>
+```
