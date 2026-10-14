@@ -1,1 +1,564 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StudentPredict | Platform Admin</title>
+
+<style>
+:root {
+  --bg: #f3f6fb;
+  --panel: #ffffff;
+  --text: #172033;
+  --muted: #667085;
+  --border: #e4e8ef;
+  --primary: #3157d5;
+  --primary-soft: #eaf0ff;
+  --success: #13865c;
+  --warning: #a86608;
+  --danger: #c03939;
+  --shadow: 0 5px 20px rgba(30, 50, 90, .06);
+}
+
+body.dark {
+  --bg: #111827;
+  --panel: #1d2939;
+  --text: #f3f4f6;
+  --muted: #aab5c5;
+  --border: #344054;
+  --primary: #8ca8ff;
+  --primary-soft: #26375e;
+  --success: #6ee7b7;
+  --warning: #fcd34d;
+  --danger: #fca5a5;
+  --shadow: 0 5px 20px rgba(0, 0, 0, .12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background .2s, color .2s;
+}
+
+button, select { font: inherit; }
+
+button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 13px;
+  background: var(--panel);
+  color: var(--text);
+}
+
+button:hover { opacity: .86; }
+
+.topbar {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.brand { font-size: 20px; font-weight: 800; }
+.brand span { color: var(--primary); }
+
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+
+select {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 10px;
+}
+
+.container { max-width: 1400px; margin: auto; padding: 25px; }
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+h1 { font-size: 27px; margin: 0 0 8px; }
+h2 { font-size: 18px; margin: 0 0 16px; }
+p { color: var(--muted); line-height: 1.55; }
+.small { font-size: 13px; color: var(--muted); }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.stat-label { color: var(--muted); font-size: 14px; }
+.stat-number { font-size: 31px; font-weight: 800; margin-top: 12px; }
+.stat-icon { font-size: 23px; margin-bottom: 12px; }
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.section { margin-bottom: 18px; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+th { color: var(--muted); font-weight: 700; }
+
+.pill {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 20px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.analysis-item {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 9px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.analysis-item.warning { border-left-color: var(--warning); }
+.analysis-item.success { border-left-color: var(--success); }
+.analysis-item.info { border-left-color: var(--primary); }
+
+.analysis-item strong { display: block; margin-bottom: 6px; }
+.analysis-item p { margin: 0; font-size: 13px; }
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.primary { background: var(--primary); color: white; border-color: var(--primary); }
+.notice { padding: 12px; border-radius: 8px; background: var(--primary-soft); color: var(--text); }
+.error { color: var(--danger); }
+.footer { text-align: center; padding: 25px; color: var(--muted); font-size: 12px; }
+
+@media (max-width: 950px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .columns { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 500px) {
+  .container { padding: 14px; }
+  .topbar { padding: 14px; }
+  .stats { gap: 10px; }
+  .card { padding: 14px; }
+  .stat-number { font-size: 25px; }
+  h1 { font-size: 23px; }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="brand">Student<span>Predict</span> <span style="font-size:12px">ADMIN</span></div>
+
+  <div class="controls">
+    <select id="language" aria-label="Choose language">
+      <option value="en">English</option>
+      <option value="rw">Kinyarwanda</option>
+      <option value="fr">Français</option>
+    </select>
+    <button id="themeButton" type="button" data-i18n="theme">🌙 Dark Mode</button>
+    <button id="refreshButton" type="button" data-i18n="refresh">↻ Refresh</button>
+    <button type="button" onclick="window.location.href='/dashboard'" data-i18n="mainDashboard">Main Dashboard</button>
+  </div>
+</header>
+
+<main class="container">
+  <div class="heading">
+    <div>
+      <h1 data-i18n="title">Platform Admin Dashboard</h1>
+      <p data-i18n="subtitle">Monitor platform activity, schools and accounts.</p>
+    </div>
+    <span class="pill">PLATFORM ADMIN</span>
+  </div>
+
+  <div id="pageMessage" class="small" role="status"></div>
+
+  <section class="stats">
+    <div class="card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label" data-i18n="users">Total Users</div>
+      <div class="stat-number" id="totalUsers">—</div>
+    </div>
+    <div class="card">
+      <div class="stat-icon">🏫</div>
+      <div class="stat-label" data-i18n="schools">Registered Schools</div>
+      <div class="stat-number" id="totalSchools">—</div>
+    </div>
+    <div class="card">
+      <div class="stat-icon">🎓</div>
+      <div class="stat-label" data-i18n="students">Students</div>
+      <div class="stat-number" id="totalStudents">—</div>
+    </div>
+    <div class="card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-label" data-i18n="predictions">Predictions</div>
+      <div class="stat-number" id="totalPredictions">—</div>
+    </div>
+  </section>
+
+  <div class="columns">
+    <div>
+      <section class="card section">
+        <div class="heading">
+          <h2 data-i18n="schoolList">Registered Schools</h2>
+          <button type="button" onclick="loadSchools()" data-i18n="loadSchools">Load Schools</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="school">School</th>
+                <th data-i18n="code">Code</th>
+                <th data-i18n="level">Education Level</th>
+                <th data-i18n="members">Members</th>
+                <th data-i18n="approval">Approval Mode</th>
+              </tr>
+            </thead>
+            <tbody id="schoolsBody">
+              <tr><td colspan="5">Click “Load Schools” to load data.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card section">
+        <div class="heading">
+          <h2 data-i18n="userList">User Accounts</h2>
+          <button type="button" onclick="loadUsers()" data-i18n="loadUsers">Load Users</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="username">Username</th>
+                <th data-i18n="fullName">Full Name</th>
+                <th data-i18n="email">Email</th>
+                <th data-i18n="role">Role</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody">
+              <tr><td colspan="4">Click “Load Users” to load data.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small" data-i18n="privacyNote">
+          This view does not display student grades or passwords.
+        </p>
+      </section>
+    </div>
+
+    <aside>
+      <section class="card section">
+        <h2 data-i18n="aiTitle">🤖 AI Platform Analysis</h2>
+        <p data-i18n="aiDescription">
+          Review platform indicators and recommendations.
+        </p>
+        <button class="primary" id="analyzeButton" type="button" data-i18n="analyze">
+          Analyze Platform
+        </button>
+        <div id="analysisResults" aria-live="polite">
+          <p class="small">Run the analysis to see recommendations.</p>
+        </div>
+        <p class="small" data-i18n="aiDisclaimer">
+          This version uses rule-based analysis, not a generative AI model.
+        </p>
+      </section>
+
+      <section class="card section">
+        <h2 data-i18n="securityTitle">🔐 Access & Security</h2>
+        <p data-i18n="securityText">
+          Platform Admin access is verified on the server. School-specific roles
+          should remain limited to their own school and assignments.
+        </p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer class="footer">StudentPredict · Platform Administration</footer>
+
+<script>
+const translations = {
+  en: {
+    title: "Platform Admin Dashboard",
+    subtitle: "Monitor platform activity, schools and accounts.",
+    theme: "🌙 Dark Mode", light: "☀️ Light Mode", refresh: "↻ Refresh",
+    mainDashboard: "Main Dashboard", users: "Total Users",
+    schools: "Registered Schools", students: "Students",
+    predictions: "Predictions", schoolList: "Registered Schools",
+    loadSchools: "Load Schools", school: "School", code: "Code",
+    level: "Education Level", members: "Members", approval: "Approval Mode",
+    userList: "User Accounts", loadUsers: "Load Users",
+    username: "Username", fullName: "Full Name", email: "Email",
+    role: "Role", privacyNote: "This view does not display student grades or passwords.",
+    aiTitle: "🤖 AI Platform Analysis",
+    aiDescription: "Review platform indicators and recommendations.",
+    analyze: "Analyze Platform",
+    aiDisclaimer: "This version uses rule-based analysis, not a generative AI model.",
+    securityTitle: "🔐 Access & Security",
+    securityText: "Platform Admin access is verified on the server. School-specific roles should remain limited to their own school and assignments.",
+    loading: "Loading...", loadError: "Unable to load data. Check your connection and database.",
+    noSchools: "No schools found.", noUsers: "No users found.",
+    noAnalysis: "No recommendations returned.",
+    analysisFailed: "Analysis failed. Check your database configuration.",
+    memberCount: "Members", analysisReady: "Analysis completed."
+  },
+  rw: {
+    title: "Dashboard y'Ubuyobozi bwa Platform",
+    subtitle: "Kurikirana ibikorwa bya platform, amashuri na konti.",
+    theme: "🌙 Uburyo bwijimye", light: "☀️ Uburyo bwera",
+    refresh: "↻ Ongera ushyireho", mainDashboard: "Dashboard Nyamukuru",
+    users: "Abakoresha Bose", schools: "Amashuri Yiyandikishije",
+    students: "Abanyeshuri", predictions: "Ibyo Model yahanuye",
+    schoolList: "Amashuri Yiyandikishije", loadSchools: "Fungura Amashuri",
+    school: "Ishuri", code: "Kode", level: "Urwego rw'Amashuri",
+    members: "Abanyamuryango", approval: "Uburyo bwo Kwemeza",
+    userList: "Konti z'Abakoresha", loadUsers: "Fungura Abakoresha",
+    username: "Izina ryo Kwinjiriraho", fullName: "Amazina Yuzuye",
+    email: "Imeyili", role: "Uruhare",
+    privacyNote: "Aha ntihagaragazwa amanota y'abanyeshuri cyangwa amagambo y'ibanga.",
+    aiTitle: "🤖 Isesengura rya Platform",
+    aiDescription: "Reba imibare n'inama zishingiye ku makuru ya platform.",
+    analyze: "Sesengura Platform",
+    aiDisclaimer: "Iri ni isesengura rishingiye ku mategeko ya code, si AI y'ibiganiro.",
+    securityTitle: "🔐 Uburenganzira n'Umutekano",
+    securityText: "Server igenzura uburenganzira bwa Platform Admin. Ubuyobozi bw'ishuri bugomba kugarukira ku ishuri ryabwo n'amasomo bushinzwe.",
+    loading: "Birimo gufunguka...", loadError: "Ntibishoboye gufunguka. Reba internet na database.",
+    noSchools: "Nta mashuri abonetse.", noUsers: "Nta bakoresha babonetse.",
+    noAnalysis: "Nta nama zabonetse.",
+    analysisFailed: "Isesengura ryanze. Reba database.",
+    memberCount: "Abanyamuryango", analysisReady: "Isesengura rirangiye."
+  },
+  fr: {
+    title: "Tableau de bord administrateur",
+    subtitle: "Suivez l'activité, les écoles et les comptes.",
+    theme: "🌙 Mode sombre", light: "☀️ Mode clair",
+    refresh: "↻ Actualiser", mainDashboard: "Tableau principal",
+    users: "Nombre d'utilisateurs", schools: "Écoles inscrites",
+    students: "Élèves", predictions: "Prédictions",
+    schoolList: "Écoles inscrites", loadSchools: "Charger les écoles",
+    school: "École", code: "Code", level: "Niveau scolaire",
+    members: "Membres", approval: "Mode d'approbation",
+    userList: "Comptes utilisateurs", loadUsers: "Charger les utilisateurs",
+    username: "Identifiant", fullName: "Nom complet", email: "E-mail",
+    role: "Rôle",
+    privacyNote: "Cette page n'affiche ni les notes des élèves ni les mots de passe.",
+    aiTitle: "🤖 Analyse de la plateforme",
+    aiDescription: "Consultez les indicateurs et les recommandations.",
+    analyze: "Analyser la plateforme",
+    aiDisclaimer: "Cette version utilise des règles prédéfinies, pas une IA générative.",
+    securityTitle: "🔐 Accès et sécurité",
+    securityText: "L'accès administrateur est vérifié côté serveur. Les rôles scolaires doivent rester limités à leur école et à leurs affectations.",
+    loading: "Chargement...", loadError: "Chargement impossible. Vérifiez la connexion et la base.",
+    noSchools: "Aucune école trouvée.", noUsers: "Aucun utilisateur trouvé.",
+    noAnalysis: "Aucune recommandation disponible.",
+    analysisFailed: "L'analyse a échoué. Vérifiez la base de données.",
+    memberCount: "Membres", analysisReady: "Analyse terminée."
+  }
+};
+
+let currentLanguage = "en";
+
+function t(key) {
+  return translations[currentLanguage][key] || translations.en[key] || key;
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  updateThemeButton();
+  localStorage.setItem("studentpredict_language", currentLanguage);
+}
+
+function updateThemeButton() {
+  document.getElementById("themeButton").textContent =
+    document.body.classList.contains("dark") ? t("light") : t("theme");
+}
+
+function safeText(value) {
+  const span = document.createElement("span");
+  span.textContent = value == null ? "" : String(value);
+  return span.innerHTML;
+}
+
+async function getJSON(url) {
+  const response = await fetch(url, {
+    credentials: "same-origin",
+    headers: { "Accept": "application/json" }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || t("loadError"));
+  }
+  return data;
+}
+
+async function loadOverview() {
+  const data = await getJSON("/platform-admin/api/overview");
+  document.getElementById("totalUsers").textContent = data.users;
+  document.getElementById("totalSchools").textContent = data.schools;
+  document.getElementById("totalStudents").textContent = data.students;
+  document.getElementById("totalPredictions").textContent = data.predictions;
+}
+
+async function loadSchools() {
+  const body = document.getElementById("schoolsBody");
+  body.innerHTML = `<tr><td colspan="5">${safeText(t("loading"))}</td></tr>`;
+  try {
+    const data = await getJSON("/platform-admin/api/schools");
+    if (!data.schools.length) {
+      body.innerHTML = `<tr><td colspan="5">${safeText(t("noSchools"))}</td></tr>`;
+      return;
+    }
+    body.innerHTML = data.schools.map(s => `
+      <tr>
+        <td>${safeText(s.school_name)}</td>
+        <td>${safeText(s.school_code)}</td>
+        <td>${safeText(s.education_level)}</td>
+        <td>${safeText(s.members_count)}</td>
+        <td>${safeText(s.approval_mode)}</td>
+      </tr>`).join("");
+  } catch (e) {
+    body.innerHTML = `<tr><td colspan="5" class="error">${safeText(e.message)}</td></tr>`;
+  }
+}
+
+async function loadUsers() {
+  const body = document.getElementById("usersBody");
+  body.innerHTML = `<tr><td colspan="4">${safeText(t("loading"))}</td></tr>`;
+  try {
+    const data = await getJSON("/platform-admin/api/users");
+    if (!data.users.length) {
+      body.innerHTML = `<tr><td colspan="4">${safeText(t("noUsers"))}</td></tr>`;
+      return;
+    }
+    body.innerHTML = data.users.map(u => `
+      <tr>
+        <td>${safeText(u.username)}</td>
+        <td>${safeText(u.full_name)}</td>
+        <td>${safeText(u.email)}</td>
+        <td><span class="pill">${safeText(u.role)}</span></td>
+      </tr>`).join("");
+  } catch (e) {
+    body.innerHTML = `<tr><td colspan="4" class="error">${safeText(e.message)}</td></tr>`;
+  }
+}
+
+async function analyzePlatform() {
+  const output = document.getElementById("analysisResults");
+  const button = document.getElementById("analyzeButton");
+  button.disabled = true;
+  output.textContent = t("loading");
+  try {
+    const data = await getJSON("/platform-admin/api/ai-analysis");
+    if (!data.recommendations.length) {
+      output.textContent = t("noAnalysis");
+      return;
+    }
+    output.innerHTML = data.recommendations.map(r => `
+      <div class="analysis-item ${safeText(r.level)}">
+        <strong>${safeText(r.title)}</strong>
+        <p>${safeText(r.detail)}</p>
+      </div>`).join("");
+  } catch (e) {
+    output.innerHTML = `<p class="error">${safeText(e.message || t("analysisFailed"))}</p>`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.getElementById("language").addEventListener("change", e => {
+  currentLanguage = e.target.value;
+  applyLanguage();
+});
+
+document.getElementById("themeButton").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem(
+    "studentpredict_theme",
+    document.body.classList.contains("dark") ? "dark" : "light"
+  );
+  updateThemeButton();
+});
+
+document.getElementById("refreshButton").addEventListener("click", refreshAll);
+document.getElementById("analyzeButton").addEventListener("click", analyzePlatform);
+
+async function refreshAll() {
+  const message = document.getElementById("pageMessage");
+  message.textContent = t("loading");
+  try {
+    await loadOverview();
+    message.textContent = "";
+  } catch (e) {
+    message.textContent = e.message || t("loadError");
+    message.className = "small error";
+  }
+  await Promise.all([loadSchools(), loadUsers()]);
+}
+
+(function init() {
+  const savedLanguage = localStorage.getItem("studentpredict_language");
+  const savedTheme = localStorage.getItem("studentpredict_theme");
+
+  if (savedLanguage && translations[savedLanguage]) {
+    currentLanguage = savedLanguage;
+  }
+
+  document.getElementById("language").value = currentLanguage;
+  if (savedTheme === "dark") document.body.classList.add("dark");
+
+  applyLanguage();
+  refreshAll();
+})();
+</script>
+</body>
+</html>
