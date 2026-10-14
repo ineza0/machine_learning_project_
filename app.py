@@ -2,6 +2,7 @@
 import os
 import hashlib
 import secrets
+import string
 import traceback
 
 import joblib
@@ -10,6 +11,7 @@ from flask import (
     redirect, url_for, send_file, Response
 )
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.security import generate_password_hash
 
 from auth import *
 from db_config import get_db_connection
@@ -17,7 +19,6 @@ from report import generate_pdf_report, generate_excel_report
 
 
 app = Flask(__name__)
-
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 app.secret_key = os.getenv("SECRET_KEY", "change-this-secret-key")
@@ -107,9 +108,6 @@ def google_get_or_create_user(email, name):
     cur = conn.cursor(dictionary=True)
 
     try:
-        cur.execute("SHOW COLUMNS FROM users")
-        cols = [c["Field"] for c in cur.fetchall()]
-
         cur.execute(
             "SELECT username FROM users WHERE email=%s LIMIT 1",
             (email,)
@@ -125,37 +123,28 @@ def google_get_or_create_user(email, name):
         )
 
         if cur.fetchone():
-            return username
+            username = "g_" + secrets.token_hex(12)
 
         random_value = hashlib.sha256(
             secrets.token_bytes(32)
         ).hexdigest()
 
-        data = {"username": username}
-
-        for column in cols:
-            lower = column.lower()
-
-            if lower == "email":
-                data[column] = email
-            elif lower in ("name", "full_name", "fullname"):
-                data[column] = name
-            elif lower == "role":
-                data[column] = "user"
-            elif "question" in lower:
-                data[column] = "Signed up with Google"
-            elif "answer" in lower or "pass" in lower:
-                data[column] = random_value
-
-        columns_sql = ",".join(f"`{c}`" for c in data)
-        placeholders = ",".join(["%s"] * len(data))
-
         cur.execute(
-            f"INSERT INTO users ({columns_sql}) VALUES ({placeholders})",
-            tuple(data.values())
+            """
+            INSERT INTO users
+                (username, email, password, full_name, role)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                username,
+                email,
+                generate_password_hash(random_value),
+                name,
+                "user"
+            )
         )
-        conn.commit()
 
+        conn.commit()
         return username
 
     finally:
@@ -183,7 +172,7 @@ def google_callback():
             oauth.google.authorize_access_token().get("userinfo") or {}
         )
 
-        email = (info.get("email") or "").lower()
+        email = (info.get("email") or "").strip().lower()
 
         if not email or not info.get("email_verified"):
             return redirect("/login?error=google_unverified")
@@ -265,7 +254,9 @@ def api_login():
         ok, msg = login_user(username, password)
 
         if ok:
+            session.clear()
             session["username"] = username
+
             return jsonify({
                 "success": True,
                 "message": msg,
@@ -282,7 +273,36 @@ def api_login():
 
 
 # ---------------------------------------------------------
-# Signup API: invitation-based school registration
+# School code generator
+# ---------------------------------------------------------
+def generate_unique_school_code(cur):
+    alphabet = string.ascii_uppercase + string.digits
+
+    for _ in range(10):
+        code = "SP-" + "".join(
+            secrets.choice(alphabet) for _ in range(10)
+        )
+
+        cur.execute(
+            "SELECT id FROM schools WHERE school_code=%s LIMIT 1",
+            (code,)
+        )
+
+        if not cur.fetchone():
+            return code
+
+    raise RuntimeError("Could not generate a unique school code.")
+
+
+# ---------------------------------------------------------
+# Signup API
+#
+# HEADMASTER:
+#   Create user + school + school membership in one transaction.
+#
+# TEACHER / STUDENT:
+#   Validate invitation, create user + membership, and consume
+#   the invitation in one transaction.
 # ---------------------------------------------------------
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
@@ -296,15 +316,27 @@ def api_signup():
         username = str(data.get("username", "")).strip()
         email = str(data.get("email", "")).strip().lower()
         password = data.get("password", "")
-        invitation_code = str(
-            data.get("invitation_code", "")
-        ).strip()
         requested_role = str(data.get("role", "")).strip().upper()
         terms = data.get("terms", False)
 
-        if not all([
-            full_name, username, email, password, invitation_code
-        ]):
+        invitation_code = str(
+            data.get("invitation_code", "")
+        ).strip()
+
+        school_name = str(
+            data.get("school_name", "")
+        ).strip()
+
+        education_level = str(
+            data.get("education_level", "")
+        ).strip().upper()
+
+        approval_mode = str(
+            data.get("approval_mode", "HEADMASTER")
+        ).strip().upper()
+
+        # Basic required fields.
+        if not all([full_name, username, email, password]):
             return jsonify({
                 "success": False,
                 "message": "Please complete all required fields."
@@ -316,13 +348,19 @@ def api_signup():
                 "message": "Password must contain at least 8 characters."
             }), 400
 
-        if len(full_name) > 200 or len(username) > 100 or len(email) > 150:
+        if (
+            len(full_name) > 200
+            or len(username) > 100
+            or len(email) > 150
+        ):
             return jsonify({
                 "success": False,
                 "message": "One or more fields are too long."
             }), 400
 
-        if requested_role not in ("STUDENT", "TEACHER", "HEADMASTER"):
+        if requested_role not in (
+            "STUDENT", "TEACHER", "HEADMASTER"
+        ):
             return jsonify({
                 "success": False,
                 "message": "Choose a valid account role."
@@ -334,164 +372,294 @@ def api_signup():
                 "message": "Please confirm the account information."
             }), 400
 
-        # Check the invitation in the database.
+        # Headmaster creates a school instead of using an invitation.
+        if requested_role == "HEADMASTER":
+            valid_levels = {
+                "PRIMARY", "O_LEVEL", "A_LEVEL",
+                "UNIVERSITY", "MIXED"
+            }
+
+            if not school_name:
+                return jsonify({
+                    "success": False,
+                    "message": "School name is required."
+                }), 400
+
+            if len(school_name) > 200:
+                return jsonify({
+                    "success": False,
+                    "message": "School name is too long."
+                }), 400
+
+            if education_level not in valid_levels:
+                return jsonify({
+                    "success": False,
+                    "message": "Choose a valid education level."
+                }), 400
+
+            if approval_mode not in ("TEACHER", "HEADMASTER"):
+                return jsonify({
+                    "success": False,
+                    "message": "Choose a valid grade approval method."
+                }), 400
+
+        # Teacher and Student must use an invitation.
+        elif not invitation_code:
+            return jsonify({
+                "success": False,
+                "message": "School invitation code is required."
+            }), 400
+
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
 
-        cur.execute(
-            """
-            SELECT id, school_id, invited_role, email, class_id,
-                   used_by, expires_at
-            FROM school_invitations
-            WHERE invitation_code = %s
-            LIMIT 1
-            """,
-            (invitation_code,)
-        )
-        invitation = cur.fetchone()
+        # Start a transaction before creating any records.
+        conn.start_transaction()
 
-        if not invitation:
-            return jsonify({
-                "success": False,
-                "message": "Invalid school invitation code."
-            }), 400
-
-        if invitation["used_by"] is not None:
-            return jsonify({
-                "success": False,
-                "message": "This invitation code has already been used."
-            }), 400
-
-        cur.execute("SELECT CURRENT_TIMESTAMP AS db_now")
-        db_now = cur.fetchone()["db_now"]
-
-        expires_at = invitation["expires_at"]
-
-        if expires_at is not None and expires_at <= db_now:
-            return jsonify({
-                "success": False,
-                "message": "This invitation code has expired."
-            }), 400
-
-        invited_role = str(invitation["invited_role"]).upper()
-
-        # The role in the database invitation is authoritative.
-        if requested_role != invited_role:
-            return jsonify({
-                "success": False,
-                "message": (
-                    "Your selected role does not match the invitation."
-                )
-            }), 403
-
-        invited_email = (invitation.get("email") or "").strip().lower()
-
-        if invited_email and invited_email != email:
-            return jsonify({
-                "success": False,
-                "message": (
-                    "This invitation is assigned to another email address."
-                )
-            }), 403
-
-        school_id = invitation["school_id"]
-        class_id = invitation["class_id"]
-        invitation_id = invitation["id"]
-
-        cur.close()
-        cur = None
-        conn.close()
-        conn = None
-
-        # Create the account using the existing auth.py function.
-        # It should hash the password and return (success, message).
-        ok, msg = register_user(
-            username,
-            password,
-            None,
-            None,
-            full_name,
-            email
-        )
-
-        if not ok:
-            return jsonify({
-                "success": False,
-                "message": str(msg or "Could not create the account.")
-            }), 400
-
-        # Add school membership and, for students, their student profile.
-        conn = get_db_connection()
-        cur = conn.cursor(dictionary=True)
-
+        # Check username and email before inserting.
         cur.execute(
             "SELECT id FROM users WHERE username=%s LIMIT 1",
             (username,)
         )
-        user = cur.fetchone()
 
-        if not user:
-            raise RuntimeError("User record could not be found.")
-
-        user_id = user["id"]
-
-        cur.execute(
-            """
-            UPDATE users
-            SET full_name=%s, email=%s, role=%s
-            WHERE id=%s
-            """,
-            (full_name, email, invited_role.lower(), user_id)
-        )
+        if cur.fetchone():
+            conn.rollback()
+            return jsonify({
+                "success": False,
+                "message": "Username already exists."
+            }), 409
 
         cur.execute(
-            """
-            INSERT INTO school_members
-                (school_id, user_id, member_role)
-            VALUES (%s, %s, %s)
-            """,
-            (school_id, user_id, invited_role)
+            "SELECT id FROM users WHERE email=%s LIMIT 1",
+            (email,)
         )
 
-        if invited_role == "STUDENT":
+        if cur.fetchone():
+            conn.rollback()
+            return jsonify({
+                "success": False,
+                "message": "Email address already exists."
+            }), 409
+
+        school_id = None
+        class_id = None
+        invitation_id = None
+        invited_role = requested_role
+
+        # -----------------------------------------------------
+        # Validate invitation for Student / Teacher.
+        # FOR UPDATE helps prevent concurrent use of one code.
+        # -----------------------------------------------------
+        if requested_role in ("STUDENT", "TEACHER"):
             cur.execute(
                 """
-                INSERT INTO students
-                    (student_name, user_id, school_id, class_id)
-                VALUES (%s, %s, %s, %s)
+                SELECT
+                    id, school_id, invited_role, email,
+                    class_id, used_by, expires_at
+                FROM school_invitations
+                WHERE invitation_code=%s
+                LIMIT 1
+                FOR UPDATE
                 """,
-                (full_name, user_id, school_id, class_id)
+                (invitation_code,)
             )
 
-        # Only mark the invitation used if it is still available.
+            invitation = cur.fetchone()
+
+            if not invitation:
+                conn.rollback()
+                return jsonify({
+                    "success": False,
+                    "message": "Invalid school invitation code."
+                }), 400
+
+            if invitation["used_by"] is not None:
+                conn.rollback()
+                return jsonify({
+                    "success": False,
+                    "message": "This invitation code has already been used."
+                }), 400
+
+            cur.execute(
+                "SELECT CURRENT_TIMESTAMP AS db_now"
+            )
+            db_now = cur.fetchone()["db_now"]
+
+            expires_at = invitation.get("expires_at")
+
+            if expires_at is not None and expires_at <= db_now:
+                conn.rollback()
+                return jsonify({
+                    "success": False,
+                    "message": "This invitation code has expired."
+                }), 400
+
+            invited_role = str(
+                invitation["invited_role"]
+            ).strip().upper()
+
+            # A headmaster cannot be created using an ordinary invite.
+            if invited_role not in ("STUDENT", "TEACHER"):
+                conn.rollback()
+                return jsonify({
+                    "success": False,
+                    "message": "This invitation is not valid for signup."
+                }), 403
+
+            # The invitation in the database determines the role.
+            if requested_role != invited_role:
+                conn.rollback()
+                return jsonify({
+                    "success": False,
+                    "message": "Your selected role does not match the invitation."
+                }), 403
+
+            invited_email = (
+                invitation.get("email") or ""
+            ).strip().lower()
+
+            if invited_email and invited_email != email:
+                conn.rollback()
+                return jsonify({
+                    "success": False,
+                    "message": (
+                        "This invitation is assigned to another email address."
+                    )
+                }), 403
+
+            school_id = invitation["school_id"]
+            class_id = invitation["class_id"]
+            invitation_id = invitation["id"]
+
+            # Make sure the referenced school still exists.
+            cur.execute(
+                "SELECT id FROM schools WHERE id=%s LIMIT 1",
+                (school_id,)
+            )
+
+            if not cur.fetchone():
+                conn.rollback()
+                return jsonify({
+                    "success": False,
+                    "message": "The school for this invitation was not found."
+                }), 400
+
+        # -----------------------------------------------------
+        # Create the account inside the same transaction.
+        # We do not call register_user() here because that
+        # function commits independently.
+        # -----------------------------------------------------
+        password_hash = generate_password_hash(password)
+
         cur.execute(
             """
-            UPDATE school_invitations
-            SET used_by=%s, used_at=CURRENT_TIMESTAMP
-            WHERE id=%s
-              AND used_by IS NULL
-              AND (
-                    expires_at IS NULL
-                    OR expires_at > CURRENT_TIMESTAMP
-              )
+            INSERT INTO users
+                (username, email, password, full_name, role)
+            VALUES (%s, %s, %s, %s, %s)
             """,
-            (user_id, invitation_id)
+            (
+                username,
+                email,
+                password_hash,
+                full_name,
+                invited_role.lower()
+            )
         )
 
-        if cur.rowcount != 1:
-            raise RuntimeError(
-                "The invitation was already used or has expired."
+        user_id = cur.lastrowid
+
+        # -----------------------------------------------------
+        # HEADMASTER: create school and membership.
+        # -----------------------------------------------------
+        if invited_role == "HEADMASTER":
+            school_code = generate_unique_school_code(cur)
+
+            cur.execute(
+                """
+                INSERT INTO schools
+                    (
+                        school_name, school_code,
+                        education_level, approval_mode
+                    )
+                VALUES (%s, %s, %s, %s)
+                """,
+                (
+                    school_name,
+                    school_code,
+                    education_level,
+                    approval_mode
+                )
             )
 
+            school_id = cur.lastrowid
+
+            cur.execute(
+                """
+                INSERT INTO school_members
+                    (school_id, user_id, member_role)
+                VALUES (%s, %s, 'HEADMASTER')
+                """,
+                (school_id, user_id)
+            )
+
+        # -----------------------------------------------------
+        # TEACHER / STUDENT: join the invited school.
+        # -----------------------------------------------------
+        else:
+            cur.execute(
+                """
+                INSERT INTO school_members
+                    (school_id, user_id, member_role)
+                VALUES (%s, %s, %s)
+                """,
+                (school_id, user_id, invited_role)
+            )
+
+            if invited_role == "STUDENT":
+                cur.execute(
+                    """
+                    INSERT INTO students
+                        (student_name, user_id, school_id, class_id)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (full_name, user_id, school_id, class_id)
+                )
+
+            # Consume the invitation in the same transaction.
+            cur.execute(
+                """
+                UPDATE school_invitations
+                SET used_by=%s,
+                    used_at=CURRENT_TIMESTAMP
+                WHERE id=%s
+                  AND used_by IS NULL
+                  AND (
+                      expires_at IS NULL
+                      OR expires_at > CURRENT_TIMESTAMP
+                  )
+                """,
+                (user_id, invitation_id)
+            )
+
+            if cur.rowcount != 1:
+                raise RuntimeError(
+                    "The invitation was already used or has expired."
+                )
+
+        # All required records succeeded; commit together.
         conn.commit()
 
         return jsonify({
             "success": True,
-            "message": "Account created successfully. You can now log in.",
+            "message": (
+                "Account and school created successfully. You can now log in."
+                if invited_role == "HEADMASTER"
+                else "Account created successfully. You can now log in."
+            ),
             "redirect": url_for("login_page")
         }), 201
 
-    except Exception as e:
+    except Exception:
         if conn:
             try:
                 conn.rollback()
@@ -503,8 +671,8 @@ def api_signup():
         return jsonify({
             "success": False,
             "message": (
-                "Registration failed. Check the invitation and account "
-                "details, then contact the administrator if the problem persists."
+                "Registration failed. Please check your details "
+                "and try again."
             )
         }), 500
 
@@ -682,10 +850,10 @@ def predict():
         prediction_value = int(model.predict(features)[0])
 
         probability = 0.0
+
         if hasattr(model, "predict_proba"):
-            probability = float(
-                model.predict_proba(features)[0][prediction_value] * 100
-            )
+            probabilities = model.predict_proba(features)[0]
+            probability = float(probabilities[prediction_value] * 100)
 
         result = "PASS" if prediction_value == 1 else "FAIL"
 
@@ -700,6 +868,7 @@ def predict():
             """,
             (student_name,)
         )
+
         row = cur.fetchone()
 
         if row:
@@ -896,7 +1065,9 @@ def stats():
             "total": total,
             "passed": passed,
             "failed": failed,
-            "pass_rate": round(passed / total * 100, 2) if total else 0,
+            "pass_rate": round(
+                passed / total * 100, 2
+            ) if total else 0,
             "subjects": subjects
         })
 
